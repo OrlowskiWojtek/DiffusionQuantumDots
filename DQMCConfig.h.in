@@ -1,0 +1,2 @@
+#define DiffusionQuantumMC_VERSION_MAJOR @DiffusionQuantumMC_VERSION_MAJOR@
+#define DiffusionQuantumMC_VERSION_MINOR @DiffusionQuantumMC_VERSION_MINOR@
