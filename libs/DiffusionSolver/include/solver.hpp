@@ -9,11 +9,12 @@ public:
     DiffusionQuantumSolver();
     ~DiffusionQuantumSolver();
     
-    void load();
+    void load_params();
     void solve();
 private:
     
     DiffusionWalkers walkers;
+    DiffusionQuantumParams params;
 
     void init();
     void diffuse();

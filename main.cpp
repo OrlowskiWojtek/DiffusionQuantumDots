@@ -1,5 +1,5 @@
 #include "DQMCConfig.h"
-#include "params.hpp"
+#include "solver.hpp"
 
 #include <iomanip>
 #include <iostream>
@@ -14,6 +14,9 @@ int main() {
               << "VERSION: " << DiffusionQuantumMC_VERSION_MAJOR << "."
               << DiffusionQuantumMC_VERSION_MINOR
               << std::setw(OUTPUT_TEXT_WIDTH / 2 - 2) << "|" << std::endl;
+
+    DiffusionQuantumSolver solver;
+    solver.solve();
 
     return 0;
 }
