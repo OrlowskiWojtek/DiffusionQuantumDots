@@ -1,10 +1,12 @@
 #include "solver.hpp"
 
-DiffusionQuantumSolver::DiffusionQuantumSolver() {}
+DiffusionQuantumSolver::DiffusionQuantumSolver()
+    : walkers(std::make_unique<DiffusionWalkers>()) {}
+
 DiffusionQuantumSolver::~DiffusionQuantumSolver() {}
 
 // TODO: init also filenames and other solve related systems
-void DiffusionQuantumSolver::init() { walkers.init_walkers(params); }
+void DiffusionQuantumSolver::init() { walkers->init_walkers(params); }
 
 void DiffusionQuantumSolver::solve() {
 
@@ -22,11 +24,13 @@ void DiffusionQuantumSolver::solve() {
     }
 }
 
-void DiffusionQuantumSolver::diffuse() { walkers.diffuse(); }
+void DiffusionQuantumSolver::diffuse() { walkers->diffuse(); }
 
 void DiffusionQuantumSolver::branch() {
-    walkers.eval_p();
-    walkers.branch();
+    walkers->eval_p();
+    walkers->branch();
 }
 
-void DiffusionQuantumSolver::accumulate() {}
+void DiffusionQuantumSolver::accumulate() {
+    walkers->generate_histogram(params.n_bins);
+}

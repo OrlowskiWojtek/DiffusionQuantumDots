@@ -3,6 +3,7 @@
 
 #include "params.hpp"
 #include "walkers.hpp"
+#include <memory>
 
 class DiffusionQuantumSolver{
 public:
@@ -13,7 +14,7 @@ public:
     void solve();
 private:
     
-    DiffusionWalkers walkers;
+    std::shared_ptr<DiffusionWalkers> walkers;
     DiffusionQuantumParams params;
 
     void init();

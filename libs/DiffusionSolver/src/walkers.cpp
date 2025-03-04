@@ -1,9 +1,9 @@
 #include "walkers.hpp"
+#include "params.hpp"
 #include <algorithm>
 #include <boost/random/uniform_real_distribution.hpp>
-#include <numeric>
 
-DiffusionWalkers::DiffusionWalkers() {}
+DiffusionWalkers::DiffusionWalkers(): results(std::make_unique<DiffusionQuantumResults>()) {}
 DiffusionWalkers::~DiffusionWalkers() {}
 
 void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) {
@@ -51,18 +51,20 @@ void DiffusionWalkers::branch() {
     }
 
     num_alive = new_alive;
-    std::copy(copy_walkers.begin(), copy_walkers.end(), walkers.begin()); // TODO : optimize so it needs no copy
+    std::copy(copy_walkers.begin(),
+              copy_walkers.end(),
+              walkers.begin()); // TODO : optimize so it needs no copy
     update_growth_estimator();
 }
 
 void DiffusionWalkers::set_alive(int N, double x) {
-    for (int i = new_alive; i < new_alive + N; i++) {
+    for (size_t i = new_alive; i < new_alive + N; i++) {
         if (i >= walkers.size()) {
 
             std::cout << "Error: The programme ran out of allocated memory. "
                          "Required resize."
                       << std::endl;
-            walkers.push_back(walker());
+            walkers.emplace_back();
             walkers.back().x = x; // TODO -> resize also other containers like p_i and copy_walkers
 
             continue;
@@ -86,10 +88,11 @@ void DiffusionWalkers::update_growth_estimator() {
         Et / static_cast<double>(current_it) -
         1. / d_tau * std::log(static_cast<double>(num_alive) / static_cast<double>(target_alive));
 
-    std::cout << Et / static_cast<double>(current_it) << "\n";
+    std::cout << E_t / static_cast<double>(num_alive) << "\n";
     current_it++;
 }
 
-void DiffusionWalkers::generate_hist(int n_bins){
-
+void DiffusionWalkers::generate_histogram(int n_bins) {
+ 
+    results->add_histogram();
 }
