@@ -35,13 +35,19 @@ private:
     boost::random::uniform_real_distribution<double> uniform_generator = boost::random::uniform_real_distribution<double>(0,1);
 
     double growth_estimator; // TODO switch to results class
+    double Et;
+    int current_it;
     
     double d_tau;
     std::function<double(double)> V;
 
     size_t num_alive;
+    size_t new_alive;
+    size_t target_alive;
 
-    void set_alive(int new_alive);
+    void set_alive(int new_alive, double position);
+    void update_growth_estimator();
+    void generate_hist(int n_bins);
 };
 
 #endif
