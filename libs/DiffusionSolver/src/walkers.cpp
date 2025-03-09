@@ -109,7 +109,7 @@ void DiffusionWalkers::count() {
         hist[bin]++;
     }
 
-    if (current_it == 100000) {
+    if (current_it == 1000 || current_it == 10000 || current_it == 100000) {
         save_progress();
     }
 }

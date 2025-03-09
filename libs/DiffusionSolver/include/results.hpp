@@ -12,6 +12,7 @@ public:
 
     size_t num_alive;
 
+    void add_energy(double E);
     void init_x(double x_min, double x_max, int n);
     void add_histogram(double time, int time_step, const std::vector<int64_t>& hist);
 private:  
