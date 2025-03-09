@@ -20,8 +20,8 @@ public:
     void branch();
     void eval_p();
 
+    void count();
     DiffusionQuantumResults get_results();
-    void generate_histogram(int n_bins);
 
 private:
     struct walker { // TODO -> add another dimensions
@@ -31,6 +31,7 @@ private:
     std::vector<walker> walkers;
     std::vector<walker> copy_walkers;
     std::vector<double> p_values;
+    std::vector<int64_t> hist;
 
     boost::random::mt19937 rng;
     boost::random::normal_distribution<double> movement_generator;
@@ -39,6 +40,7 @@ private:
     boost::random::uniform_real_distribution<double> uniform_generator =
         boost::random::uniform_real_distribution<double>(0, 1);
 
+    double xmin, xmax;
     double growth_estimator; // TODO switch to results class
     double Et;
     int current_it;
@@ -50,10 +52,14 @@ private:
     size_t new_alive;
     size_t target_alive;
 
+    size_t n_bins;
+
     std::unique_ptr<DiffusionQuantumResults> results;
 
     void set_alive(int new_alive, double position);
     void update_growth_estimator();
+
+    void save_progress();
 };
 
 #endif

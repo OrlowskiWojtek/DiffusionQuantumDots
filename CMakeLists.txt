@@ -12,7 +12,7 @@ set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
 
 # Adding compiler flags
 target_compile_options(compiler_flags INTERFACE
-                        "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-Wall;-Wextra;-Wshadow;-Wformat=2;-Wunused;-Werror>>"
+                        "$<${gcc_like_cxx}:$<BUILD_INTERFACE:-Wall;-Wextra;-Wformat=2;-Wunused;-Werror>>"
                         "$<${msvc_cxx}:$<BUILD_INTERFACE:-W3>>")
 
 configure_file(DQMCConfig.h.in DQMCConfig.h)

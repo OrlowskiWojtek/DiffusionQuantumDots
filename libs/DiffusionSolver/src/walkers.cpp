@@ -3,28 +3,37 @@
 #include <algorithm>
 #include <boost/random/uniform_real_distribution.hpp>
 
-DiffusionWalkers::DiffusionWalkers(): results(std::make_unique<DiffusionQuantumResults>()) {}
+DiffusionWalkers::DiffusionWalkers()
+    : results(std::make_unique<DiffusionQuantumResults>()) {}
 DiffusionWalkers::~DiffusionWalkers() {}
 
 void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) {
+
+    xmin = params.xmin;
+    xmax = params.xmax;
+    d_tau = params.d_tau;
+    V = params.pot;
+    num_alive = params.n0_walkers;
+    target_alive = params.n0_walkers;
+    n_bins = params.n_bins;
+
     walkers.resize(params.nmax_walkers);
     copy_walkers.resize(params.nmax_walkers);
     p_values.resize(params.nmax_walkers);
+    hist.resize(n_bins);
 
     boost::random::mt19937 rng;
-    boost::random::uniform_real_distribution<> initial_dist(params.xmin, params.xmax);
+    boost::random::uniform_real_distribution<> initial_dist(xmin, xmax);
 
     std::for_each(walkers.begin(), walkers.end(), [&](walker &wlk) { wlk.x = initial_dist(rng); });
 
     movement_generator = boost::random::normal_distribution<double>(
         0, std::sqrt(params.d_tau)); // TODO remember about d factor in 3d space
 
-    d_tau = params.d_tau;
-    V = params.pot;
-    num_alive = params.n0_walkers;
-    target_alive = params.n0_walkers;
     Et = 0;
     current_it = 1;
+
+    results->init_x(xmin, xmax, n_bins);
 }
 
 void DiffusionWalkers::diffuse() {
@@ -54,7 +63,9 @@ void DiffusionWalkers::branch() {
     std::copy(copy_walkers.begin(),
               copy_walkers.end(),
               walkers.begin()); // TODO : optimize so it needs no copy
+
     update_growth_estimator();
+    current_it++;
 }
 
 void DiffusionWalkers::set_alive(int N, double x) {
@@ -87,12 +98,22 @@ void DiffusionWalkers::update_growth_estimator() {
     growth_estimator =
         Et / static_cast<double>(current_it) -
         1. / d_tau * std::log(static_cast<double>(num_alive) / static_cast<double>(target_alive));
-
-    std::cout << E_t / static_cast<double>(num_alive) << "\n";
-    current_it++;
 }
 
-void DiffusionWalkers::generate_histogram(int n_bins) {
- 
-    results->add_histogram();
+void DiffusionWalkers::count() {
+    for (size_t i = 0; i < num_alive; i++) {
+        if (walkers[i].x < xmin || walkers[i].x > xmax) {
+            continue;
+        }
+        int bin = static_cast<int>((xmax - walkers[i].x) / (xmax - xmin) * n_bins);
+        hist[bin]++;
+    }
+
+    if (current_it == 100000) {
+        save_progress();
+    }
+}
+
+void DiffusionWalkers::save_progress() {
+    results->add_histogram(static_cast<double>(current_it) * d_tau, current_it, hist);
 }

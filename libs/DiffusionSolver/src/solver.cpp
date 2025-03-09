@@ -20,7 +20,9 @@ void DiffusionQuantumSolver::solve() {
     for (int i = 0; i < params.total_time_steps; i++) {
         diffuse();
         branch();
-        accumulate();
+        if(i > params.total_time_steps / 2) {
+            accumulate();
+        }
     }
 }
 
@@ -32,5 +34,5 @@ void DiffusionQuantumSolver::branch() {
 }
 
 void DiffusionQuantumSolver::accumulate() {
-    walkers->generate_histogram(params.n_bins);
+    walkers->count();
 }
