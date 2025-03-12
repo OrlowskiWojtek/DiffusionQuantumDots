@@ -3,6 +3,7 @@
 
 #include "params.hpp"
 #include "walkers.hpp"
+#include "blocking.hpp"
 #include <memory>
 
 class DiffusionQuantumSolver{
@@ -15,12 +16,17 @@ public:
 private:
     
     std::shared_ptr<DiffusionWalkers> walkers;
+    std::shared_ptr<EnergyBlockingAnalyzer> block_analyzer;
+
     DiffusionQuantumParams params;
+    DiffusionQuantumResults final_results;
 
     void init();
     void diffuse();
     void branch();
     void accumulate();
+
+    size_t save_counter;
 };
 
 #endif

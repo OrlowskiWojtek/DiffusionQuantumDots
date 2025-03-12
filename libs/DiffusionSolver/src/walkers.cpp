@@ -2,6 +2,7 @@
 #include "params.hpp"
 #include <algorithm>
 #include <boost/random/uniform_real_distribution.hpp>
+#include <numeric>
 
 DiffusionWalkers::DiffusionWalkers()
     : results(std::make_unique<DiffusionQuantumResults>()) {}
@@ -16,6 +17,7 @@ void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) {
     num_alive = params.n0_walkers;
     target_alive = params.n0_walkers;
     n_bins = params.n_bins;
+    calibrating = params.blocks_calibration;
 
     walkers.resize(params.nmax_walkers);
     copy_walkers.resize(params.nmax_walkers);
@@ -31,7 +33,10 @@ void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) {
         0, std::sqrt(params.d_tau)); // TODO remember about d factor in 3d space
 
     Et = 0;
-    current_it = 1;
+    ground_state_estimator = 0.;
+
+    current_it = 0;
+    accumulation_it = 0;
 
     results->init_x(xmin, xmax, n_bins);
 }
@@ -42,6 +47,8 @@ void DiffusionWalkers::diffuse() {
     for (size_t i = 0; i < num_alive; i++) {
         walkers[i].x += movement_generator(rng);
     }
+
+    current_it++;
 }
 
 void DiffusionWalkers::eval_p() {
@@ -65,7 +72,6 @@ void DiffusionWalkers::branch() {
               walkers.begin()); // TODO : optimize so it needs no copy
 
     update_growth_estimator();
-    current_it++;
 }
 
 void DiffusionWalkers::set_alive(int N, double x) {
@@ -87,13 +93,12 @@ void DiffusionWalkers::set_alive(int N, double x) {
 }
 
 void DiffusionWalkers::update_growth_estimator() {
-    double E_t = 0;
+    current_Et = std::accumulate(walkers.begin(),
+                                 walkers.begin() + num_alive,
+                                 0.,
+                                 [this](double acc, const walker &wlk) { return acc + V(wlk.x); }) / static_cast<double>(num_alive);
 
-    for (size_t i = 0; i < num_alive; i++) {
-        E_t += V(walkers[i].x);
-    }
-
-    Et += E_t / static_cast<double>(num_alive);
+    Et += current_Et;
 
     growth_estimator =
         Et / static_cast<double>(current_it) -
@@ -109,11 +114,17 @@ void DiffusionWalkers::count() {
         hist[bin]++;
     }
 
-    if (current_it == 1000 || current_it == 10000 || current_it == 100000) {
-        save_progress();
+    ground_state_estimator += current_Et;
+    accumulation_it++;
+
+    if (calibrating) {
+        results->add_energy(current_Et);
     }
 }
 
 void DiffusionWalkers::save_progress() {
-    results->add_histogram(static_cast<double>(current_it) * d_tau, current_it, hist);
+    results->add_histogram(
+        static_cast<double>(current_it) * d_tau, current_it, ground_state_estimator, hist);
 }
+
+DiffusionQuantumResults &DiffusionWalkers::get_results() { return *results; }

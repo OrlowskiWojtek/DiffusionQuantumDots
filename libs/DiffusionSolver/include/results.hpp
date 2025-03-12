@@ -1,7 +1,6 @@
 #ifndef DIFFUSION_QUANTUM_RESULTS_HPP
 #define DIFFUSION_QUANTUM_RESULTS_HPP
 
-#include <cstddef>
 #include <cstdint>
 #include <vector>
 
@@ -10,24 +9,27 @@ public:
     DiffusionQuantumResults();
     ~DiffusionQuantumResults();
 
-    size_t num_alive;
-
     void add_energy(double E);
     void init_x(double x_min, double x_max, int n);
-    void add_histogram(double time, int time_step, const std::vector<int64_t>& hist);
+    void add_histogram(double time, int time_step, double energy, const std::vector<int64_t>& hist);
+    void save_to_file();
+
+    const std::vector<double>& get_energies();
 private:  
     
     struct HistData{
         double time;
         int time_step;
+        double energy;
         std::vector<double> psi;
 
-        HistData(double time, int time_step, std::vector<double> psi):time(time), time_step(time_step), psi(psi){};
+        HistData(double time, int time_step, double ene, std::vector<double> psi):time(time), time_step(time_step), energy(ene), psi(psi){};
     };
 
     std::vector<double> x;
     std::vector<HistData> time_evolution;
 
+    std::vector<double> calibration_energies;
 };
 
 #endif

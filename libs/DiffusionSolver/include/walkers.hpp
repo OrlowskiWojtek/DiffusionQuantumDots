@@ -21,7 +21,9 @@ public:
     void eval_p();
 
     void count();
-    DiffusionQuantumResults get_results();
+    void save_progress();
+
+    DiffusionQuantumResults& get_results();
 
 private:
     struct walker { // TODO -> add another dimensions
@@ -42,8 +44,13 @@ private:
 
     double xmin, xmax;
     double growth_estimator; // TODO switch to results class
+    double ground_state_estimator; 
     double Et;
+    double current_Et;
+    bool calibrating;
+
     int current_it;
+    int accumulation_it;
 
     double d_tau;
     std::function<double(double)> V;
@@ -58,8 +65,6 @@ private:
 
     void set_alive(int new_alive, double position);
     void update_growth_estimator();
-
-    void save_progress();
 };
 
 #endif

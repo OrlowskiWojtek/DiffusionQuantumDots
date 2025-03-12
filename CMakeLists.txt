@@ -4,7 +4,7 @@ project(DiffusionQuantumMC VERSION 1.0)
 
 # specify the C++ standard
 add_library(compiler_flags INTERFACE)
-target_compile_features(compiler_flags INTERFACE cxx_std_14)
+target_compile_features(compiler_flags INTERFACE cxx_std_23)
 
 # List of compilers
 set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
