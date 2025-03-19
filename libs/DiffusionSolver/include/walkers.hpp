@@ -45,6 +45,11 @@ private:
     double xmin, xmax;
     double growth_estimator; // TODO switch to results class
     double ground_state_estimator; 
+
+    double ground_mean;
+    double ground_mean2;
+    int blocks_passed;
+
     double Et;
     double current_Et;
     bool calibrating;
@@ -60,6 +65,7 @@ private:
     size_t target_alive;
 
     size_t n_bins;
+    size_t block_size;
 
     std::unique_ptr<DiffusionQuantumResults> results;
 

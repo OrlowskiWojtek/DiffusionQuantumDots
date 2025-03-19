@@ -12,7 +12,7 @@ public:
 
 private:
     std::vector<int> block_sizes;
-    std::vector<double> reblocked;
+    std::vector<double> stderrs;
 
     void save_to_file();
 };

@@ -1,4 +1,4 @@
-add_library(DiffusionSolver src/results.cpp src/solver.cpp src/walkers.cpp src/blocking.cpp)
+add_library(DiffusionSolver src/results.cpp src/solver.cpp src/walkers.cpp src/blocking.cpp src/params.cpp)
 
 # Optimize this library
 target_compile_options(DiffusionSolver PRIVATE

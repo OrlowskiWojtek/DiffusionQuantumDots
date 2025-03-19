@@ -18,6 +18,7 @@ void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) {
     target_alive = params.n0_walkers;
     n_bins = params.n_bins;
     calibrating = params.blocks_calibration;
+    block_size = params.n_block;
 
     walkers.resize(params.nmax_walkers);
     copy_walkers.resize(params.nmax_walkers);
@@ -37,6 +38,7 @@ void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) {
 
     current_it = 0;
     accumulation_it = 0;
+    blocks_passed = 0;
 
     results->init_x(xmin, xmax, n_bins);
 }
@@ -53,6 +55,10 @@ void DiffusionWalkers::diffuse() {
 
 void DiffusionWalkers::eval_p() {
     for (size_t i = 0; i < num_alive; i++) {
+        if(walkers[i].x * copy_walkers[i].x < 0){
+            p_values[i] = 0;
+            continue;
+        }
         p_values[i] =
             std::exp(-d_tau * ((V(walkers[i].x) + V(copy_walkers[i].x)) / 2. - growth_estimator));
     }
@@ -119,12 +125,22 @@ void DiffusionWalkers::count() {
 
     if (calibrating) {
         results->add_energy(current_Et);
+        return;
+    }
+
+    if(static_cast<size_t>(accumulation_it) == block_size){
+        ground_mean += ground_state_estimator / accumulation_it;
+        ground_mean2 += std::pow(ground_state_estimator / accumulation_it, 2);
+
+        ground_state_estimator = 0;
+        accumulation_it = 0;
+        blocks_passed += 1;
     }
 }
 
 void DiffusionWalkers::save_progress() {
     results->add_histogram(
-        static_cast<double>(current_it) * d_tau, current_it, ground_state_estimator, hist);
+        static_cast<double>(current_it) * d_tau, current_it, current_Et, hist);
 }
 
 DiffusionQuantumResults &DiffusionWalkers::get_results() { return *results; }
