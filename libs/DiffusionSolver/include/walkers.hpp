@@ -50,8 +50,8 @@ private:
     double ground_mean2;
     int blocks_passed;
 
-    double Et;
     double current_Et;
+    double Eblock; // TODO
     bool calibrating;
 
     int current_it;
@@ -59,6 +59,7 @@ private:
 
     double d_tau;
     std::function<double(double)> V;
+    std::vector<double> nodes;
 
     size_t num_alive;
     size_t new_alive;
@@ -71,6 +72,7 @@ private:
 
     void set_alive(int new_alive, double position);
     void update_growth_estimator();
+    bool apply_nodes(int walker_idx);
 };
 
 #endif

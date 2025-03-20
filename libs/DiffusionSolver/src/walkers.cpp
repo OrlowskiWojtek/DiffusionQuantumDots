@@ -19,6 +19,7 @@ void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) {
     n_bins = params.n_bins;
     calibrating = params.blocks_calibration;
     block_size = params.n_block;
+    nodes = params.nodes;
 
     walkers.resize(params.nmax_walkers);
     copy_walkers.resize(params.nmax_walkers);
@@ -33,7 +34,8 @@ void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) {
     movement_generator = boost::random::normal_distribution<double>(
         0, std::sqrt(params.d_tau)); // TODO remember about d factor in 3d space
 
-    Et = 0;
+    growth_estimator = 0;
+    Eblock = 0;
     ground_state_estimator = 0.;
 
     current_it = 0;
@@ -44,7 +46,7 @@ void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) {
 }
 
 void DiffusionWalkers::diffuse() {
-    std::copy(walkers.begin(), walkers.end(), this->copy_walkers.begin());
+    std::copy(walkers.begin(), walkers.begin() + num_alive, this->copy_walkers.begin());
 
     for (size_t i = 0; i < num_alive; i++) {
         walkers[i].x += movement_generator(rng);
@@ -55,13 +57,22 @@ void DiffusionWalkers::diffuse() {
 
 void DiffusionWalkers::eval_p() {
     for (size_t i = 0; i < num_alive; i++) {
-        if(walkers[i].x * copy_walkers[i].x < 0){
-            p_values[i] = 0;
+        if (apply_nodes(i))
             continue;
-        }
         p_values[i] =
             std::exp(-d_tau * ((V(walkers[i].x) + V(copy_walkers[i].x)) / 2. - growth_estimator));
     }
+}
+
+bool DiffusionWalkers::apply_nodes(int i) {
+    for (const double &node : nodes) {
+        if ((walkers[i].x - node) * (copy_walkers[i].x - node) < 0) {
+            p_values[i] = 0;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void DiffusionWalkers::branch() {
@@ -74,7 +85,7 @@ void DiffusionWalkers::branch() {
 
     num_alive = new_alive;
     std::copy(copy_walkers.begin(),
-              copy_walkers.end(),
+              copy_walkers.begin() + num_alive,
               walkers.begin()); // TODO : optimize so it needs no copy
 
     update_growth_estimator();
@@ -87,9 +98,9 @@ void DiffusionWalkers::set_alive(int N, double x) {
             std::cout << "Error: The programme ran out of allocated memory. "
                          "Required resize."
                       << std::endl;
-            walkers.emplace_back();
-            walkers.back().x = x; // TODO -> resize also other containers like p_i and copy_walkers
-
+            copy_walkers.emplace_back();
+            copy_walkers.back().x =
+                x; // TODO -> resize also other containers like p_i and copy_walkers
             continue;
         }
         copy_walkers[i].x = x;
@@ -99,15 +110,15 @@ void DiffusionWalkers::set_alive(int N, double x) {
 }
 
 void DiffusionWalkers::update_growth_estimator() {
-    current_Et = std::accumulate(walkers.begin(),
-                                 walkers.begin() + num_alive,
-                                 0.,
-                                 [this](double acc, const walker &wlk) { return acc + V(wlk.x); }) / static_cast<double>(num_alive);
-
-    Et += current_Et;
+    if (accumulation_it == 0) {
+        int nblock = current_it % block_size;
+        Eblock = (growth_estimator + Eblock * nblock) / (nblock + 1);
+    } else {
+        Eblock = (growth_estimator + Eblock * accumulation_it) / (accumulation_it + 1);
+    }
 
     growth_estimator =
-        Et / static_cast<double>(current_it) -
+        Eblock -
         1. / d_tau * std::log(static_cast<double>(num_alive) / static_cast<double>(target_alive));
 }
 
@@ -120,15 +131,21 @@ void DiffusionWalkers::count() {
         hist[bin]++;
     }
 
+    current_Et = std::accumulate(walkers.begin(),
+                                 walkers.begin() + num_alive,
+                                 0.,
+                                 [this](double acc, const walker &wlk) { return acc + V(wlk.x); }) /
+                 static_cast<double>(num_alive);
+
     ground_state_estimator += current_Et;
     accumulation_it++;
 
     if (calibrating) {
-        results->add_energy(current_Et);
+        results->add_energies(current_Et, growth_estimator);
         return;
     }
 
-    if(static_cast<size_t>(accumulation_it) == block_size){
+    if (static_cast<size_t>(accumulation_it) == block_size) {
         ground_mean += ground_state_estimator / accumulation_it;
         ground_mean2 += std::pow(ground_state_estimator / accumulation_it, 2);
 
@@ -139,8 +156,7 @@ void DiffusionWalkers::count() {
 }
 
 void DiffusionWalkers::save_progress() {
-    results->add_histogram(
-        static_cast<double>(current_it) * d_tau, current_it, current_Et, hist);
+    results->add_histogram(static_cast<double>(current_it) * d_tau, current_it, Eblock, hist);
 }
 
 DiffusionQuantumResults &DiffusionWalkers::get_results() { return *results; }

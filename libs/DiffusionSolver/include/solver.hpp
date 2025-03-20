@@ -26,6 +26,7 @@ private:
     void branch();
     void accumulate();
 
+    void check_saving(int iter_idx);
     size_t save_counter;
 };
 

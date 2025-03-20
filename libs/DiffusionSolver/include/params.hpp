@@ -6,22 +6,25 @@
 #include <cmath>
 
 struct DiffusionQuantumParams {
-    double d_tau = 0.0005;         // time step value
-    int total_time_steps = 1e5; // total number of time steps valued d_tau
-    int n0_walkers = 10000;       // beginning number of walkers alive
-    int nmax_walkers = 11000;     // total number of walkers alive
+    double d_tau = 0.0001;        // time step value
+    int total_time_steps = 3e5;   // total number of time steps valued d_tau
+    int eq_time_step = 1e5;       // time step to average from
+    int n0_walkers = 5000;       // beginning number of walkers alive, also target number of walkers
+    int nmax_walkers = 5100;     // maximal number of walkers alive - size of allocated vector
 
-    std::vector<int> save_hist_at = std::vector<int>({900000});
+    std::vector<int> save_hist_at = std::vector<int>({});
     double xmin = -5; // sampling minimum for visualisation
     double xmax = 5;  // sampling maximum for visualisation
 
     // std::function<double(double)> pot = [](double x){return (1. / 2. * 0.067 * std::pow(10. / 27211.6, 2) * std::pow(x, 2));}; // potential in 1D quantum dot
-    std::function<double(double)> pot = [](double x){return (1. / 2. * std::pow(x, 2));}; // potential in 1D quantum dot
-    
+    std::function<double(double)> pot = [](double x){return (1. / 2. * 0.16 * std::pow(x, 2));}; // potential in 1D quantum dot
+
     int n_bins = 200; // number of bins used for generating wave function
-    
-    bool blocks_calibration = false;
+
+    bool blocks_calibration = true;
     int n_block = pow(2, 10);
+
+    std::vector<double> nodes = std::vector<double>({0});
 
     void print_params();
 };

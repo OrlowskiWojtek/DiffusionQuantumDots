@@ -42,9 +42,9 @@ void DiffusionQuantumResults::save_to_file() {
     std::ofstream file("evolution.dqmc.dat");
 
     for (HistData &data : time_evolution) {
-        file << "#\t" << "time: " << data.time << "\n";
-        file << "#\t" << "time_step: " << data.time_step << "\n";
-        file << "#\t" << "energy: " << data.energy << "\n";
+        file << "#\t" << "time:" << data.time << "\n";
+        file << "#\t" << "time_step:" << data.time_step << "\n";
+        file << "#\t" << "energy:" << data.energy << "\n";
 
         for(size_t i = 0; i < x.size(); i++){
             file << x[i] << "\t" << data.psi[i] << "\n";
@@ -54,10 +54,25 @@ void DiffusionQuantumResults::save_to_file() {
     }
 
     file.close();
+
+    std::ofstream file_energies("energies.dqmc.dat");
+    file_energies << "#\t<V>\tg_est\n";
+
+    if(calibration_energies.size() != calibration_growth.size()){
+        file_energies.close();
+        return;
+    }
+
+    for(size_t i = 0 ; i < calibration_energies.size(); i++){
+        file_energies << calibration_energies[i] << "\t" << calibration_growth[i] << "\n";
+    }
+
+    file_energies.close();
 }
 
-void DiffusionQuantumResults::add_energy(double ene){
+void DiffusionQuantumResults::add_energies(double ene, double growth_estimator){
     calibration_energies.push_back(ene);
+    calibration_growth.push_back(growth_estimator);
 }
 
 const std::vector<double>& DiffusionQuantumResults::get_energies(){

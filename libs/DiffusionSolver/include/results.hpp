@@ -9,7 +9,7 @@ public:
     DiffusionQuantumResults();
     ~DiffusionQuantumResults();
 
-    void add_energy(double E);
+    void add_energies(double E, double g_est);
     void init_x(double x_min, double x_max, int n);
     void add_histogram(double time, int time_step, double energy, const std::vector<int64_t>& hist);
     void save_to_file();
@@ -30,6 +30,7 @@ private:
     std::vector<HistData> time_evolution;
 
     std::vector<double> calibration_energies;
+    std::vector<double> calibration_growth;
 };
 
 #endif
