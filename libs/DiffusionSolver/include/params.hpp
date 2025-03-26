@@ -6,11 +6,11 @@
 #include <cmath>
 
 struct DiffusionQuantumParams {
-    double d_tau = 0.0001;        // time step value
-    int total_time_steps = 3e5;   // total number of time steps valued d_tau
-    int eq_time_step = 1e5;       // time step to average from
-    int n0_walkers = 5000;       // beginning number of walkers alive, also target number of walkers
-    int nmax_walkers = 5100;     // maximal number of walkers alive - size of allocated vector
+    double d_tau = 0.001;        // time step value
+    int total_time_steps = 1e5;   // total number of time steps valued d_tau
+    int eq_time_step = 1e4;       // time step to average from
+    int n0_walkers = 10000;       // beginning number of walkers alive, also target number of walkers
+    int nmax_walkers = 11000;     // maximal number of walkers alive - size of allocated vector
 
     std::vector<int> save_hist_at = std::vector<int>({});
     double xmin = -5; // sampling minimum for visualisation
@@ -21,10 +21,10 @@ struct DiffusionQuantumParams {
 
     int n_bins = 200; // number of bins used for generating wave function
 
-    bool blocks_calibration = true;
-    int n_block = pow(2, 10);
+    bool blocks_calibration = false;
+    int n_block = pow(2, 15);
 
-    std::vector<double> nodes = std::vector<double>({0});
+    std::vector<double> nodes = std::vector<double>({0.});
 
     void print_params();
 };

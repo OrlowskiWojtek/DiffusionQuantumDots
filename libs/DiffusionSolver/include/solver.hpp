@@ -13,12 +13,12 @@ public:
     
     void load_params();
     void solve();
+
 private:
-    
     std::shared_ptr<DiffusionWalkers> walkers;
     std::shared_ptr<EnergyBlockingAnalyzer> block_analyzer;
-
     DiffusionQuantumParams params;
+
     DiffusionQuantumResults final_results;
 
     void init();

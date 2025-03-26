@@ -30,6 +30,7 @@ void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) {
     boost::random::uniform_real_distribution<> initial_dist(xmin, xmax);
 
     std::for_each(walkers.begin(), walkers.end(), [&](walker &wlk) { wlk.x = initial_dist(rng); });
+    std::copy(walkers.begin(), walkers.end(), copy_walkers.begin());
 
     movement_generator = boost::random::normal_distribution<double>(
         0, std::sqrt(params.d_tau)); // TODO remember about d factor in 3d space
@@ -46,13 +47,11 @@ void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) {
 }
 
 void DiffusionWalkers::diffuse() {
-    std::copy(walkers.begin(), walkers.begin() + num_alive, this->copy_walkers.begin());
+    current_it++;
 
     for (size_t i = 0; i < num_alive; i++) {
         walkers[i].x += movement_generator(rng);
     }
-
-    current_it++;
 }
 
 void DiffusionWalkers::eval_p() {
@@ -86,7 +85,7 @@ void DiffusionWalkers::branch() {
     num_alive = new_alive;
     std::copy(copy_walkers.begin(),
               copy_walkers.begin() + num_alive,
-              walkers.begin()); // TODO : optimize so it needs no copy
+              walkers.begin());
 
     update_growth_estimator();
 }
@@ -94,13 +93,9 @@ void DiffusionWalkers::branch() {
 void DiffusionWalkers::set_alive(int N, double x) {
     for (size_t i = new_alive; i < new_alive + N; i++) {
         if (i >= walkers.size()) {
-
             std::cout << "Error: The programme ran out of allocated memory. "
-                         "Required resize."
+                        "Required resize."
                       << std::endl;
-            copy_walkers.emplace_back();
-            copy_walkers.back().x =
-                x; // TODO -> resize also other containers like p_i and copy_walkers
             continue;
         }
         copy_walkers[i].x = x;
@@ -141,7 +136,7 @@ void DiffusionWalkers::count() {
     accumulation_it++;
 
     if (calibrating) {
-        results->add_energies(current_Et, growth_estimator);
+        results->add_energies(current_Et, Eblock);
         return;
     }
 
