@@ -38,9 +38,11 @@ void EnergyBlockingAnalyzer::blocking_analysis(const std::vector<double> &energi
                             0.,
                             [](double acc, double val) { return acc + std::pow(val, 2); }) /
             static_cast<double>(reblocked.size());
-
-        stderrs.push_back(
-            std::sqrt((mean2 - std::pow(mean, 2)) / static_cast<double>(reblocked.size() - 1)));
+    
+        if(reblocked.size() - 1 != 0){
+            stderrs.push_back(
+                std::sqrt((mean2 - std::pow(mean, 2)) / static_cast<double>(reblocked.size() - 1)));
+        }
     }
 
     save_to_file();
