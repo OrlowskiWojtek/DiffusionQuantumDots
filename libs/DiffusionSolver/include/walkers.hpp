@@ -6,6 +6,8 @@
 
 #include "params.hpp"
 #include "results.hpp"
+#include "walkers_struct.hpp"
+
 #include <boost/random/uniform_real_distribution.hpp>
 #include <memory>
 #include <vector>
@@ -23,17 +25,13 @@ public:
     void count();
     void save_progress();
 
-    DiffusionQuantumResults& get_results();
+    DiffusionQuantumResults &get_results();
 
 private:
-    struct walker { // TODO -> add another dimensions
-        double x;
-    };
-
     std::vector<walker> walkers;
     std::vector<walker> copy_walkers;
     std::vector<double> p_values;
-    std::vector<int64_t> hist;
+    std::vector<std::vector<int64_t>> hist;
 
     boost::random::mt19937 rng;
     boost::random::normal_distribution<double> movement_generator;
@@ -43,22 +41,22 @@ private:
         boost::random::uniform_real_distribution<double>(0, 1);
 
     double xmin, xmax;
-    double growth_estimator; // TODO switch to results class
-    double ground_state_estimator; 
+    double growth_estimator;
+    double ground_state_estimator;
 
     double ground_mean;
     double ground_mean2;
     int blocks_passed;
 
     double current_Et;
-    double Eblock; // TODO
+    double Eblock;
     bool calibrating;
 
     int current_it;
     int accumulation_it;
 
     double d_tau;
-    std::function<double(double)> V;
+    std::function<double(walker)> V;
     std::vector<double> nodes;
 
     size_t num_alive;
@@ -68,11 +66,15 @@ private:
     size_t n_bins;
     size_t block_size;
 
+    int dims;
+
     std::unique_ptr<DiffusionQuantumResults> results;
 
-    void set_alive(int new_alive, double position);
+    void set_alive(int new_alive, const walker& wlk);
     void update_growth_estimator();
     bool apply_nodes(int walker_idx);
+
+    void binning();
 };
 
 #endif

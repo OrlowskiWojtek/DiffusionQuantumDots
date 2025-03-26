@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <vector>
+#include "walkers_struct.hpp"
 
 class DiffusionQuantumResults {
 public:
@@ -15,20 +16,23 @@ public:
                        int time_step,
                        double mean_energy,
                        double mean_growth_estimator,
-                       const std::vector<int64_t> &hist);
+                       const std::vector<std::vector<int64_t>> &hist);
     void save_to_file();
 
+    void set_dims(int ndims);
     const std::vector<double> &get_energies();
 
 private:
+    int dims;
+
     struct HistData {
         double time;
         int time_step;
         double energy;
         double growth_estimator;
-        std::vector<double> psi;
+        std::vector<walker> psi;
 
-        HistData(double time, int time_step, double ene, double gest, std::vector<double> psi)
+        HistData(double time, int time_step, double ene, double gest, std::vector<walker> psi)
             : time(time)
             , time_step(time_step)
             , energy(ene)
