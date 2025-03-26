@@ -129,29 +129,27 @@ void DiffusionWalkers::count() {
     current_Et = std::accumulate(walkers.begin(),
                                  walkers.begin() + num_alive,
                                  0.,
-                                 [this](double acc, const walker &wlk) { return acc + V(wlk.x); }) /
-                 static_cast<double>(num_alive);
+                                 [this](double acc, const walker &wlk) { return acc + V(wlk.x); });
 
     ground_state_estimator += current_Et;
     accumulation_it++;
 
     if (calibrating) {
-        results->add_energies(current_Et, Eblock);
+        results->add_energies(current_Et / static_cast<double>(num_alive), Eblock);
         return;
     }
 
-    if (static_cast<size_t>(accumulation_it) == block_size) {
-        ground_mean += ground_state_estimator / accumulation_it;
-        ground_mean2 += std::pow(ground_state_estimator / accumulation_it, 2);
+    if (static_cast<size_t>(accumulation_it) % block_size == 0) {
+        ground_mean += ground_state_estimator / static_cast<double>(num_alive) / block_size;
+        ground_mean2 += std::pow(ground_state_estimator / static_cast<double>(num_alive) / block_size, 2);
 
         ground_state_estimator = 0;
-        accumulation_it = 0;
         blocks_passed += 1;
     }
 }
 
 void DiffusionWalkers::save_progress() {
-    results->add_histogram(static_cast<double>(current_it) * d_tau, current_it, Eblock, hist);
+    results->add_histogram(static_cast<double>(current_it) * d_tau, current_it, ground_mean / blocks_passed, Eblock, hist);
 }
 
 DiffusionQuantumResults &DiffusionWalkers::get_results() { return *results; }

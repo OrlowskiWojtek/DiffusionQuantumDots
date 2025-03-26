@@ -20,7 +20,8 @@ void DiffusionQuantumResults::init_x(double xmin, double xmax, int n) {
 
 void DiffusionQuantumResults::add_histogram(double time,
                                             int time_step,
-                                            double energy,
+                                            double mean_energy,
+                                            double mean_growth_estimator,
                                             const std::vector<int64_t> &hist) {
     std::vector<double> psi(x.size());
     double dx = (x[1] - x[0]);
@@ -35,7 +36,16 @@ void DiffusionQuantumResults::add_histogram(double time,
     std::transform(
         hist.begin(), hist.end(), psi.begin(), [int_val](double x) { return x / sqrt(int_val); });
 
-    time_evolution.emplace_back(time, time_step, energy, psi);
+    time_evolution.emplace_back(time, time_step, mean_energy, mean_growth_estimator, psi);
+
+    std::cout << "|--------------------------------------------------------|\n";
+    std::cout << "Adding histogram data" << std::endl;
+    std::cout << "time = " << time << "\n";
+    std::cout << "time step = " << time_step << "\n";
+    std::cout << "energy = " << mean_energy << "\n";
+    std::cout << "growth estimator = " << mean_growth_estimator << "\n";
+    std::cout << "|--------------------------------------------------------|\n";
+
 }
 
 void DiffusionQuantumResults::save_to_file() {
