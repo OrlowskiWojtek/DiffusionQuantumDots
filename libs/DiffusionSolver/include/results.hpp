@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <boost/multi_array.hpp>
 #include "walkers_struct.hpp"
 
 class DiffusionQuantumResults {
@@ -16,7 +17,7 @@ public:
                        int time_step,
                        double mean_energy,
                        double mean_growth_estimator,
-                       const std::vector<std::vector<int64_t>> &hist);
+                       const boost::multi_array<int64_t, 3> &hist);
     void save_to_file();
 
     void set_dims(int ndims);
@@ -30,9 +31,9 @@ private:
         int time_step;
         double energy;
         double growth_estimator;
-        std::vector<walker> psi;
+        boost::multi_array<double, 3> psi;
 
-        HistData(double time, int time_step, double ene, double gest, std::vector<walker> psi)
+        HistData(double time, int time_step, double ene, double gest, boost::multi_array<double, 3> psi)
             : time(time)
             , time_step(time_step)
             , energy(ene)

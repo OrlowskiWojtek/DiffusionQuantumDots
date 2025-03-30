@@ -8,8 +8,7 @@ DiffusionWalkers::DiffusionWalkers()
     : results(std::make_unique<DiffusionQuantumResults>()) {}
 DiffusionWalkers::~DiffusionWalkers() {}
 
-void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) {
-
+void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) { // TODO: segmentize this function 
     xmin = params.xmin;
     xmax = params.xmax;
     d_tau = params.d_tau;
@@ -26,7 +25,10 @@ void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) {
     walkers.resize(params.nmax_walkers);
     copy_walkers.resize(params.nmax_walkers);
     p_values.resize(params.nmax_walkers);
-    hist.resize(3, std::vector<int64_t>(n_bins));
+    hist.resize(boost::extents[n_bins][n_bins][n_bins]);
+    std::for_each(hist.data(), hist.data() + hist.num_elements(), [](int64_t& val){
+        val = 0;
+    });
 
     boost::random::mt19937 rng;
     boost::random::uniform_real_distribution<> initial_dist(xmin, xmax);
@@ -134,12 +136,15 @@ void DiffusionWalkers::binning() {
     std::for_each(walkers.begin(), walkers.begin() + num_alive, [&](const walker& wlk){
         for(int dim = 0; dim < dims; dim++){
             if (wlk.cords[dim] < xmin || wlk.cords[dim] > xmax) {
-                continue;
+                return;
             }
-
-            int bin = static_cast<int>((xmax - wlk.cords[dim]) / (xmax - xmin) * n_bins);
-            hist[dim][bin]++;
         }
+
+        std::array<size_t, 3> walker_bin;
+        walker_bin[0] = static_cast<int>((xmax - wlk.cords[0])/(xmax - xmin) * n_bins);
+        walker_bin[1] = static_cast<int>((xmax - wlk.cords[1])/(xmax - xmin) * n_bins);
+        walker_bin[2] = static_cast<int>((xmax - wlk.cords[2])/(xmax - xmin) * n_bins);
+        hist[walker_bin[0]][walker_bin[1]][walker_bin[2]]++;
     });
 }
 

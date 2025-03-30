@@ -22,26 +22,23 @@ void DiffusionQuantumResults::add_histogram(double time,
                                             int time_step,
                                             double mean_energy,
                                             double mean_growth_estimator,
-                                            const std::vector<std::vector<int64_t>> &hist) {
-    std::vector<walker> psi(hist.size());
+                                            const boost::multi_array<int64_t, 3> &hist) {
+
+    boost::multi_array<double, 3> psi(boost::extents[x.size()][x.size()][x.size()]);
     double dx = (x[1] - x[0]);
 
     double int_val =
-        std::accumulate(hist.begin(),
-                        hist.begin() + dims,
+        std::accumulate(hist.data(),
+                        hist.data() + hist.num_elements(),
                         0.,
-                        [](double acc, const std::vector<int64_t> &dim_val) {
-                            double in_dim = std::accumulate(
-                                dim_val.begin(), dim_val.end(), 0., [](double acc, double value) {
-                                    return acc + std::pow(value, 2);
-                                });
-                            return acc + in_dim;
-                        }) *
-        std::pow(dx, dims);
+                        [](double acc, const int64_t &val) { return acc + std::pow(val, 2); });
+    
+    int_val = std::sqrt(int_val * std::pow(dx, dims));
 
-    std::transform(hist.begin(), hist.end(), psi.begin(), [int_val](std::vector<int64_t> hist) {
-        return walker(hist[0] / sqrt(int_val), hist[1] / sqrt(int_val), hist[2] / sqrt(int_val));
-    });
+    std::transform(
+        hist.data(), hist.data() + hist.num_elements(), psi.data(), [int_val](int64_t val) {
+            return static_cast<double>(val) / int_val;
+        });
 
     time_evolution.emplace_back(time, time_step, mean_energy, mean_growth_estimator, psi);
 
@@ -67,8 +64,11 @@ void DiffusionQuantumResults::save_to_file() {
         }
         file << "\n";
 
-        for (int dim; dim < dims; dim++) {
-            
+        for (size_t i = 0; i < x.size(); i++) {
+            for (size_t j = 0; j < x.size(); j++) {
+                file << time_evolution.back().psi[i][j][100] << "\t";
+            }
+            file << "\n";
         }
     }
 

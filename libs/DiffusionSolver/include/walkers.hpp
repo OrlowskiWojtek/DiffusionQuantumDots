@@ -3,6 +3,7 @@
 
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>
+#include <boost/multi_array.hpp>
 
 #include "params.hpp"
 #include "results.hpp"
@@ -31,7 +32,8 @@ private:
     std::vector<walker> walkers;
     std::vector<walker> copy_walkers;
     std::vector<double> p_values;
-    std::vector<std::vector<int64_t>> hist;
+
+    boost::multi_array<int64_t, 3> hist;
 
     boost::random::mt19937 rng;
     boost::random::normal_distribution<double> movement_generator;

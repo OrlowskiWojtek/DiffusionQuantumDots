@@ -8,8 +8,8 @@
 
 struct DiffusionQuantumParams {
     double d_tau = 0.001;       // time step value
-    int total_time_steps = 1e5; // total number of time steps valued d_tau
-    int eq_time_step = 1e4;     // time step to average from
+    int total_time_steps = 1e6; // total number of time steps valued d_tau
+    int eq_time_step = 1e5;     // time step to average from
     int n0_walkers = 1000;      // beginning number of walkers alive, also target number of walkers
     int nmax_walkers = 1100;    // maximal number of walkers alive - size of allocated vector
 
