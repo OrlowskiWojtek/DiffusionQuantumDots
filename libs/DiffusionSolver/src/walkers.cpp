@@ -18,9 +18,8 @@ void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) { // T
     n_bins = params.n_bins;
     calibrating = params.blocks_calibration;
     block_size = params.n_block;
-    nodes = params.nodes;
     dims = params.n_dims;
-    results->set_dims(dims);
+    trial_wavef = params.trial_wavef;
 
     walkers.resize(params.nmax_walkers);
     copy_walkers.resize(params.nmax_walkers);
@@ -52,11 +51,13 @@ void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) { // T
     growth_estimator = 0;
     Eblock = 0;
     ground_state_estimator = 0.;
+    ground_mean = 0.;
 
     current_it = 0;
     accumulation_it = 0;
     blocks_passed = 0;
 
+    results->set_dims(dims);
     results->init_x(xmin, xmax, n_bins);
 }
 
@@ -80,12 +81,10 @@ void DiffusionWalkers::eval_p() {
     }
 }
 
-bool DiffusionWalkers::apply_nodes(int i) { // TODO applying nodes with trial functions
-    for (const double &node : nodes) {
-        if ((walkers[i].cords[0] - node) * (copy_walkers[i].cords[0] - node) < 0) {
-            p_values[i] = 0;
-            return true;
-        }
+bool DiffusionWalkers::apply_nodes(int i) {
+    if (( trial_wavef(walkers[i]) * trial_wavef(copy_walkers[i])) < 0) {
+        p_values[i] = 0;
+        return true;
     }
 
     return false;

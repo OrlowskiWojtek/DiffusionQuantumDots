@@ -14,7 +14,7 @@ void DiffusionQuantumResults::init_x(double xmin, double xmax, int n) {
     for (int i = 0; i < n; i++) {
         x[i] =
             xmin + (xmax - xmin) / static_cast<double>(n) *
-                       i; // TODO - put exact points (centers of blocks, so move half unit to right)
+                       (i + 0.5);
     }
 }
 
@@ -58,15 +58,14 @@ void DiffusionQuantumResults::save_to_file() {
         file << "#\t" << "time:" << data.time << "\n";
         file << "#\t" << "time_step:" << data.time_step << "\n";
         file << "#\t" << "energy:" << data.energy << "\n";
+        file << "#\t" << "xmin:" << x.front() << "\n";
+        file << "#\t" << "xmax:" << x.back() << "\n";
+        file << "#\t" << "nbins:" << x.size() << "\n";
 
-        for (size_t i = 0; i < x.size(); i++) {
-            file << x[i] << "\t";
-        }
-        file << "\n";
-
+        // TODO -> swtich to dimension version
         for (size_t i = 0; i < x.size(); i++) {
             for (size_t j = 0; j < x.size(); j++) {
-                file << time_evolution.back().psi[i][j][100] << "\t";
+                file << time_evolution.back().psi[i][j][x.size() / 2] << "\t";
             }
             file << "\n";
         }

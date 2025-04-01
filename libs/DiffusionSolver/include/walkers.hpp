@@ -59,7 +59,7 @@ private:
 
     double d_tau;
     std::function<double(walker)> V;
-    std::vector<double> nodes;
+    std::function<double(walker)> trial_wavef;
 
     size_t num_alive;
     size_t new_alive;

@@ -27,7 +27,10 @@ struct DiffusionQuantumParams {
     bool blocks_calibration = false;
     int n_block = pow(2, 15);
 
-    std::vector<double> nodes = std::vector<double>({});
+    // std::vector<double> nodes = std::vector<double>({}); // This way of applying nodes doesnt work in many dimensions
+    std::function<double(walker)> trial_wavef = [](walker wlk) {
+        return wlk.y();
+    };
 };
 
 #endif
