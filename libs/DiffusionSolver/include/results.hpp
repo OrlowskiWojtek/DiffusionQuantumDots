@@ -1,8 +1,10 @@
 #ifndef DIFFUSION_QUANTUM_RESULTS_HPP
 #define DIFFUSION_QUANTUM_RESULTS_HPP
 
+#include "DiffusionParams/include/params.hpp"
 #include <cstdint>
 #include <vector>
+#include <boost/multi_array.hpp>
 
 class DiffusionQuantumResults {
 public:
@@ -10,25 +12,26 @@ public:
     ~DiffusionQuantumResults();
 
     void add_energies(double E, double g_est);
-    void init_x(double x_min, double x_max, int n);
     void add_histogram(double time,
                        int time_step,
                        double mean_energy,
                        double mean_growth_estimator,
-                       const std::vector<int64_t> &hist);
+                       const boost::multi_array<int64_t, 3> &hist);
     void save_to_file();
 
     const std::vector<double> &get_energies();
 
 private:
+    DiffusionQuantumParams* p;
+
     struct HistData {
         double time;
         int time_step;
         double energy;
         double growth_estimator;
-        std::vector<double> psi;
+        boost::multi_array<double, 3> psi;
 
-        HistData(double time, int time_step, double ene, double gest, std::vector<double> psi)
+        HistData(double time, int time_step, double ene, double gest, boost::multi_array<double, 3> psi)
             : time(time)
             , time_step(time_step)
             , energy(ene)
@@ -41,6 +44,8 @@ private:
 
     std::vector<double> calibration_energies;
     std::vector<double> calibration_growth;
+
+    void init_x(double x_min, double x_max, int n);
 };
 
 #endif

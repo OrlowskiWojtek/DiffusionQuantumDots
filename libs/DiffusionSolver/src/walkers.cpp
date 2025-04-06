@@ -1,56 +1,69 @@
-#include "walkers.hpp"
-#include "params.hpp"
+#include "include/walkers.hpp"
 #include <algorithm>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <numeric>
 
 DiffusionWalkers::DiffusionWalkers()
-    : results(std::make_unique<DiffusionQuantumResults>()) {}
+    : p(DiffusionQuantumParams::getInstance())
+    , results(std::make_unique<DiffusionQuantumResults>()) {}
+
 DiffusionWalkers::~DiffusionWalkers() {}
 
-void DiffusionWalkers::init_walkers(const DiffusionQuantumParams &params) {
+void DiffusionWalkers::init_walkers() { // TODO: segmentize this function
+    // initialize params
+    xmin = p->xmin;
+    xmax = p->xmax;
+    d_tau = p->d_tau;
+    V = p->pot;
+    num_alive = p->n0_walkers;
+    target_alive = p->n0_walkers;
+    n_bins = p->n_bins;
+    calibrating = p->blocks_calibration;
+    block_size = p->n_block;
+    dims = p->n_dims;
+    trial_wavef = p->trial_wavef;
 
-    xmin = params.xmin;
-    xmax = params.xmax;
-    d_tau = params.d_tau;
-    V = params.pot;
-    num_alive = params.n0_walkers;
-    target_alive = params.n0_walkers;
-    n_bins = params.n_bins;
-    calibrating = params.blocks_calibration;
-    block_size = params.n_block;
-    nodes = params.nodes;
-
-    walkers.resize(params.nmax_walkers);
-    copy_walkers.resize(params.nmax_walkers);
-    p_values.resize(params.nmax_walkers);
-    hist.resize(n_bins);
+    // initialize containers
+    walkers.resize(p->nmax_walkers);
+    copy_walkers.resize(p->nmax_walkers);
+    p_values.resize(p->nmax_walkers);
+    hist.resize(boost::extents[n_bins][n_bins][n_bins]);
+    std::for_each(hist.data(), hist.data() + hist.num_elements(), [](int64_t &val) { val = 0; });
 
     boost::random::mt19937 rng;
     boost::random::uniform_real_distribution<> initial_dist(xmin, xmax);
 
-    std::for_each(walkers.begin(), walkers.end(), [&](walker &wlk) { wlk.x = initial_dist(rng); });
+    std::for_each(walkers.begin(), walkers.end(), [&](walker &wlk) { wlk.cords.fill(0); });
+
+    std::for_each(walkers.begin(), walkers.end(), [&](walker &wlk) {
+        std::for_each(wlk.cords.begin(), wlk.cords.begin() + dims, [&](double &cord) {
+            cord = initial_dist(rng);
+        });
+    });
     std::copy(walkers.begin(), walkers.end(), copy_walkers.begin());
 
     movement_generator = boost::random::normal_distribution<double>(
-        0, std::sqrt(params.d_tau)); // TODO remember about d factor in 3d space
+        0,
+        std::sqrt(p->d_tau));
 
     growth_estimator = 0;
     Eblock = 0;
     ground_state_estimator = 0.;
+    ground_mean = 0.;
 
     current_it = 0;
     accumulation_it = 0;
     blocks_passed = 0;
-
-    results->init_x(xmin, xmax, n_bins);
 }
 
 void DiffusionWalkers::diffuse() {
     current_it++;
 
     for (size_t i = 0; i < num_alive; i++) {
-        walkers[i].x += movement_generator(rng);
+        std::for_each(walkers[i].cords.begin(), walkers[i].cords.begin() + dims, [&](double &cord) {
+            cord += movement_generator(rng);
+            ;
+        });
     }
 }
 
@@ -59,16 +72,14 @@ void DiffusionWalkers::eval_p() {
         if (apply_nodes(i))
             continue;
         p_values[i] =
-            std::exp(-d_tau * ((V(walkers[i].x) + V(copy_walkers[i].x)) / 2. - growth_estimator));
+            std::exp(-d_tau * ((V(walkers[i]) + V(copy_walkers[i])) / 2. - growth_estimator));
     }
 }
 
 bool DiffusionWalkers::apply_nodes(int i) {
-    for (const double &node : nodes) {
-        if ((walkers[i].x - node) * (copy_walkers[i].x - node) < 0) {
-            p_values[i] = 0;
-            return true;
-        }
+    if ((trial_wavef(walkers[i]) * trial_wavef(copy_walkers[i])) < 0) {
+        p_values[i] = 0;
+        return true;
     }
 
     return false;
@@ -79,26 +90,24 @@ void DiffusionWalkers::branch() {
 
     for (size_t i = 0; i < num_alive; i++) {
         int m = static_cast<int>(p_values[i] + uniform_generator(uni_rng));
-        set_alive(m, walkers[i].x);
+        set_alive(m, walkers[i]);
     }
 
     num_alive = new_alive;
-    std::copy(copy_walkers.begin(),
-              copy_walkers.begin() + num_alive,
-              walkers.begin());
+    std::copy(copy_walkers.begin(), copy_walkers.begin() + num_alive, walkers.begin());
 
     update_growth_estimator();
 }
 
-void DiffusionWalkers::set_alive(int N, double x) {
+void DiffusionWalkers::set_alive(int N, const walker &wlk) {
     for (size_t i = new_alive; i < new_alive + N; i++) {
         if (i >= walkers.size()) {
             std::cout << "Error: The programme ran out of allocated memory. "
-                        "Required resize."
+                         "Required resize."
                       << std::endl;
             continue;
         }
-        copy_walkers[i].x = x;
+        copy_walkers[i] = wlk;
     }
 
     new_alive += N;
@@ -117,19 +126,29 @@ void DiffusionWalkers::update_growth_estimator() {
         1. / d_tau * std::log(static_cast<double>(num_alive) / static_cast<double>(target_alive));
 }
 
-void DiffusionWalkers::count() {
-    for (size_t i = 0; i < num_alive; i++) {
-        if (walkers[i].x < xmin || walkers[i].x > xmax) {
-            continue;
+void DiffusionWalkers::binning() {
+    std::for_each(walkers.begin(), walkers.begin() + num_alive, [&](const walker &wlk) {
+        for (int dim = 0; dim < dims; dim++) {
+            if (wlk.cords[dim] < xmin || wlk.cords[dim] > xmax) {
+                return;
+            }
         }
-        int bin = static_cast<int>((xmax - walkers[i].x) / (xmax - xmin) * n_bins);
-        hist[bin]++;
-    }
+
+        std::array<size_t, 3> walker_bin;
+        walker_bin[0] = static_cast<int>((xmax - wlk.cords[0]) / (xmax - xmin) * n_bins);
+        walker_bin[1] = static_cast<int>((xmax - wlk.cords[1]) / (xmax - xmin) * n_bins);
+        walker_bin[2] = static_cast<int>((xmax - wlk.cords[2]) / (xmax - xmin) * n_bins);
+        hist[walker_bin[0]][walker_bin[1]][walker_bin[2]]++;
+    });
+}
+
+void DiffusionWalkers::count() {
+    binning();
 
     current_Et = std::accumulate(walkers.begin(),
                                  walkers.begin() + num_alive,
                                  0.,
-                                 [this](double acc, const walker &wlk) { return acc + V(wlk.x); });
+                                 [this](double acc, const walker &wlk) { return acc + V(wlk); });
 
     ground_state_estimator += current_Et;
     accumulation_it++;
@@ -141,7 +160,8 @@ void DiffusionWalkers::count() {
 
     if (static_cast<size_t>(accumulation_it) % block_size == 0) {
         ground_mean += ground_state_estimator / static_cast<double>(num_alive) / block_size;
-        ground_mean2 += std::pow(ground_state_estimator / static_cast<double>(num_alive) / block_size, 2);
+        ground_mean2 +=
+            std::pow(ground_state_estimator / static_cast<double>(num_alive) / block_size, 2);
 
         ground_state_estimator = 0;
         blocks_passed += 1;
@@ -149,7 +169,11 @@ void DiffusionWalkers::count() {
 }
 
 void DiffusionWalkers::save_progress() {
-    results->add_histogram(static_cast<double>(current_it) * d_tau, current_it, ground_mean / blocks_passed, Eblock, hist);
+    results->add_histogram(static_cast<double>(current_it) * d_tau,
+                           current_it,
+                           ground_mean / blocks_passed,
+                           Eblock,
+                           hist);
 }
 
 DiffusionQuantumResults &DiffusionWalkers::get_results() { return *results; }

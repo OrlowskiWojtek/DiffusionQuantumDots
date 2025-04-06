@@ -1,7 +1,7 @@
 #ifndef DIFFUSION_QUANTUM_SOLVER_HPP
 #define DIFFUSION_QUANTUM_SOLVER_HPP
 
-#include "params.hpp"
+#include "DiffusionParams/include/params.hpp"
 #include "walkers.hpp"
 #include "blocking.hpp"
 #include <memory>
@@ -17,7 +17,7 @@ public:
 private:
     std::shared_ptr<DiffusionWalkers> walkers;
     std::shared_ptr<EnergyBlockingAnalyzer> block_analyzer;
-    DiffusionQuantumParams params;
+    DiffusionQuantumParams* params;
 
     DiffusionQuantumResults final_results;
 

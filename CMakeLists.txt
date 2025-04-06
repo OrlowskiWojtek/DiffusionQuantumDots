@@ -20,6 +20,14 @@ configure_file(DQMCConfig.h.in DQMCConfig.h)
 add_subdirectory(libs/DiffusionSolver)
 add_subdirectory(libs/FileLoader)
 
+## BOOST setup
+FIND_PACKAGE( Boost 1.74 COMPONENTS program_options REQUIRED )
+INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
+
+if(BOOST_FOUND)
+    message("Found boost, using boost ver " ${Boost_VERSION_STRING})
+endif()
+
 add_executable(${PROJECT_NAME} main.cpp)
 
 target_link_libraries(DiffusionQuantumMC DiffusionSolver FileLoader compiler_flags)
