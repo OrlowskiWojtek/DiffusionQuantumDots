@@ -1,12 +1,29 @@
 #ifndef DIFFUSION_QUANTUM_PARAMS_HPP
 #define DIFFUSION_QUANTUM_PARAMS_HPP
 
-#include "walkers_struct.hpp"
+#include "include/walkers_struct.hpp"
 #include <cmath>
 #include <functional>
 #include <vector>
 
-struct DiffusionQuantumParams {
+// Class implements Singleton design pattern
+class DiffusionQuantumParams {
+private:
+    static DiffusionQuantumParams *instance;
+    DiffusionQuantumParams(){}
+
+public:
+    DiffusionQuantumParams(const DiffusionQuantumParams &) = delete;
+    DiffusionQuantumParams &operator=(const DiffusionQuantumParams &) = delete;
+
+    static DiffusionQuantumParams *getInstance() {
+        if (!instance) {
+            instance = new DiffusionQuantumParams();
+        }
+
+        return instance;
+    }
+
     double d_tau = 0.001;       // time step value
     int total_time_steps = 1e6; // total number of time steps valued d_tau
     int eq_time_step = 1e5;     // time step to average from
@@ -27,10 +44,9 @@ struct DiffusionQuantumParams {
     bool blocks_calibration = false;
     int n_block = pow(2, 15);
 
-    // std::vector<double> nodes = std::vector<double>({}); // This way of applying nodes doesnt work in many dimensions
-    std::function<double(walker)> trial_wavef = [](walker wlk) {
-        return wlk.y();
-    };
+    // std::vector<double> nodes = std::vector<double>({}); // This way of applying nodes doesnt
+    // work in many dimensions
+    std::function<double(walker)> trial_wavef = [](walker wlk) { return wlk.x(); };
 };
 
 #endif

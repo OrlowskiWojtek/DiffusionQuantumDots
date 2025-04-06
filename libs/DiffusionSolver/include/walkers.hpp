@@ -5,9 +5,9 @@
 #include <boost/random/normal_distribution.hpp>
 #include <boost/multi_array.hpp>
 
-#include "params.hpp"
-#include "results.hpp"
-#include "walkers_struct.hpp"
+#include "DiffusionParams/include/params.hpp"
+#include "include/results.hpp"
+#include "include/walkers_struct.hpp"
 
 #include <boost/random/uniform_real_distribution.hpp>
 #include <memory>
@@ -18,7 +18,7 @@ public:
     DiffusionWalkers();
     ~DiffusionWalkers();
 
-    void init_walkers(const DiffusionQuantumParams &params);
+    void init_walkers();
     void diffuse();
     void branch();
     void eval_p();
@@ -29,6 +29,8 @@ public:
     DiffusionQuantumResults &get_results();
 
 private:
+    DiffusionQuantumParams* p;
+
     std::vector<walker> walkers;
     std::vector<walker> copy_walkers;
     std::vector<double> p_values;

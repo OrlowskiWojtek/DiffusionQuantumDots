@@ -22,15 +22,16 @@ link_cameras_axis3(f; step=.01) = begin
 end
 ##
 
-filename = "../build/results/2d_harmonic_oscillator/1st_state_2d_anisotropic"
+#filename = "../build/results/2d_harmonic_oscillator/1st_state_2d_anisotropic"
+filename = "../build/evolution.dqmc.dat"
 data = readdlm(filename, comments = true)
 
-lines = readlines(filename)
+file = readlines(filename)
 xmin = 0.
 xmax = 0.
 nbins = 0
 
-for line in lines
+for line in file
     if(contains(line, "xmin"))
         xmin = parse(Float64, split(line, ":")[2])
     end
@@ -55,21 +56,37 @@ with_theme(theme_latexfonts()) do
     fig = Figure();
     ax = Axis3(fig[1,1], 
                xlabel = "x [a.u]",
-               ylabel = "y [a.u]",
-               zlabel = "Ψ(x,y)")
+               ylabel = "y [a.u]")
 
     ax_v = Axis3(fig[1,1])
     hidedecorations!(ax_v)
+    hidezdecorations!(ax)
 
-    surface!(ax, x, y, data,
-             colormap = :bluesreds)
+    cm = surface!(ax, x, y, data,
+             colormap = :coolwarm,
+             label = "Ψ(x,y)")
 
-    surface!(ax_v, x, y, Vmat,
-             colormap = (:acton, 0.6),
-             transparency = true)
+    cmv = surface!(ax_v, x, y, Vmat,
+             colormap = (:thermal, 0.5),
+             transparency = true,
+             label = "Potencjał harmoniczny")
+
+    ticks_psi = [ round(val, digits = 3) for val in collect(LinRange(findmin(data)[1], findmax(data)[1], 6)) ]
+    ticks_v =   [ round(val, digits = 3) for val in collect(LinRange(findmin(Vmat)[1], findmax(Vmat)[1], 6)) ]
+
+    Colorbar(fig[2,1], cm, label = "Ψ(x,y)", vertical = false, ticks = ticks_psi[2:end-1])
+    Colorbar(fig[3,1], cmv, label = "V(x,y)", vertical = false, ticks = ticks_v[2:end-1])
+
+    xlims!(ax, (xmin, xmax))
+    ylims!(ax, (xmin, xmax))
+    zlims!(ax, (0, nothing))
+
+    xlims!(ax_v, (xmin, xmax))
+    ylims!(ax_v, (xmin, xmax))
+
     link_cameras_axis3(fig)
     
-    #save("2d_ground_state.pdf", fig)
+    #save("plots/2d_ground_state.pdf", fig)
     display(fig)
 end
 

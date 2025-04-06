@@ -1,10 +1,10 @@
 #ifndef DIFFUSION_QUANTUM_RESULTS_HPP
 #define DIFFUSION_QUANTUM_RESULTS_HPP
 
+#include "DiffusionParams/include/params.hpp"
 #include <cstdint>
 #include <vector>
 #include <boost/multi_array.hpp>
-#include "walkers_struct.hpp"
 
 class DiffusionQuantumResults {
 public:
@@ -12,7 +12,6 @@ public:
     ~DiffusionQuantumResults();
 
     void add_energies(double E, double g_est);
-    void init_x(double x_min, double x_max, int n);
     void add_histogram(double time,
                        int time_step,
                        double mean_energy,
@@ -20,11 +19,10 @@ public:
                        const boost::multi_array<int64_t, 3> &hist);
     void save_to_file();
 
-    void set_dims(int ndims);
     const std::vector<double> &get_energies();
 
 private:
-    int dims;
+    DiffusionQuantumParams* p;
 
     struct HistData {
         double time;
@@ -46,6 +44,8 @@ private:
 
     std::vector<double> calibration_energies;
     std::vector<double> calibration_growth;
+
+    void init_x(double x_min, double x_max, int n);
 };
 
 #endif

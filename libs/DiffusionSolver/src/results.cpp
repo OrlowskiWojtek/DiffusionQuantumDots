@@ -1,11 +1,16 @@
-#include "results.hpp"
+#include "include/results.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <iostream>
 #include <numeric>
 
-DiffusionQuantumResults::DiffusionQuantumResults() {}
+DiffusionQuantumResults::DiffusionQuantumResults():
+    p(DiffusionQuantumParams::getInstance()){
+    
+    init_x(p->xmin, p->xmax, p->n_bins);
+}
 
 DiffusionQuantumResults::~DiffusionQuantumResults() {}
 
@@ -33,7 +38,7 @@ void DiffusionQuantumResults::add_histogram(double time,
                         0.,
                         [](double acc, const int64_t &val) { return acc + std::pow(val, 2); });
     
-    int_val = std::sqrt(int_val * std::pow(dx, dims));
+    int_val = std::sqrt(int_val * std::pow(dx, p->n_dims));
 
     std::transform(
         hist.data(), hist.data() + hist.num_elements(), psi.data(), [int_val](int64_t val) {
@@ -65,7 +70,8 @@ void DiffusionQuantumResults::save_to_file() {
         // TODO -> swtich to dimension version
         for (size_t i = 0; i < x.size(); i++) {
             for (size_t j = 0; j < x.size(); j++) {
-                file << time_evolution.back().psi[i][j][x.size() / 2] << "\t";
+                int j_idx = p->n_dims > 1 ? j : x.size() / 2; 
+                file << time_evolution.back().psi[i][j_idx][x.size() / 2] << "\t";
             }
             file << "\n";
         }
@@ -94,5 +100,3 @@ void DiffusionQuantumResults::add_energies(double ene, double growth_estimator) 
 }
 
 const std::vector<double> &DiffusionQuantumResults::get_energies() { return calibration_energies; }
-
-void DiffusionQuantumResults::set_dims(int ndims) { dims = ndims; }
