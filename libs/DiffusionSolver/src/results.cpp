@@ -6,9 +6,9 @@
 #include <iostream>
 #include <numeric>
 
-DiffusionQuantumResults::DiffusionQuantumResults():
-    p(DiffusionQuantumParams::getInstance()){
-    
+DiffusionQuantumResults::DiffusionQuantumResults()
+    : p(DiffusionQuantumParams::getInstance()) {
+
     init_x(p->xmin, p->xmax, p->n_bins);
 }
 
@@ -17,9 +17,7 @@ DiffusionQuantumResults::~DiffusionQuantumResults() {}
 void DiffusionQuantumResults::init_x(double xmin, double xmax, int n) {
     x.resize(n);
     for (int i = 0; i < n; i++) {
-        x[i] =
-            xmin + (xmax - xmin) / static_cast<double>(n) *
-                       (i + 0.5);
+        x[i] = xmin + (xmax - xmin) / static_cast<double>(n) * (i + 0.5);
     }
 }
 
@@ -32,18 +30,17 @@ void DiffusionQuantumResults::add_histogram(double time,
     boost::multi_array<double, 3> psi(boost::extents[x.size()][x.size()][x.size()]);
     double dx = (x[1] - x[0]);
 
-    double int_val =
-        std::accumulate(hist.data(),
-                        hist.data() + hist.num_elements(),
-                        0.,
-                        [](double acc, const int64_t &val) { return acc + std::pow(val, 2); });
-    
+    double int_val = std::accumulate(
+        hist.data(), hist.data() + hist.num_elements(), 0., [](double acc, const int64_t &val) {
+            return acc + std::pow(val, 2);
+        });
+
     int_val = std::sqrt(int_val * std::pow(dx, p->n_dims));
 
-    std::transform(
-        hist.data(), hist.data() + hist.num_elements(), psi.data(), [int_val](int64_t val) {
-            return static_cast<double>(val) / int_val;
-        });
+    std::transform(hist.data(),
+                   hist.data() + hist.num_elements(),
+                   psi.data(),
+                   [int_val](int64_t val) { return static_cast<double>(val) / int_val; });
 
     time_evolution.emplace_back(time, time_step, mean_energy, mean_growth_estimator, psi);
 
@@ -70,8 +67,10 @@ void DiffusionQuantumResults::save_to_file() {
         // TODO -> swtich to dimension version
         for (size_t i = 0; i < x.size(); i++) {
             for (size_t j = 0; j < x.size(); j++) {
-                int j_idx = p->n_dims > 1 ? j : x.size() / 2; 
+                int j_idx = p->n_dims > 1 ? j : x.size() / 2;
                 file << time_evolution.back().psi[i][j_idx][x.size() / 2] << "\t";
+                if (p->n_dims == 1)
+                    break;
             }
             file << "\n";
         }

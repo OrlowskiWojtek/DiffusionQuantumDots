@@ -79,6 +79,12 @@ private:
     bool apply_nodes(int walker_idx);
 
     void binning();
+
+    // importance sampling utilities -> meaby other class?
+    // this class however needs to be used by solver, and should trial wavefunction
+    // should be applied there
+    double local_energy(const walker& wlk);
+    std::array<double, 3> drift(const walker& wlk);
 };
 
 #endif
