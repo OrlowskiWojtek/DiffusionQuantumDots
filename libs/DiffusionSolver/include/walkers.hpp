@@ -76,13 +76,15 @@ private:
 
     void set_alive(int new_alive, const walker& wlk);
     void update_growth_estimator();
-    bool apply_nodes(int walker_idx);
+
+    double p_value(const walker &wlk, const walker &prev_wlk);
+    bool apply_nodes(const walker &wlk, const walker &prev_wlk);
+    void apply_drift(walker& wlk);
+    void apply_diffusion(walker& wlk);
 
     void binning();
+    void init_from_trial_wavef();
 
-    // importance sampling utilities -> meaby other class?
-    // this class however needs to be used by solver, and should trial wavefunction
-    // should be applied there
     double local_energy(const walker& wlk);
     std::array<double, 3> drift(const walker& wlk);
 };

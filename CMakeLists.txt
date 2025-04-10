@@ -28,7 +28,13 @@ if(BOOST_FOUND)
     message("Found boost, using boost ver " ${Boost_VERSION_STRING})
 endif()
 
+## Parallel TBB setup
+find_package(TBB REQUIRED)
+
+add_compile_options(-ltbb -fopenmp)
+add_definitions(-DPSTL_USE_PARALLEL_POLICIES)
+
 add_executable(${PROJECT_NAME} main.cpp)
 
-target_link_libraries(DiffusionQuantumMC DiffusionSolver FileLoader compiler_flags)
+target_link_libraries(DiffusionQuantumMC DiffusionSolver FileLoader compiler_flags TBB::tbb)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_BINARY_DIR})
