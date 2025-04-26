@@ -44,7 +44,7 @@ for line in file
 end
 
 x = y = LinRange(xmin, xmax, nbins)
-
+# TODO: read from file
 V(x,y) = 0.5 * (0.64 * (x^2) + 0.16 * (y^2))
 Vmat = [V(xv, yv) for xv in x, yv in y]
 
@@ -89,4 +89,3 @@ with_theme(theme_latexfonts()) do
     #save("plots/2d_ground_state.pdf", fig)
     display(fig)
 end
-
