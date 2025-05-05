@@ -3,7 +3,7 @@
 DiffusionQuantumSolver::DiffusionQuantumSolver()
     : walkers(std::make_unique<DiffusionWalkers>())
     , block_analyzer(std::make_unique<EnergyBlockingAnalyzer>())
-    , params(DiffusionQuantumParams::getInstance()){}
+    , params(DiffusionQuantumParams::getInstance()) {}
 
 DiffusionQuantumSolver::~DiffusionQuantumSolver() {}
 
@@ -12,22 +12,28 @@ void DiffusionQuantumSolver::init() {
     walkers->init_walkers();
 
     std::sort(params->save_hist_at.begin(), params->save_hist_at.end());
-    params->save_hist_at.push_back(params->total_time_steps - 1); // always save last one
+    params->save_hist_at.push_back(params->total_time_steps - params->eq_time_step - 1); // always save last one
     save_counter = 0;
 }
 
 void DiffusionQuantumSolver::solve() {
     init();
 
-    for (int i = 0; i < params->total_time_steps; i++) {
+    int equilibrate_loop = params->eq_time_step;
+    int collect_loop = params->total_time_steps - params->eq_time_step;
+    for (int i = 0; i < equilibrate_loop; i++) {
         diffuse();
         branch();
-        if (i > params->eq_time_step) {
-            accumulate();
-        }
+    }
+
+    for (int i = 0; i < collect_loop; i++) {
+        diffuse();
+        branch();
+        accumulate();
 
         check_saving(i);
     }
+
     final_results = walkers->get_results();
     final_results.save_to_file();
 

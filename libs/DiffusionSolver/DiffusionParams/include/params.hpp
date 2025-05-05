@@ -1,16 +1,25 @@
 #ifndef DIFFUSION_QUANTUM_PARAMS_HPP
 #define DIFFUSION_QUANTUM_PARAMS_HPP
 
+#include "DiffusionParams/include/harmonic_potential.hpp"
+#include "TrialFunctions/include/abstract_wf.hpp"
+
 #include "include/walkers_struct.hpp"
 #include <cmath>
 #include <functional>
+#include <memory>
 #include <vector>
 
 // Class implements Singleton design pattern
 class DiffusionQuantumParams {
 private:
+    std::unique_ptr<HarmonicPotentialBuilder> pot_func_builder;
+
     static DiffusionQuantumParams *instance;
-    DiffusionQuantumParams(){}
+    DiffusionQuantumParams()
+        : pot_func_builder(std::make_unique<HarmonicPotentialBuilder>()) {
+        set_default_params();
+    }
 
 public:
     DiffusionQuantumParams(const DiffusionQuantumParams &) = delete;
@@ -24,29 +33,32 @@ public:
         return instance;
     }
 
-    double d_tau = 0.001;       // time step value
-    int total_time_steps = 1e6; // total number of time steps valued d_tau
-    int eq_time_step = 1e5;     // time step to average from
-    int n0_walkers = 1000;      // beginning number of walkers alive, also target number of walkers
-    int nmax_walkers = 1100;    // maximal number of walkers alive - size of allocated vector
+    void set_default_params();
+    double d_tau;         // time step value
+    int total_time_steps; // total number of time steps valued d_tau
+    int eq_time_step;      // time step to average from
+    int n0_walkers;       // beginning number of walkers alive, also target number of walkers
+    int nmax_walkers;     // maximal number of walkers alive - size of allocated vector
 
-    std::vector<int> save_hist_at = std::vector<int>({});
-    double xmin = -5; // sampling minimum for visualisation
-    double xmax = 5;  // sampling maximum for visualisation
+    std::vector<int> save_hist_at = std::vector<int>({}); // after equilibration phase
+    double xmin; // sampling minimum for visualisation
+    double xmax; // sampling maximum for visualisation
 
-    int n_dims = 2; // number of dimensions
-    std::function<double(walker)> pot = [](walker wlk) {
-        return 0.5 * (0.16 * std::pow(wlk.y(), 2) + 0.64 * std::pow(wlk.x(), 2));
-    }; // potential of 2D quantum dot
+    int n_dims; // number of dimensions
 
-    int n_bins = 200; // number of bins used for generating wave function
+    HarmonicPotentialParams pot_params;
 
-    bool blocks_calibration = false;
-    int n_block = pow(2, 15);
+    double epsilon;   // relative permatibility
+    std::vector<double> omegas; // omega in each direction
 
-    // std::vector<double> nodes = std::vector<double>({}); // This way of applying nodes doesnt
-    // work in many dimensions
-    std::function<double(walker)> trial_wavef = [](walker wlk) { return wlk.x(); };
+    std::function<double(const walker&)> pot;
+    int n_bins;
+
+    // TODO: revise blocks
+    bool blocks_calibration;
+    int n_block;
+
+    std::unique_ptr<AbstractOrbital> trial_wavef;
 };
 
 #endif

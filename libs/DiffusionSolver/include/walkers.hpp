@@ -60,11 +60,11 @@ private:
     int accumulation_it;
 
     double d_tau;
-    std::function<double(walker)> V;
-    std::function<double(walker)> trial_wavef;
+    std::function<double(const walker&)> V;
+    std::function<double(const walker&)> trial_wavef;
 
     size_t num_alive;
-    size_t new_alive;
+    int new_alive; // might be minus, as we can kill some walkers at the beginning
     size_t target_alive;
 
     size_t n_bins;
@@ -76,9 +76,16 @@ private:
 
     void set_alive(int new_alive, const walker& wlk);
     void update_growth_estimator();
-    bool apply_nodes(int walker_idx);
+
+    double p_value(const walker &wlk, const walker &prev_wlk);
+    bool apply_nodes(const walker &wlk, const walker &prev_wlk);
+    void apply_drift(walker& wlk);
+    void apply_diffusion(walker& wlk);
 
     void binning();
+
+    double local_energy(const walker& wlk);
+    std::array<double, 3> drift(const walker& wlk);
 };
 
 #endif

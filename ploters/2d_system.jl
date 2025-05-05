@@ -1,7 +1,6 @@
 using GLMakie, CairoMakie
 using DelimitedFiles
 
-
 link_cameras_axis3(f; step=.01) = begin
   axes = filter(x -> x isa Axis3, f.content)
 
@@ -44,11 +43,11 @@ for line in file
 end
 
 x = y = LinRange(xmin, xmax, nbins)
-
-V(x,y) = 0.5 * (0.64 * (x^2) + 0.16 * (y^2))
+# TODO: read from file
+V(x,y) = 0.5 * (0.000110248^2 * (x^2) + 0.000110248^2 * (y^2))
 Vmat = [V(xv, yv) for xv in x, yv in y]
 
-##
+#
 
 GLMakie.activate!()
 
@@ -74,8 +73,8 @@ with_theme(theme_latexfonts()) do
     ticks_psi = [ round(val, digits = 3) for val in collect(LinRange(findmin(data)[1], findmax(data)[1], 6)) ]
     ticks_v =   [ round(val, digits = 3) for val in collect(LinRange(findmin(Vmat)[1], findmax(Vmat)[1], 6)) ]
 
-    Colorbar(fig[2,1], cm, label = "Ψ(x,y)", vertical = false, ticks = ticks_psi[2:end-1])
-    Colorbar(fig[3,1], cmv, label = "V(x,y)", vertical = false, ticks = ticks_v[2:end-1])
+    #Colorbar(fig[2,1], cm, label = "Ψ(x,y)", vertical = false, ticks = ticks_psi[2:end-1])
+   #Colorbar(fig[3,1], cmv, label = "V(x,y)", vertical = false, ticks = ticks_v[2:end-1])
 
     xlims!(ax, (xmin, xmax))
     ylims!(ax, (xmin, xmax))
@@ -86,7 +85,6 @@ with_theme(theme_latexfonts()) do
 
     link_cameras_axis3(fig)
     
-    #save("plots/2d_ground_state.pdf", fig)
+    #save("plots/fixed_units_2d_ground_state.pdf", fig)
     display(fig)
 end
-
