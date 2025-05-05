@@ -23,7 +23,7 @@ void DiffusionWalkers::init_walkers() { // TODO: segmentize this function
     calibrating = p->blocks_calibration;
     block_size = p->n_block;
     dims = p->n_dims;
-    trial_wavef = p->trial_wavef;
+    trial_wavef = p->trial_wavef->get_orbital();
 
     // initialize containers
     walkers.resize(p->nmax_walkers);
@@ -48,7 +48,6 @@ void DiffusionWalkers::init_walkers() { // TODO: segmentize this function
         });
     });
 
-    init_from_trial_wavef();
     std::copy(walkers.begin(), walkers.end(), copy_walkers.begin());
 
     movement_generator = boost::random::normal_distribution<double>(0, std::sqrt(p->d_tau));
@@ -61,37 +60,6 @@ void DiffusionWalkers::init_walkers() { // TODO: segmentize this function
     current_it = 0;
     accumulation_it = 0;
     blocks_passed = 0;
-}
-
-// markow chain based distribution
-void DiffusionWalkers::init_from_trial_wavef() {
-    walkers[0] = walker(0, 0, 0);
-    boost::random::mt19937 rng;
-    rng.seed(std::time(0));
-
-    double dr = 0.5;
-    boost::random::uniform_real_distribution<> initial_dist(-dr, dr);
-    boost::random::uniform_real_distribution<> uni_dist(0, 1);
-
-    int generated = 1;
-    while (generated < p->n0_walkers) {
-        walker new_pos = walkers[generated - 1];
-        for (int d = 0; d < dims; d++) {
-            new_pos.cords[d] += initial_dist(rng);
-        }
-        if (uni_dist(rng) < std::min({1., trial_wavef(new_pos) / trial_wavef(walkers[generated - 1])})) {
-            walkers[generated] = new_pos;
-            generated++;
-        }
-    }
-
-    growth_estimator = std::accumulate(walkers.begin(),
-                                       walkers.begin() + p->n0_walkers,
-                                       0.,
-                                       [this](double acc, const walker &wlk) {
-                                           return acc + local_energy(wlk);
-                                       }) /
-                       p->n0_walkers;
 }
 
 void DiffusionWalkers::diffuse() {
@@ -139,7 +107,7 @@ double DiffusionWalkers::p_value(const walker &wlk, const walker &prev_wlk) {
 }
 
 bool DiffusionWalkers::apply_nodes(const walker &wlk, const walker &prev_wlk) {
-    return (trial_wavef(wlk) * trial_wavef(prev_wlk)) < 0;
+    return (trial_wavef(wlk) * trial_wavef(prev_wlk)) <= 0;
 }
 
 void DiffusionWalkers::branch() {
@@ -157,12 +125,12 @@ void DiffusionWalkers::branch() {
 }
 
 void DiffusionWalkers::set_alive(int N, const walker &wlk) {
-    for (size_t i = new_alive; i < new_alive + N; i++) {
-        if (i >= walkers.size()) {
+    for (int i = new_alive; i < new_alive + N; i++) {
+        if (i >= static_cast<int>(walkers.size())) {
             std::cout << "Error: The programme ran out of allocated memory. "
                          "Required resize."
                       << std::endl;
-            continue;
+            break;
         }
         copy_walkers[i] = wlk;
     }
@@ -235,6 +203,7 @@ DiffusionQuantumResults &DiffusionWalkers::get_results() { return *results; }
 
 double DiffusionWalkers::local_energy(const walker &wlk) {
     double dr = 1e-6;
+    double dr2 = 1e-12;
     double kinetic_term = 0;
     double cent_value = trial_wavef(wlk);
 
@@ -250,7 +219,7 @@ double DiffusionWalkers::local_energy(const walker &wlk) {
         kinetic_term += (back_value - 2 * cent_value + forw_value);
     }
 
-    kinetic_term = -0.5 * kinetic_term / (cent_value * pow(dr, 2));
+    kinetic_term = -0.5 * kinetic_term / (cent_value * dr2);
 
     return kinetic_term + V(wlk);
 }

@@ -1,4 +1,5 @@
 #include "include/results.hpp"
+#include "include/UnitHandler.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -47,8 +48,8 @@ void DiffusionQuantumResults::add_histogram(double time,
     std::cout << "Adding histogram data" << std::endl;
     std::cout << "time = " << time << "\n";
     std::cout << "time step = " << time_step << "\n";
-    std::cout << "energy = " << mean_energy << "\n";
-    std::cout << "growth estimator = " << mean_growth_estimator << "\n";
+    std::cout << "energy [meV] = " << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, mean_energy) << "\n";
+    std::cout << "growth estimator = " << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, mean_energy) << "\n";
     std::cout << "|--------------------------------------------------------|\n";
 }
 

@@ -5,6 +5,8 @@ add_library(DiffusionSolver
             src/blocking.cpp
             DiffusionParams/src/params.cpp
             DiffusionParams/src/harmonic_potential.cpp
+            TrialFunctions/src/harmonic_oscillator.cpp
+            TrialFunctions/src/static_orbital.cpp
             )
 
 # Optimize this library

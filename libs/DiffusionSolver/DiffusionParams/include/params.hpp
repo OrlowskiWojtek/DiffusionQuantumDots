@@ -2,6 +2,8 @@
 #define DIFFUSION_QUANTUM_PARAMS_HPP
 
 #include "DiffusionParams/include/harmonic_potential.hpp"
+#include "TrialFunctions/include/abstract_wf.hpp"
+
 #include "include/walkers_struct.hpp"
 #include <cmath>
 #include <functional>
@@ -56,7 +58,7 @@ public:
     bool blocks_calibration;
     int n_block;
 
-    std::function<double(walker)> trial_wavef;
+    std::unique_ptr<AbstractOrbital> trial_wavef;
 };
 
 #endif

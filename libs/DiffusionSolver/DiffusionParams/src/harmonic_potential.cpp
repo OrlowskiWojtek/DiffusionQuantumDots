@@ -1,10 +1,8 @@
 #include "DiffusionParams/include/harmonic_potential.hpp"
-#include "include/UnitHandler.hpp"
 #include <cmath>
 
 void HarmonicPotentialBuilder::fix_units() {
     omegas_squared.resize(p.omegas.size());
-    //std::transform(p.omegas.begin(), p.omegas.end(), p.omegas.begin(), [&](double om){ return UnitHandler::energy(UnitHandler::TO_AU, om);});
     std::transform(p.omegas.begin(), p.omegas.end(), omegas_squared.begin(), [](double om){ return std::pow(om, 2);});
 }
 

@@ -6,9 +6,9 @@
 struct walker {
     std::array<double, 3> cords;
 
-    double &x() { return cords[0]; };
-    double &y() { return cords[1]; };
-    double &z() { return cords[2]; };
+    const double &x() const { return cords[0]; };
+    const double &y() const { return cords[1]; };
+    const double &z() const { return cords[2]; };
 
     walker() = default;
     walker(double xval, double yval, double zval){
