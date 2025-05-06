@@ -1,8 +1,8 @@
 add_library(DiffusionSolver 
-            src/results.cpp
-            src/solver.cpp
-            src/walkers.cpp
-            src/blocking.cpp
+            Core/src/results.cpp
+            Core/src/solver.cpp
+            Core/src/walkers.cpp
+            Core/src/blocking.cpp
             DiffusionParams/src/params.cpp
             DiffusionParams/src/harmonic_potential.cpp
             TrialFunctions/src/harmonic_oscillator.cpp

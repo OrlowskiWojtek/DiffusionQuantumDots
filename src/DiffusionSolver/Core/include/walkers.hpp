@@ -1,13 +1,13 @@
 #ifndef DIFFUSION_WALKERS_HPP
 #define DIFFUSION_WALKERS_HPP
 
+#include <boost/multi_array.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>
-#include <boost/multi_array.hpp>
 
 #include "DiffusionParams/include/params.hpp"
-#include "include/results.hpp"
-#include "include/walkers_struct.hpp"
+#include "Core/include/results.hpp"
+#include "Core/include/walkers_struct.hpp"
 
 #include <boost/random/uniform_real_distribution.hpp>
 #include <memory>
@@ -29,7 +29,7 @@ public:
     DiffusionQuantumResults &get_results();
 
 private:
-    DiffusionQuantumParams* p;
+    DiffusionQuantumParams *p;
 
     std::vector<walker> walkers;
     std::vector<walker> copy_walkers;
@@ -60,8 +60,8 @@ private:
     int accumulation_it;
 
     double d_tau;
-    std::function<double(const walker&)> V;
-    std::function<double(const walker&)> trial_wavef;
+    std::function<double(const walker &)> V;
+    std::function<double(const walker &)> trial_wavef;
 
     size_t num_alive;
     int new_alive; // might be minus, as we can kill some walkers at the beginning
@@ -74,18 +74,19 @@ private:
 
     std::unique_ptr<DiffusionQuantumResults> results;
 
-    void set_alive(int new_alive, const walker& wlk);
+    void set_alive(int new_alive, const walker &wlk);
     void update_growth_estimator();
 
     double p_value(const walker &wlk, const walker &prev_wlk);
     bool apply_nodes(const walker &wlk, const walker &prev_wlk);
-    void apply_drift(walker& wlk);
-    void apply_diffusion(walker& wlk);
+    void reject_move(walker &wlk, walker &prev_wlk);
+    void apply_drift(walker &wlk);
+    void apply_diffusion(walker &wlk);
 
     void binning();
 
-    double local_energy(const walker& wlk);
-    std::array<double, 3> drift(const walker& wlk);
+    double local_energy(const walker &wlk);
+    std::array<double, 3> drift(const walker &wlk);
 };
 
 #endif

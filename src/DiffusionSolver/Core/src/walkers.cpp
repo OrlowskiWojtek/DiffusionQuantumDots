@@ -1,4 +1,4 @@
-#include "include/walkers.hpp"
+#include "Core/include/walkers.hpp"
 #include <algorithm>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <ctime>
@@ -12,7 +12,6 @@ DiffusionWalkers::DiffusionWalkers()
 DiffusionWalkers::~DiffusionWalkers() {}
 
 void DiffusionWalkers::init_walkers() { // TODO: segmentize this function
-    // initialize params
     xmin = p->xmin;
     xmax = p->xmax;
     d_tau = p->d_tau;
@@ -94,9 +93,10 @@ void DiffusionWalkers::eval_p() {
                    walkers.begin() + num_alive,
                    copy_walkers.begin(),
                    p_values.begin(),
-                   [&](const walker &wlk, const walker &prev_wlk) {
-                       if (apply_nodes(wlk, prev_wlk))
+                   [&](walker &wlk, walker &prev_wlk) {
+                       if (apply_nodes(wlk, prev_wlk)) {
                            return 0.;
+                       }
 
                        return p_value(wlk, prev_wlk);
                    });
@@ -109,6 +109,8 @@ double DiffusionWalkers::p_value(const walker &wlk, const walker &prev_wlk) {
 bool DiffusionWalkers::apply_nodes(const walker &wlk, const walker &prev_wlk) {
     return (trial_wavef(wlk) * trial_wavef(prev_wlk)) <= 0;
 }
+
+void DiffusionWalkers::reject_move(walker &wlk, walker &prev_wlk) { wlk = prev_wlk; }
 
 void DiffusionWalkers::branch() {
     new_alive = 0;
@@ -169,10 +171,13 @@ void DiffusionWalkers::binning() {
 void DiffusionWalkers::count() {
     binning();
 
-    current_Et =
-        std::accumulate(walkers.begin(), walkers.begin() + num_alive, 0., [this](double acc, const walker &wlk) {
-            return acc + local_energy(wlk);
-        });
+    current_Et = std::accumulate(walkers.begin(),
+                                 walkers.begin() + num_alive,
+                                 0.,
+                                 [this](double acc, const walker &wlk) {
+                                     return acc + local_energy(wlk);
+                                 }) /
+                 static_cast<double>(num_alive);
 
     ground_state_estimator += current_Et;
     accumulation_it++;
@@ -194,7 +199,7 @@ void DiffusionWalkers::count() {
 void DiffusionWalkers::save_progress() {
     results->add_histogram(static_cast<double>(current_it) * d_tau,
                            current_it,
-                           ground_state_estimator / accumulation_it / static_cast<double>(num_alive),
+                           ground_state_estimator / accumulation_it,
                            Eblock,
                            hist);
 }

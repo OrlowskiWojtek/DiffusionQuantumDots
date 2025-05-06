@@ -1,4 +1,4 @@
-#include "include/solver.hpp"
+#include "Core/include/solver.hpp"
 
 DiffusionQuantumSolver::DiffusionQuantumSolver()
     : walkers(std::make_unique<DiffusionWalkers>())

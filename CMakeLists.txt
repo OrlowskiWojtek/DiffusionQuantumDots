@@ -17,9 +17,9 @@ target_compile_options(compiler_flags INTERFACE
 
 configure_file(DQMCConfig.h.in DQMCConfig.h)
 
-add_subdirectory(libs/UnitHandler)
-add_subdirectory(libs/DiffusionSolver)
-add_subdirectory(libs/FileLoader)
+add_subdirectory(src/UnitHandler)
+add_subdirectory(src/DiffusionSolver)
+add_subdirectory(src/FileLoader)
 
 ## BOOST setup
 FIND_PACKAGE( Boost 1.74 COMPONENTS program_options REQUIRED )
@@ -35,7 +35,7 @@ find_package(TBB REQUIRED)
 add_compile_options(-ltbb -fopenmp)
 add_definitions(-DPSTL_USE_PARALLEL_POLICIES)
 
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp)
 
 target_link_libraries(DiffusionQuantumMC DiffusionSolver FileLoader compiler_flags TBB::tbb)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_BINARY_DIR})

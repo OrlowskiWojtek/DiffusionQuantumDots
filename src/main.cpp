@@ -1,5 +1,5 @@
 #include "DQMCConfig.h"
-#include "include/solver.hpp"
+#include "Core/include/solver.hpp"
 
 #include <iomanip>
 #include <iostream>

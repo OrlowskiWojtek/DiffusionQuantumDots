@@ -1,7 +1,7 @@
 #ifndef ABSTRACT_WF_HPP
 #define ABSTRACT_WF_HPP
 
-#include "include/walkers_struct.hpp"
+#include "Core/include/walkers_struct.hpp"
 #include <functional>
 
 class AbstractOrbital{

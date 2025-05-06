@@ -2,8 +2,8 @@
 #define DIFFUSION_QUANTUM_SOLVER_HPP
 
 #include "DiffusionParams/include/params.hpp"
-#include "walkers.hpp"
-#include "blocking.hpp"
+#include "Core/include/walkers.hpp"
+#include "Core/include/blocking.hpp"
 #include <memory>
 
 class DiffusionQuantumSolver{

@@ -6,23 +6,22 @@
 DiffusionQuantumParams *DiffusionQuantumParams::instance = nullptr;
 
 void DiffusionQuantumParams::set_default_params() {
-    d_tau = 15.;              // time step value
-    total_time_steps = 1000; // total number of time steps valued d_tau
-    eq_time_step = 700;      // time step to average from
+    d_tau = 10.;              // time step value
+    total_time_steps = 2000; // total number of time steps valued d_tau
+    eq_time_step = 1500;      // time step to average from
     n0_walkers = 10000;       // beginning number of walkers alive, also target number of walkers
     nmax_walkers = 15000;     // maximal number of walkers alive - size of allocated vector
 
     save_hist_at = std::vector<int>({});                 // after equilibration phase
-    xmin = UnitHandler::length(UnitHandler::TO_AU, -20); // sampling minimum for visualisation
-    xmax = UnitHandler::length(UnitHandler::TO_AU, 20);  // sampling maximum for visualisation
+    xmin = UnitHandler::length(UnitHandler::TO_AU, -10); // sampling minimum for visualisation
+    xmax = UnitHandler::length(UnitHandler::TO_AU, 10);  // sampling maximum for visualisation
 
     n_dims = 2;     // number of dimensions
     epsilon = 13.6; // relative permatibility
 
-    std::vector<double> omegas({5., 3., 0.});
+    double effective_mass = 0.067;
+    std::vector<double> omegas({5. / std::sqrt(effective_mass), 3. / std::sqrt(effective_mass), 0.});
     std::transform(omegas.begin(), omegas.end(), omegas.begin(), [&](double om){ return UnitHandler::energy(UnitHandler::TO_AU, om);});
-
-    double effective_mass = 1;
 
     pot_params.effective_mass = effective_mass;
     pot_params.dims = n_dims;

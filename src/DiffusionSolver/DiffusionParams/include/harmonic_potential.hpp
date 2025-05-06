@@ -1,7 +1,7 @@
 #ifndef HARMONIC_POTENTIAL_HPP
 #define HARMONIC_POTENTIAL_HPP
 
-#include "include/walkers_struct.hpp"
+#include "Core/include/walkers_struct.hpp"
 #include <functional>
 
 struct HarmonicPotentialParams{
@@ -22,7 +22,7 @@ private:
     std::vector<double> omegas_squared;
     HarmonicPotentialParams p;
 
-    void fix_units();
+    void precalculate();
     void build_potential();
 };
 

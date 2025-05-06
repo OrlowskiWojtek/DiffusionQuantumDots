@@ -5,12 +5,12 @@ filename = "../build/TrialWavefunctionTest"
 data = readdlm(filename, comments = true)
 
 file = readlines(filename)
-xmin = -20 / 0.0529
-xmax = 20 / 0.0529
+xmin = -10 / 0.0529
+xmax = 10 / 0.0529
 nbins = size(data, 1)
 
 x = y = LinRange(xmin, xmax, nbins)
-##
+#
 
 GLMakie.activate!()
 
@@ -28,8 +28,8 @@ with_theme(theme_latexfonts()) do
 
     ticks_psi = [ round(val, digits = 3) for val in collect(LinRange(findmin(data)[1], findmax(data)[1], 6)) ]
 
-    xlims!(ax, (xmin, xmax))
-    ylims!(ax, (xmin, xmax))
+    #xlims!(ax, (xmin, xmax))
+    #ylims!(ax, (xmin, xmax))
     zlims!(ax, (0, nothing))
 
     display(fig)

@@ -4,7 +4,7 @@
 #include "DiffusionParams/include/harmonic_potential.hpp"
 #include "TrialFunctions/include/abstract_wf.hpp"
 
-#include "include/walkers_struct.hpp"
+#include "Core/include/walkers_struct.hpp"
 #include <cmath>
 #include <functional>
 #include <memory>
