@@ -115,7 +115,7 @@ void DiffusionWalkers::reject_move(walker &wlk, walker &prev_wlk) { wlk = prev_w
 void DiffusionWalkers::branch() {
     new_alive = 0;
 
-    for (size_t i = 0; i < num_alive; i++) {
+    for (int i = 0; i < num_alive; i++) {
         int m = static_cast<int>(p_values[i] + uniform_generator(uni_rng));
         set_alive(m, walkers[i]);
     }
@@ -197,11 +197,8 @@ void DiffusionWalkers::count() {
 }
 
 void DiffusionWalkers::save_progress() {
-    results->add_histogram(static_cast<double>(current_it) * d_tau,
-                           current_it,
-                           ground_state_estimator / accumulation_it,
-                           Eblock,
-                           hist);
+    results->add_histogram(
+        static_cast<double>(current_it) * d_tau, current_it, ground_state_estimator / accumulation_it, Eblock, hist);
 }
 
 DiffusionQuantumResults &DiffusionWalkers::get_results() { return *results; }
@@ -244,4 +241,16 @@ std::array<double, 3> DiffusionWalkers::drift(const walker &wlk) {
     }
 
     return dr_force;
+}
+
+double DiffusionWalkers::trial_wf_value(const walker &wlk) { return trial_wavef(wlk); }
+
+// TODO after upgrade libstdc++ update to views::zip with std::acumulate
+double DiffusionWalkers::distance(const walker &wlk_a, const walker &wlk_b) {
+    double s = 0;
+    for(int i = 0; i < dims; i++){
+        s += std::pow(wlk_a.cords[i] - wlk_b.cords[i], 2);
+    }
+
+    return std::sqrt(s);
 }

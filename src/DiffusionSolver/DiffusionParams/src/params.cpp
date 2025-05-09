@@ -7,8 +7,8 @@ DiffusionQuantumParams *DiffusionQuantumParams::instance = nullptr;
 
 void DiffusionQuantumParams::set_default_params() {
     d_tau = 10.;              // time step value
-    total_time_steps = 2000; // total number of time steps valued d_tau
-    eq_time_step = 1500;      // time step to average from
+    total_time_steps = 20000; // total number of time steps valued d_tau
+    eq_time_step = 15000;      // time step to average from
     n0_walkers = 10000;       // beginning number of walkers alive, also target number of walkers
     nmax_walkers = 15000;     // maximal number of walkers alive - size of allocated vector
 
@@ -16,6 +16,7 @@ void DiffusionQuantumParams::set_default_params() {
     xmin = UnitHandler::length(UnitHandler::TO_AU, -10); // sampling minimum for visualisation
     xmax = UnitHandler::length(UnitHandler::TO_AU, 10);  // sampling maximum for visualisation
 
+    n_electrons = 1;
     n_dims = 2;     // number of dimensions
     epsilon = 13.6; // relative permatibility
 

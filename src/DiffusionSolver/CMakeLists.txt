@@ -3,6 +3,7 @@ add_library(DiffusionSolver
             Core/src/solver.cpp
             Core/src/walkers.cpp
             Core/src/blocking.cpp
+            Core/src/electrons.cpp
             DiffusionParams/src/params.cpp
             DiffusionParams/src/harmonic_potential.cpp
             TrialFunctions/src/harmonic_oscillator.cpp

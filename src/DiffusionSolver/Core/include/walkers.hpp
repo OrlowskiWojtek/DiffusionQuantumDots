@@ -20,13 +20,20 @@ public:
 
     void init_walkers();
     void diffuse();
-    void branch();
     void eval_p();
+    void branch();
 
     void count();
     void save_progress();
 
     DiffusionQuantumResults &get_results();
+
+    void apply_drift(walker &wlk);
+    void apply_diffusion(walker &wlk);
+
+    double trial_wf_value(const walker& wlk);
+    double local_energy(const walker &wlk);
+    double distance(const walker& wlk_a, const walker& wlk_b);
 
 private:
     DiffusionQuantumParams *p;
@@ -63,9 +70,9 @@ private:
     std::function<double(const walker &)> V;
     std::function<double(const walker &)> trial_wavef;
 
-    size_t num_alive;
+    int num_alive;
     int new_alive; // might be minus, as we can kill some walkers at the beginning
-    size_t target_alive;
+    int target_alive;
 
     size_t n_bins;
     size_t block_size;
@@ -80,12 +87,9 @@ private:
     double p_value(const walker &wlk, const walker &prev_wlk);
     bool apply_nodes(const walker &wlk, const walker &prev_wlk);
     void reject_move(walker &wlk, walker &prev_wlk);
-    void apply_drift(walker &wlk);
-    void apply_diffusion(walker &wlk);
 
     void binning();
 
-    double local_energy(const walker &wlk);
     std::array<double, 3> drift(const walker &wlk);
 };
 

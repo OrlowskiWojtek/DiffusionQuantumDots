@@ -44,7 +44,8 @@ public:
     double xmin; // sampling minimum for visualisation
     double xmax; // sampling maximum for visualisation
 
-    int n_dims; // number of dimensions
+    int n_electrons; // number of electrons;
+    int n_dims;      // number of dimensions
 
     HarmonicPotentialParams pot_params;
 
