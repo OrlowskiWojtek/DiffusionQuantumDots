@@ -12,6 +12,9 @@ public:
     void print() override;
 
     std::function<double(const walker& wlk)> get_orbital() override;
+
+private:
+    void print_test_to_file() override;
 };
 
 #endif

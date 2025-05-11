@@ -1,7 +1,7 @@
 #include "Core/include/solver.hpp"
 
 DiffusionQuantumSolver::DiffusionQuantumSolver()
-    : walkers(std::make_unique<DiffusionWalkers>())
+    : electrons(std::make_unique<DiffusionQuantumElectrons>())
     , block_analyzer(std::make_unique<EnergyBlockingAnalyzer>())
     , params(DiffusionQuantumParams::getInstance()) {}
 
@@ -9,8 +9,6 @@ DiffusionQuantumSolver::~DiffusionQuantumSolver() {}
 
 // TODO: init also filenames and other solve related systems
 void DiffusionQuantumSolver::init() {
-    walkers->init_walkers();
-
     std::sort(params->save_hist_at.begin(), params->save_hist_at.end());
     params->save_hist_at.push_back(params->total_time_steps - params->eq_time_step - 1); // always save last one
     save_counter = 0;
@@ -21,10 +19,12 @@ void DiffusionQuantumSolver::solve() {
 
     int equilibrate_loop = params->eq_time_step;
     int collect_loop = params->total_time_steps - params->eq_time_step;
+
     for (int i = 0; i < equilibrate_loop; i++) {
         diffuse();
         branch();
     }
+
 
     for (int i = 0; i < collect_loop; i++) {
         diffuse();
@@ -34,7 +34,8 @@ void DiffusionQuantumSolver::solve() {
         check_saving(i);
     }
 
-    final_results = walkers->get_results();
+
+    final_results = electrons->get_results();
     final_results.save_to_file();
 
     if (params->blocks_calibration) {
@@ -43,18 +44,18 @@ void DiffusionQuantumSolver::solve() {
     }
 }
 
-void DiffusionQuantumSolver::diffuse() { walkers->diffuse(); }
+void DiffusionQuantumSolver::diffuse() { electrons->diffuse(); }
 
 void DiffusionQuantumSolver::branch() {
-    walkers->eval_p();
-    walkers->branch();
+    electrons->eval_p();
+    electrons->branch();
 }
 
-void DiffusionQuantumSolver::accumulate() { walkers->count(); }
+void DiffusionQuantumSolver::accumulate() { electrons->count(); }
 
 void DiffusionQuantumSolver::check_saving(int iter_idx) {
     if (iter_idx == params->save_hist_at[save_counter]) {
-        walkers->save_progress();
+        electrons->save_progress();
         if (save_counter < params->save_hist_at.size() - 1) {
             save_counter++;
         }

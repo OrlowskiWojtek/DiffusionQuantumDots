@@ -1,8 +1,8 @@
 #ifndef DIFFUSION_QUANTUM_SOLVER_HPP
 #define DIFFUSION_QUANTUM_SOLVER_HPP
 
+#include "Core/include/electrons.hpp"
 #include "DiffusionParams/include/params.hpp"
-#include "Core/include/walkers.hpp"
 #include "Core/include/blocking.hpp"
 #include <memory>
 
@@ -15,8 +15,8 @@ public:
     void solve();
 
 private:
-    std::shared_ptr<DiffusionWalkers> walkers;
-    std::shared_ptr<EnergyBlockingAnalyzer> block_analyzer;
+    std::unique_ptr<DiffusionQuantumElectrons> electrons;
+    std::unique_ptr<EnergyBlockingAnalyzer> block_analyzer;
     DiffusionQuantumParams* params;
 
     DiffusionQuantumResults final_results;

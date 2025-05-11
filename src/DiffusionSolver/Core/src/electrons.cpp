@@ -1,17 +1,12 @@
 #include "Core/include/electrons.hpp"
+#include "Core/include/results.hpp"
 #include <execution>
 #include <numeric>
 
 DiffusionQuantumElectrons::DiffusionQuantumElectrons()
     : p(DiffusionQuantumParams::getInstance())
-    , walkers_helper(std::make_unique<DiffusionWalkers>()) {
-
-    electrons.resize(p->n_electrons);
-    for (auto &ele : electrons) {
-        ele.resize(p->nmax_walkers);
-    }
-
-    p_values.resize(p->nmax_walkers);
+    , walkers_helper(std::make_unique<DiffusionWalkers>())
+    , results(std::make_unique<DiffusionQuantumResults>()) {
 
     current_it = 0;
     accu_it = 0;
@@ -19,15 +14,51 @@ DiffusionQuantumElectrons::DiffusionQuantumElectrons()
     growth_estimator = 0;
     e_block = 0;
 
+    num_alive = p->n0_walkers;
+    target_alive = p->n0_walkers;
+
     init_rngs();
+    init_containers();
+}
+
+void DiffusionQuantumElectrons::init_rngs() {
+    uniform_generator = boost::random::uniform_real_distribution<double>(0, 1);
+}
+
+void DiffusionQuantumElectrons::init_containers() {
+    boost::random::mt19937 rng;
+    rng.seed(std::time(0));
+    boost::random::uniform_real_distribution<> initial_dist(p->xmin, p->xmax);
+
+    electrons.resize(p->nmax_walkers);
+    copy_electrons.resize(p->nmax_walkers);
+    for (auto &ele : electrons) {
+        ele.resize(p->n_electrons);
+        std::for_each(ele.begin(), ele.end(), [&](walker &wlk) {
+            wlk.cords.fill(0);
+        });
+        std::for_each(ele.begin(), ele.end(), [&](walker &wlk) {
+            std::for_each(wlk.cords.begin(), wlk.cords.begin() + p->n_dims, [&](double &cord) {
+                cord = initial_dist(rng);
+            });
+        });
+    }
+
+    std::copy(electrons.begin(), electrons.end(), copy_electrons.begin());
+    p_values.resize(p->nmax_walkers);
+
+    summed_walkers.resize(boost::extents[p->n_bins][p->n_bins][p->n_bins]);
+    std::for_each(summed_walkers.data(), summed_walkers.data() + summed_walkers.num_elements(), [](int64_t &val) {
+        val = 0;
+    });
 }
 
 void DiffusionQuantumElectrons::diffuse() {
     current_it++;
 
-    std::for_each(electrons.begin(), electrons.begin() + num_alive, [&](electron_walker &ele) {
+    std::for_each(electrons.begin(), electrons.begin() + num_alive, [&](electron_walker &ele) {   
+        apply_drift(ele);
         std::for_each(ele.begin(), ele.end(), [&](walker &wlk) {
-            walkers_helper->apply_drift(wlk);
             walkers_helper->apply_diffusion(wlk);
         });
     });
@@ -46,6 +77,7 @@ void DiffusionQuantumElectrons::eval_p() {
 
                        return p_value(wlk, prev_wlk);
                    });
+
 }
 
 void DiffusionQuantumElectrons::branch() {
@@ -57,7 +89,7 @@ void DiffusionQuantumElectrons::branch() {
     }
 
     num_alive = new_alive;
-    std::copy(electrons.begin(), copy_electrons.begin() + num_alive, electrons.begin());
+    std::copy(copy_electrons.begin(), copy_electrons.begin() + num_alive, electrons.begin());
 
     update_growth_estimator();
 }
@@ -77,7 +109,7 @@ void DiffusionQuantumElectrons::set_alive(int N, const electron_walker &wlk) {
 }
 
 // TODO: thing about it
-void DiffusionQuantumElectrons::update_growth_estimator(){
+void DiffusionQuantumElectrons::update_growth_estimator() {
     if (accu_it == 0) {
         int nblock = current_it % p->n_block;
         e_block = (growth_estimator + e_block * nblock) / (nblock + 1);
@@ -99,19 +131,19 @@ bool DiffusionQuantumElectrons::apply_nodes(const electron_walker &wlk, const el
     return (trial_wavef(wlk) * trial_wavef(prev_wlk)) <= 0;
 }
 
-double DiffusionQuantumElectrons::p_value(const electron_walker & wlk, const electron_walker & prev_wlk) {
+double DiffusionQuantumElectrons::p_value(const electron_walker &wlk, const electron_walker &prev_wlk) {
     return std::exp(-p->d_tau * ((local_energy(wlk) + local_energy(prev_wlk)) / 2. - growth_estimator));
 }
 
-double DiffusionQuantumElectrons::local_energy(const electron_walker& wlk){
-    double local_ene = std::accumulate(wlk.begin(), wlk.end(), 0., [&](double sum, const walker& wlk){
+double DiffusionQuantumElectrons::local_energy(const electron_walker &wlk) {
+    double local_ene = std::accumulate(wlk.begin(), wlk.end(), 0., [&](double sum, const walker &wlk) {
         return sum + walkers_helper->local_energy(wlk);
     });
 
     // TODO: hardcoded for now for coulomb interaction -> possibly change
     double interaction = 0;
-    for(int i = 0; i < p->n_electrons; i++){
-        for(int j = i + 1; j < p->n_electrons; j++){
+    for (int i = 0; i < p->n_electrons; i++) {
+        for (int j = i + 1; j < p->n_electrons; j++) {
             interaction += 1 / (p->epsilon * walkers_helper->distance(wlk[i], wlk[j]));
         }
     }
@@ -119,6 +151,92 @@ double DiffusionQuantumElectrons::local_energy(const electron_walker& wlk){
     return local_ene + interaction;
 }
 
-void DiffusionQuantumElectrons::init_rngs(){
-    uniform_generator = boost::random::uniform_real_distribution<double>(0, 1);
+double DiffusionQuantumElectrons::local_energy_average() {
+    double loc_ene_avg = std::accumulate(electrons.begin(),
+                                         electrons.begin() + num_alive,
+                                         0.,
+                                         [this](double acc, const electron_walker &wlk) {
+                                             return acc + local_energy(wlk);
+                                         }) /
+                         static_cast<double>(num_alive);
+
+    return loc_ene_avg;
+}
+
+// need to test and reinvent error estimation
+void DiffusionQuantumElectrons::count() {
+    binning();
+
+    mixed_estimator = local_energy_average();
+
+    ground_state_estimator += mixed_estimator;
+    accu_it++;
+
+    if (p->blocks_calibration) {
+        results->add_energies(mixed_estimator, e_block);
+    }
+
+    // TODO add overblocks estimation
+}
+
+// TODO smart binning for visualisation is needed - like class just for binning in all dimensions x1 vs x2, y1 vs y2
+// etc. now it is summing all walkers into one bin
+void DiffusionQuantumElectrons::binning() {
+    std::for_each(electrons.begin(), electrons.begin() + num_alive, [&](const electron_walker &wlk) {
+        std::for_each(wlk.begin(), wlk.end(), [&](const walker &wlk) {
+            for (int dim = 0; dim < p->n_dims; dim++) {
+                if (wlk.cords[dim] < p->xmin || wlk.cords[dim] > p->xmax) {
+                    return;
+                }
+            }
+
+            std::array<size_t, 3> walker_bin;
+            walker_bin[0] = static_cast<int>((p->xmax - wlk.cords[0]) / (p->xmax - p->xmin) * p->n_bins);
+            walker_bin[1] = static_cast<int>((p->xmax - wlk.cords[1]) / (p->xmax - p->xmin) * p->n_bins);
+            walker_bin[2] = static_cast<int>((p->xmax - wlk.cords[2]) / (p->xmax - p->xmin) * p->n_bins);
+            summed_walkers[walker_bin[0]][walker_bin[1]][walker_bin[2]]++; // TODO move hist to result class
+        });
+    });
+}
+
+void DiffusionQuantumElectrons::save_progress() {
+    results->add_histogram(static_cast<double>(current_it) * p->d_tau,
+                           current_it,
+                           ground_state_estimator / accu_it,
+                           e_block,
+                           summed_walkers);
+}
+
+DiffusionQuantumResults &DiffusionQuantumElectrons::get_results() { return *results; }
+
+std::array<double, 3> DiffusionQuantumElectrons::drift(const electron_walker &wlk) {
+    std::array<double, 3> dr_force; 
+
+    double dr = 1e-6;
+    double cent_value = trial_wavef(wlk);
+
+    for (int d = 0; d < p->n_dims; d++) {
+        electron_walker forward_walker = wlk;
+        for (walker &wlk : forward_walker) {
+            wlk.cords[d] += dr;
+        }
+
+        double forw_value = trial_wavef(forward_walker);
+        dr_force[d] = (forw_value - cent_value) / (dr * cent_value);
+    }
+
+    return dr_force;
+}
+
+void DiffusionQuantumElectrons::apply_drift(electron_walker &ele_wlk) {
+    std::array<double, 3> drift_force = drift(ele_wlk);
+    std::for_each(ele_wlk.begin(), ele_wlk.end(), [&](walker &wlk) {
+        std::transform(wlk.cords.begin(),
+                       wlk.cords.begin() + p->n_dims,
+                       drift_force.begin(),
+                       wlk.cords.begin(),
+                       [&](double &cord, double &drift_value) {
+                           return cord + p->d_tau * drift_value;
+                       });
+    });
 }
