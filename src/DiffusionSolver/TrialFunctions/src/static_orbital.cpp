@@ -18,25 +18,3 @@ double StaticOrbital::operator()(const walker& wlk){
     return 1;
 }
 
-
-void StaticOrbital::print_test_to_file() {
-    double xmin = UnitHandler::length(UnitHandler::TO_AU, -20.);
-    double xmax = UnitHandler::length(UnitHandler::TO_AU, 20.);
-    double dx = (xmax - xmin) / 100.;
-
-    std::ofstream file("TrialWavefunctionTest");
-
-    walker test_walker;
-    test_walker.cords[2] = 0;
-
-    for (double i = xmin; i < xmax; i += dx) {
-        for (double j = xmin; j < xmax; j += dx) {
-            test_walker.cords[0] = i;
-            test_walker.cords[1] = j;
-            file << (*this)(test_walker) << "\t";
-        }
-        file << "\n";
-    }
-    file << std::endl;
-    file.close();
-}

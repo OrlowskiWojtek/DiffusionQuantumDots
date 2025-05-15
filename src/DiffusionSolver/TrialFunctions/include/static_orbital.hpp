@@ -1,10 +1,10 @@
 #ifndef STATIC_ORBITAL_HPP
 #define STATIC_ORBITAL_HPP
 
-#include "TrialFunctions/include/abstract_wf.hpp"
+#include "TrialFunctions/include/abstract_singlebody_orbital.hpp"
 #include <functional>
 
-class StaticOrbital : public AbstractOrbital {
+class StaticOrbital : public AbstractSinglebodyOrbital {
 public:
     StaticOrbital();
 
@@ -14,7 +14,6 @@ public:
     std::function<double(const walker& wlk)> get_orbital() override;
 
 private:
-    void print_test_to_file() override;
 };
 
 #endif

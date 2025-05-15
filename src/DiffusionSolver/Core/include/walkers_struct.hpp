@@ -2,6 +2,7 @@
 #define STRUCT_WALKER_HPP
 
 #include <array>
+#include <vector>
 
 struct walker {
     std::array<double, 3> cords;
@@ -17,5 +18,11 @@ struct walker {
         cords[2] = zval;
     }
 };
+
+// electron_walker representing simple walker in many dimensions systems
+// it is made in order to increase number of dimensions without 
+// increasing number of dimensions in walker_struct
+// for 1 electron_walker vector size is 1
+using electron_walker = std::vector<walker>;
 
 #endif // ndef STRUCT_WALKER_HPP

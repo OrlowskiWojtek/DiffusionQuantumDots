@@ -47,7 +47,6 @@ double DiffusionWalkers::trial_wf_value(const walker &wlk) {
     return trial_wavef(wlk); 
 }
 
-// TODO after upgrade libstdc++ update to views::zip with std::acumulate
 double DiffusionWalkers::distance(const walker &wlk_a, const walker &wlk_b) {
     double s = 0;
     for(int i = 0; i < p->n_dims; i++){

@@ -6,8 +6,11 @@ add_library(DiffusionSolver
             Core/src/electrons.cpp
             DiffusionParams/src/params.cpp
             DiffusionParams/src/harmonic_potential.cpp
+            TrialFunctions/src/abstract_singlebody_orbital.cpp
+            TrialFunctions/src/abstract_manybody_orbital.cpp
             TrialFunctions/src/harmonic_oscillator.cpp
             TrialFunctions/src/static_orbital.cpp
+            TrialFunctions/src/jastrow_slater.cpp
             )
 
 # Optimize this library

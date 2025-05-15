@@ -19,12 +19,6 @@ public:
 
     DiffusionQuantumResults &get_results();
 private:
-    // electron_walker representing simple walker in many dimensions systems
-    // it is made in order to increase number of dimensions without 
-    // increasing number of dimensions in walker_struct
-    // for 1 electron_walker vector size is 1
-    using electron_walker = std::vector<walker>;
-
     std::vector<electron_walker> electrons;
     std::vector<electron_walker> copy_electrons;
     std::vector<double> p_values;

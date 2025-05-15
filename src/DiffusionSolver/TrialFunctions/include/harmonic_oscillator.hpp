@@ -1,7 +1,7 @@
 #ifndef HARMONIC_OSCILATOR_SOLUTIONS_HPP
 #define HARMONIC_OSCILATOR_SOLUTIONS_HPP
 
-#include "TrialFunctions/include/abstract_wf.hpp"
+#include "TrialFunctions/include/abstract_singlebody_orbital.hpp"
 #include <functional>
 
 // exact solutions of schrodinger equation in harmonic oscillator
@@ -12,7 +12,7 @@ struct HarmonicOscillatorOrbitalsParams {
     std::vector<int> excitations;
 };
 
-class HarmonicOscillatorOrbitals : public AbstractOrbital {
+class HarmonicOscillatorOrbitals : public AbstractSinglebodyOrbital {
 public:
     HarmonicOscillatorOrbitals();
     HarmonicOscillatorOrbitals(HarmonicOscillatorOrbitalsParams p);
@@ -22,13 +22,15 @@ public:
 
     std::function<double(const walker& wlk)> get_orbital() override;
 private:
-    void print_test_to_file() override;
 
     HarmonicOscillatorOrbitalsParams p;
 
     double first_part_precalculated;
     double second_part_precalculated;
-    double third_part_precalculated;
+    double first_second_part_precalculated;
+
+    std::vector<double> precalculated_eff_mass_omegas;
+    std::vector<double> sqrt_precalculated_eff_mass_omegas;
 
     void init_orbital();
     std::function<double(const walker &)> orbital;
