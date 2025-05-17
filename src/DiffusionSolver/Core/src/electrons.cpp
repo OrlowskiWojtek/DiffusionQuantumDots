@@ -1,5 +1,6 @@
 #include "Core/include/electrons.hpp"
 #include "Core/include/results.hpp"
+#include "Core/include/walkers_struct.hpp"
 #include <execution>
 #include <numeric>
 
@@ -53,6 +54,8 @@ void DiffusionQuantumElectrons::init_containers() {
     });
 
     drift_velocity.resize(p->n_electrons);
+    m_front_walker_buffer.resize(p->n_electrons);
+    m_back_walker_buffer.resize(p->n_electrons);
 }
 
 void DiffusionQuantumElectrons::diffuse() {
@@ -90,6 +93,7 @@ void DiffusionQuantumElectrons::branch() {
         set_alive(m, electrons[i]);
     }
 
+
     num_alive = new_alive;
     std::copy(copy_electrons.begin(), copy_electrons.begin() + num_alive, electrons.begin());
 
@@ -124,9 +128,7 @@ void DiffusionQuantumElectrons::update_growth_estimator() {
 }
 
 double DiffusionQuantumElectrons::trial_wavef(const electron_walker &wlk) {
-    return std::accumulate(wlk.begin(), wlk.end(), 0., [&](double sum, const walker &single_walker) {
-        return sum + walkers_helper->trial_wf_value(single_walker);
-    });
+    return (*p->trial_wavef)(wlk.front());
 }
 
 bool DiffusionQuantumElectrons::apply_nodes(const electron_walker &wlk, const electron_walker &prev_wlk) {
@@ -138,8 +140,30 @@ double DiffusionQuantumElectrons::p_value(const electron_walker &wlk, const elec
 }
 
 double DiffusionQuantumElectrons::local_energy(const electron_walker &wlk) {
-    double local_ene = std::accumulate(wlk.begin(), wlk.end(), 0., [&](double sum, const walker &wlk) {
-        return sum + walkers_helper->local_energy(wlk);
+    double dr = 1e-10;
+    double dr2 = 1e-20;
+    double kinetic_term = 0;
+
+    double cent_value = trial_wavef(wlk);
+
+    for(int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++){
+        for (int d = 0; d < p->n_dims; d++) {
+            std::copy(wlk[wlk_idx].cords.begin(), wlk[wlk_idx].cords.end(), m_back_walker_buffer[wlk_idx].cords.begin());
+            std::copy(wlk[wlk_idx].cords.begin(), wlk[wlk_idx].cords.end(), m_front_walker_buffer[wlk_idx].cords.begin());
+
+            m_back_walker_buffer[wlk_idx].cords[d] -= dr;
+            m_front_walker_buffer[wlk_idx].cords[d] += dr;
+            double back_value = trial_wavef(m_back_walker_buffer);
+            double forw_value = trial_wavef(m_front_walker_buffer);
+
+            kinetic_term += (back_value - 2 * cent_value + forw_value);
+        }
+    }
+
+    kinetic_term = -0.5 * kinetic_term / (cent_value * dr2);
+
+    double potential_term = std::accumulate(wlk.begin(), wlk.end(), 0., [this](double acc, const walker& single_wlk){
+        return acc + p->pot(single_wlk);
     });
 
     // TODO: hardcoded for now for coulomb interaction -> possibly change
@@ -150,7 +174,7 @@ double DiffusionQuantumElectrons::local_energy(const electron_walker &wlk) {
         }
     }
 
-    return local_ene + interaction;
+    return kinetic_term + interaction + potential_term;
 }
 
 double DiffusionQuantumElectrons::local_energy_average() {
@@ -223,7 +247,7 @@ void DiffusionQuantumElectrons::update_drift(const electron_walker &ele_wlk) {
 
             double forw_value = trial_wavef(forw_walker);
             drift_velocity[wlk_idx].cords[d] = (forw_value - cent_value) / (dr * cent_value);
-            forw_walker[wlk_idx].cords[d] -= dr;
+            forw_walker[wlk_idx].cords[d] = ele_wlk[wlk_idx].cords[d];
         }
     }
 }

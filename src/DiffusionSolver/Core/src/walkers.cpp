@@ -6,7 +6,7 @@
 DiffusionWalkers::DiffusionWalkers()
     : p(DiffusionQuantumParams::getInstance()) {
 
-    trial_wavef = p->trial_wavef->get_orbital();
+    //trial_wavef = p->trial_wavef->get_orbital();
     V = p->pot;
     movement_generator = boost::random::normal_distribution<double>(0, std::sqrt(p->d_tau));
 }
@@ -41,10 +41,6 @@ double DiffusionWalkers::local_energy(const walker &wlk) {
     kinetic_term = -0.5 * kinetic_term / (cent_value * dr2);
 
     return kinetic_term + V(wlk);
-}
-
-double DiffusionWalkers::trial_wf_value(const walker &wlk) { 
-    return trial_wavef(wlk); 
 }
 
 double DiffusionWalkers::distance(const walker &wlk_a, const walker &wlk_b) {

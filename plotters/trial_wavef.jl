@@ -5,8 +5,8 @@ filename = "../build/TrialWavefunctionTest"
 data = readdlm(filename, comments = true)
 
 file = readlines(filename)
-xmin = -10 / 0.0529
-xmax = 10 / 0.0529
+xmin = -20 / 0.0529
+xmax = 20 / 0.0529
 nbins = size(data, 1)
 
 x = y = LinRange(xmin, xmax, nbins)
@@ -35,4 +35,10 @@ with_theme(theme_latexfonts()) do
     display(fig)
     #save("plots/example_trial_wavef.pdf", fig)
 end
+
+## check for correct normalisation <- it is ok
+
+dx = x[2] - x[1]
+s = sum(data.^2) * dx^2
+
 

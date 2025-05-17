@@ -1,7 +1,5 @@
 #include "TrialFunctions/include/harmonic_oscillator.hpp"
-#include "include/UnitHandler.hpp"
 #include <boost/math/special_functions/hermite.hpp>
-#include <fstream>
 #include <functional>
 #include <iostream>
 

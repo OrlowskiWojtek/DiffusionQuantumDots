@@ -29,6 +29,8 @@ private:
     std::vector<electron_walker> diffusion_values;
 
     electron_walker drift_velocity;
+    electron_walker m_front_walker_buffer;
+    electron_walker m_back_walker_buffer;
     
     boost::multi_array<int64_t, 3> summed_walkers;
 

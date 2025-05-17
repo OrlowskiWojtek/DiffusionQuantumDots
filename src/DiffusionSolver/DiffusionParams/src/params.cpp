@@ -1,6 +1,7 @@
 #include "DiffusionParams/include/params.hpp"
 #include "TrialFunctions/include/harmonic_oscillator.hpp"
-#include "TrialFunctions/include/static_orbital.hpp"
+#include "TrialFunctions/include/harmonic_oscillator.hpp"
+#include "TrialFunctions/include/jastrow_slater.hpp"
 #include "include/UnitHandler.hpp"
 #include <memory>
 
@@ -8,8 +9,8 @@ DiffusionQuantumParams *DiffusionQuantumParams::instance = nullptr;
 
 void DiffusionQuantumParams::set_default_params() {
     d_tau = 10.;              // time step value
-    total_time_steps = 20000; // total number of time steps valued d_tau
-    eq_time_step = 15000;      // time step to average from
+    total_time_steps = 300; // total number of time steps valued d_tau
+    eq_time_step = 200;      // time step to average from
     n0_walkers = 10000;       // beginning number of walkers alive, also target number of walkers
     nmax_walkers = 15000;     // maximal number of walkers alive - size of allocated vector
 
@@ -37,10 +38,21 @@ void DiffusionQuantumParams::set_default_params() {
     blocks_calibration = false;
     n_block = pow(2, 15);
 
-    HarmonicOscillatorOrbitalsParams p;
-    p.dims = n_dims;
-    p.effective_mass = effective_mass;
-    p.omegas = omegas;
-    p.excitations = std::vector<int>{1, 0, 0};
-    trial_wavef = std::make_unique<HarmonicOscillatorOrbitals>(p);
+    HarmonicOscillatorOrbitalsParams ptest;
+    ptest.dims = n_dims;
+    ptest.effective_mass = effective_mass;
+    ptest.omegas = omegas;
+    ptest.excitations = std::vector<int>{1, 0, 0};
+    
+    trial_wavef = std::make_unique<HarmonicOscillatorOrbitals>(ptest);
+
+    //JastrowSlaterOrbitalParams p;
+    //p.electron_number = n_electrons;
+    //p.omegas = omegas;
+    //p.effective_mass = effective_mass;
+    //p.dims = n_dims;
+    //p.a = 0.005;
+    //p.b = 2.;
+
+    //trial_wavef = std::make_unique<JastrowSlaterOrbital>(p);
 }

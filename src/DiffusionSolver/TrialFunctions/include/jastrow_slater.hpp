@@ -7,7 +7,7 @@
 
 #include <eigen3/Eigen/Dense>
 
-struct JatrowSlaterOrbitalParams{
+struct JastrowSlaterOrbitalParams{
     int electron_number;
     std::vector<double> omegas;
     double effective_mass;
@@ -20,6 +20,7 @@ struct JatrowSlaterOrbitalParams{
 class JastrowSlaterOrbital: public AbstractManybodyOrbital{
 public:
     JastrowSlaterOrbital();
+    JastrowSlaterOrbital(JastrowSlaterOrbitalParams p);
 
     double operator()(const electron_walker&) override; 
     void print() override;
@@ -29,7 +30,7 @@ public:
 private:
 
     std::function<double(const electron_walker& wlk)> orbital;
-    std::unique_ptr<JatrowSlaterOrbitalParams> p;
+    JastrowSlaterOrbitalParams p;
     Eigen::MatrixXd slater_matrix;
 
     // take from walkers.hpp

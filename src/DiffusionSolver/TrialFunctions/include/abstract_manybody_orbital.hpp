@@ -12,7 +12,7 @@ public:
     virtual std::function<double(const electron_walker& wlk)> get_orbital() = 0;
     virtual ~AbstractManybodyOrbital() = default;
 
-private:
+protected:
     void print_test_to_file() override;
 };
 
