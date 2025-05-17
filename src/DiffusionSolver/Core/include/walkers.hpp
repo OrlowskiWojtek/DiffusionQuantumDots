@@ -6,12 +6,9 @@
 #include <boost/random/normal_distribution.hpp>
 
 #include "DiffusionParams/include/params.hpp"
-#include "Core/include/results.hpp"
 #include "Core/include/walkers_struct.hpp"
 
 #include <boost/random/uniform_real_distribution.hpp>
-#include <memory>
-#include <vector>
 
 class DiffusionWalkers {
 public:
@@ -19,6 +16,7 @@ public:
     ~DiffusionWalkers();
 
     void apply_diffusion(walker &wlk);
+    // TODO: void prepare_diffusion(walker &wlk);
 
     double trial_wf_value(const walker& wlk);
     double local_energy(const walker &wlk);

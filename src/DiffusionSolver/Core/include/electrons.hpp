@@ -2,6 +2,7 @@
 #define DIFFUSION_QUANTUM_ELECTRONS_HPP
 
 #include <Core/include/walkers_struct.hpp>
+#include "Core/include/results.hpp"
 #include "Core/include/walkers.hpp"
 #include "DiffusionParams/include/params.hpp"
 #include <vector>
@@ -11,6 +12,8 @@ public:
     DiffusionQuantumElectrons();
 
     void diffuse();
+    // TODO: void check_acceptance();
+
     void branch();
     void eval_p();
 
@@ -22,6 +25,10 @@ private:
     std::vector<electron_walker> electrons;
     std::vector<electron_walker> copy_electrons;
     std::vector<double> p_values;
+
+    std::vector<electron_walker> diffusion_values;
+
+    electron_walker drift_velocity;
     
     boost::multi_array<int64_t, 3> summed_walkers;
 
@@ -58,7 +65,7 @@ private:
     void init_rngs();
     void init_containers();
 
-    std::array<double, 3> drift(const electron_walker &wlk);
+    void  update_drift(const electron_walker &wlk);
 };
 
 #endif

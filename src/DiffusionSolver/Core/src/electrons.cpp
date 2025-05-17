@@ -51,12 +51,15 @@ void DiffusionQuantumElectrons::init_containers() {
     std::for_each(summed_walkers.data(), summed_walkers.data() + summed_walkers.num_elements(), [](int64_t &val) {
         val = 0;
     });
+
+    drift_velocity.resize(p->n_electrons);
 }
 
 void DiffusionQuantumElectrons::diffuse() {
     current_it++;
 
-    std::for_each(electrons.begin(), electrons.begin() + num_alive, [&](electron_walker &ele) {   
+    std::for_each(electrons.begin(), electrons.begin() + num_alive, [&](electron_walker &ele) {
+        update_drift(ele);
         apply_drift(ele);
         std::for_each(ele.begin(), ele.end(), [&](walker &wlk) {
             walkers_helper->apply_diffusion(wlk);
@@ -77,7 +80,6 @@ void DiffusionQuantumElectrons::eval_p() {
 
                        return p_value(wlk, prev_wlk);
                    });
-
 }
 
 void DiffusionQuantumElectrons::branch() {
@@ -209,34 +211,27 @@ void DiffusionQuantumElectrons::save_progress() {
 
 DiffusionQuantumResults &DiffusionQuantumElectrons::get_results() { return *results; }
 
-std::array<double, 3> DiffusionQuantumElectrons::drift(const electron_walker &wlk) {
-    std::array<double, 3> dr_force; 
-
+void DiffusionQuantumElectrons::update_drift(const electron_walker &ele_wlk) {
     double dr = 1e-6;
-    double cent_value = trial_wavef(wlk);
+    double cent_value = trial_wavef(ele_wlk);
+
+    electron_walker forw_walker = ele_wlk;
 
     for (int d = 0; d < p->n_dims; d++) {
-        electron_walker forward_walker = wlk;
-        for (walker &wlk : forward_walker) {
-            wlk.cords[d] += dr;
+        for (int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++) {
+            forw_walker[wlk_idx].cords[d] += dr;
+
+            double forw_value = trial_wavef(forw_walker);
+            drift_velocity[wlk_idx].cords[d] = (forw_value - cent_value) / (dr * cent_value);
+            forw_walker[wlk_idx].cords[d] -= dr;
         }
-
-        double forw_value = trial_wavef(forward_walker);
-        dr_force[d] = (forw_value - cent_value) / (dr * cent_value);
     }
-
-    return dr_force;
 }
 
 void DiffusionQuantumElectrons::apply_drift(electron_walker &ele_wlk) {
-    std::array<double, 3> drift_force = drift(ele_wlk);
-    std::for_each(ele_wlk.begin(), ele_wlk.end(), [&](walker &wlk) {
-        std::transform(wlk.cords.begin(),
-                       wlk.cords.begin() + p->n_dims,
-                       drift_force.begin(),
-                       wlk.cords.begin(),
-                       [&](double &cord, double &drift_value) {
-                           return cord + p->d_tau * drift_value;
-                       });
-    });
+    for (int d = 0; d < p->n_dims; d++) {
+        for(int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++){
+            ele_wlk[wlk_idx].cords[d] += p->d_tau * drift_velocity[wlk_idx].cords[d];
+        }
+    }
 }

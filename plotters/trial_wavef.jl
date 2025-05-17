@@ -36,9 +36,3 @@ with_theme(theme_latexfonts()) do
     #save("plots/example_trial_wavef.pdf", fig)
 end
 
-## check for correct normalisation <- it is ok
-
-dx = x[2] - x[1]
-s = sum(data.^2) * dx^2
-
-
