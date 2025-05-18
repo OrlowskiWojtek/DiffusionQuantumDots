@@ -1,6 +1,6 @@
 #include "Core/include/electrons.hpp"
 #include "Core/include/results.hpp"
-#include "Core/include/walkers_struct.hpp"
+#include "Core/include/walkers.hpp"
 #include <execution>
 #include <numeric>
 
@@ -23,6 +23,7 @@ DiffusionQuantumElectrons::DiffusionQuantumElectrons()
 }
 
 void DiffusionQuantumElectrons::init_rngs() {
+    movement_generator = boost::random::normal_distribution<double>(0, std::sqrt(p->d_tau));
     uniform_generator = boost::random::uniform_real_distribution<double>(0, 1);
 }
 
@@ -64,9 +65,7 @@ void DiffusionQuantumElectrons::diffuse() {
     std::for_each(electrons.begin(), electrons.begin() + num_alive, [&](electron_walker &ele) {
         update_drift(ele);
         apply_drift(ele);
-        std::for_each(ele.begin(), ele.end(), [&](walker &wlk) {
-            walkers_helper->apply_diffusion(wlk);
-        });
+        apply_diffusion(ele);
     });
 }
 
@@ -128,7 +127,7 @@ void DiffusionQuantumElectrons::update_growth_estimator() {
 }
 
 double DiffusionQuantumElectrons::trial_wavef(const electron_walker &wlk) {
-    return (*p->trial_wavef)(wlk);
+    return 1;//(*p->trial_wavef)(wlk);
 }
 
 bool DiffusionQuantumElectrons::apply_nodes(const electron_walker &wlk, const electron_walker &prev_wlk) {
@@ -173,7 +172,7 @@ double DiffusionQuantumElectrons::local_energy(const electron_walker &wlk) {
     double interaction = 0;
     for (int i = 0; i < p->n_electrons; i++) {
         for (int j = i + 1; j < p->n_electrons; j++) {
-            interaction += 1 / (p->epsilon * walkers_helper->distance(wlk[i], wlk[j]));
+            interaction += 1 / (p->epsilon * walkers_helper->distance(wlk[i], wlk[j], p->n_dims));
         }
     }
 
@@ -261,4 +260,12 @@ void DiffusionQuantumElectrons::apply_drift(electron_walker &ele_wlk) {
             ele_wlk[wlk_idx].cords[d] += p->d_tau * drift_velocity[wlk_idx].cords[d];
         }
     }
+}
+
+void DiffusionQuantumElectrons::apply_diffusion(electron_walker &ele_wlk) {
+    std::for_each(ele_wlk.begin(), ele_wlk.end(), [&](walker &wlk) {
+        std::for_each(wlk.cords.begin(), wlk.cords.begin() + p->n_dims, [&](double &cord) {
+            cord += movement_generator(movement_rng);
+        });
+    });
 }

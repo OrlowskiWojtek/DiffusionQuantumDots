@@ -1,5 +1,5 @@
 #include "TrialFunctions/include/jastrow_slater.hpp"
-#include "Core/include/walkers_struct.hpp"
+#include "Core/include/walkers.hpp"
 #include "TrialFunctions/include/harmonic_oscillator.hpp"
 #include <iostream>
 #include <memory>

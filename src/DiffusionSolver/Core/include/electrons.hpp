@@ -1,11 +1,15 @@
 #ifndef DIFFUSION_QUANTUM_ELECTRONS_HPP
 #define DIFFUSION_QUANTUM_ELECTRONS_HPP
 
-#include <Core/include/walkers_struct.hpp>
+#include <Core/include/walkers.hpp>
 #include "Core/include/results.hpp"
 #include "Core/include/walkers.hpp"
 #include "DiffusionParams/include/params.hpp"
 #include <vector>
+
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/normal_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
 
 class DiffusionQuantumElectrons{
 public:
@@ -50,6 +54,9 @@ private:
 
     bool apply_nodes(const electron_walker&, const electron_walker&);
     void apply_drift(electron_walker& wlk);
+    void apply_diffusion(electron_walker &wlk);
+    // TODO: void prepare_diffusion(electron_walker &wlk);
+
     double p_value(const electron_walker &, const electron_walker &);
     double trial_wavef(const electron_walker&);
     double local_energy(const electron_walker &);
@@ -63,6 +70,9 @@ private:
 
     boost::random::mt19937 uni_rng;
     boost::random::uniform_real_distribution<double> uniform_generator;
+
+    boost::random::mt19937 movement_rng;
+    boost::random::normal_distribution<double> movement_generator;
 
     void init_rngs();
     void init_containers();

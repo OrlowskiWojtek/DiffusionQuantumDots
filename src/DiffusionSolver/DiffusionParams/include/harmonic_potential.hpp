@@ -1,7 +1,7 @@
 #ifndef HARMONIC_POTENTIAL_HPP
 #define HARMONIC_POTENTIAL_HPP
 
-#include "Core/include/walkers_struct.hpp"
+#include "Core/include/walkers.hpp"
 #include <functional>
 
 struct HarmonicPotentialParams{

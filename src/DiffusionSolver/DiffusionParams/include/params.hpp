@@ -5,7 +5,7 @@
 #include "TrialFunctions/include/abstract_manybody_orbital.hpp"
 #include "TrialFunctions/include/abstract_singlebody_orbital.hpp"
 
-#include "Core/include/walkers_struct.hpp"
+#include "Core/include/walkers.hpp"
 #include <cmath>
 #include <functional>
 #include <memory>

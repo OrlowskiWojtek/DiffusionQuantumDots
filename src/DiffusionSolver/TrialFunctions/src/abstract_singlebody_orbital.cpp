@@ -1,4 +1,4 @@
-#include "Core/include/walkers_struct.hpp"
+#include "Core/include/walkers.hpp"
 #include "TrialFunctions/include/abstract_singlebody_orbital.hpp"
 #include "include/UnitHandler.hpp"
 #include <fstream>

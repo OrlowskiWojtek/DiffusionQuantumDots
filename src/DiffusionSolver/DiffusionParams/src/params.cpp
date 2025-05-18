@@ -9,8 +9,8 @@ DiffusionQuantumParams *DiffusionQuantumParams::instance = nullptr;
 
 void DiffusionQuantumParams::set_default_params() {
     d_tau = 10.;              // time step value
-    total_time_steps = 3000; // total number of time steps valued d_tau
-    eq_time_step = 2000;      // time step to average from
+    total_time_steps = 30000; // total number of time steps valued d_tau
+    eq_time_step = 20000;      // time step to average from
     n0_walkers = 1000;       // beginning number of walkers alive, also target number of walkers
     nmax_walkers = 1500;     // maximal number of walkers alive - size of allocated vector
 

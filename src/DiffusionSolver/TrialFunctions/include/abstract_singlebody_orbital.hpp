@@ -1,7 +1,7 @@
 #ifndef ABSTRACT_WF_HPP
 #define ABSTRACT_WF_HPP
 
-#include "Core/include/walkers_struct.hpp"
+#include "Core/include/walkers.hpp"
 #include "TrialFunctions/include/abstract_orbital.hpp"
 #include <functional>
 
