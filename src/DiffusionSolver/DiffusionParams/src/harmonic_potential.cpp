@@ -3,7 +3,9 @@
 
 void HarmonicPotentialBuilder::precalculate() {
     omegas_squared.resize(p.omegas.size());
-    std::transform(p.omegas.begin(), p.omegas.end(), omegas_squared.begin(), [](double om){ return std::pow(om, 2);});
+    std::transform(p.omegas.begin(), p.omegas.end(), omegas_squared.begin(), [](double om) {
+        return std::pow(om, 2);
+    });
 }
 
 void HarmonicPotentialBuilder::build_potential() {
@@ -33,12 +35,10 @@ void HarmonicPotentialBuilder::build_potential() {
     }
 }
 
-std::function<double(const walker &)> HarmonicPotentialBuilder::get_potential() { 
+std::function<double(const walker &)> HarmonicPotentialBuilder::get_potential() {
     precalculate();
     build_potential();
     return potential;
 }
 
-void HarmonicPotentialBuilder::set_params(const HarmonicPotentialParams& p){
-    this->p = p;
-}
+void HarmonicPotentialBuilder::set_params(const HarmonicPotentialParams &p) { this->p = p; }

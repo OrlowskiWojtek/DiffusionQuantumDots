@@ -37,8 +37,9 @@ add_definitions(-DPSTL_USE_PARALLEL_POLICIES)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 
-## Eigen3 setup
-find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+## Armadillo setup
+find_package(Armadillo REQUIRED)
+include_directories(${ARMADILLO_INCLUDE_DIRS})
 
-target_link_libraries(DiffusionQuantumMC DiffusionSolver FileLoader compiler_flags TBB::tbb Eigen3::Eigen)
+target_link_libraries(DiffusionQuantumMC DiffusionSolver FileLoader compiler_flags TBB::tbb ${ARMADILLO_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_BINARY_DIR})

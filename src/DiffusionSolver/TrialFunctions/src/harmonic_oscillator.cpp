@@ -32,7 +32,7 @@ void HarmonicOscillatorOrbitals::init_orbital() {
 
     first_second_part_precalculated = first_part_precalculated * second_part_precalculated;
 
-    orbital = [&](const walker &wlk) {
+    orbital = [this](const walker &wlk) {
         double third_part = 1;
         for (int i = 0; i < p.dims; i++) {
             third_part *= std::exp(-precalculated_eff_mass_omegas[i] * std::pow(wlk.cords[i], 2) / 2.);

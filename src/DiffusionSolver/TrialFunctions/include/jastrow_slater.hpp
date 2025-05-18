@@ -5,7 +5,7 @@
 #include "TrialFunctions/include/abstract_singlebody_orbital.hpp"
 #include <memory>
 
-#include <eigen3/Eigen/Dense>
+#include <armadillo>
 
 struct JastrowSlaterOrbitalParams{
     int electron_number;
@@ -28,10 +28,9 @@ public:
 
     std::vector<std::unique_ptr<AbstractSinglebodyOrbital>> single_body_orbitals; // implementing composition pattern
 private:
-
     std::function<double(const electron_walker& wlk)> orbital;
     JastrowSlaterOrbitalParams p;
-    Eigen::MatrixXd slater_matrix;
+    arma::Mat<double> slater_matrix;
 
     // take from walkers.hpp
     double distance(const walker&, const walker&);

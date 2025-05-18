@@ -24,7 +24,9 @@ double JastrowSlaterOrbital::distance(const walker &wlk_a, const walker &wlk_b) 
 }
 
 void JastrowSlaterOrbital::init_orbital() {
-    slater_matrix.resize(p.electron_number, p.electron_number);
+    slater_matrix.set_size(p.electron_number, p.electron_number);
+
+    single_body_orbitals.clear();
     for (int i = 0; i < p.electron_number; i++) {
         HarmonicOscillatorOrbitalsParams single_params; // TODO: try to use Aufbau principle in filling, now asume that
                                                         // in x direction is first excitement
@@ -33,7 +35,7 @@ void JastrowSlaterOrbital::init_orbital() {
         single_params.effective_mass = p.effective_mass;
         single_params.dims = p.dims;
 
-        add_single_orbital(std::make_unique<HarmonicOscillatorOrbitals>(single_params));
+        single_body_orbitals.push_back(std::make_unique<HarmonicOscillatorOrbitals>(single_params));
     }
 
     orbital = [&](const electron_walker &wlk) {
@@ -59,7 +61,7 @@ double JastrowSlaterOrbital::operator()(const electron_walker& wlk){
         }
     }
 
-    return jastrow_factor * slater_matrix.determinant();
+    return jastrow_factor * arma::det(slater_matrix);
 }
 
 void JastrowSlaterOrbital::print(){

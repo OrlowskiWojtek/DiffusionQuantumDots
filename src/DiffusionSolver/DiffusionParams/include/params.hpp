@@ -61,7 +61,7 @@ public:
     bool blocks_calibration;
     int n_block;
 
-    std::unique_ptr<AbstractSinglebodyOrbital> trial_wavef;
+    std::unique_ptr<AbstractManybodyOrbital> trial_wavef;
 };
 
 #endif
