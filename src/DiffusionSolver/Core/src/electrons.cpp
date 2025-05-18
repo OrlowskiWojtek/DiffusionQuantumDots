@@ -47,6 +47,15 @@ void DiffusionQuantumElectrons::init_containers() {
     }
 
     std::copy(electrons.begin(), electrons.end(), copy_electrons.begin());
+
+    diffusion_values.resize(p->nmax_walkers);
+    for (auto &diff_value : diffusion_values) {
+        diff_value.resize(p->n_electrons);
+        std::for_each(diff_value.begin(), diff_value.end(), [&](walker &wlk) {
+            wlk.cords.fill(0);
+        });
+    }
+
     p_values.resize(p->nmax_walkers);
 
     summed_walkers.resize(boost::extents[p->n_bins][p->n_bins][p->n_bins]);
@@ -62,11 +71,18 @@ void DiffusionQuantumElectrons::init_containers() {
 void DiffusionQuantumElectrons::diffuse() {
     current_it++;
 
-    std::for_each(electrons.begin(), electrons.begin() + num_alive, [&](electron_walker &ele) {
-        update_drift(ele);
-        apply_drift(ele);
-        apply_diffusion(ele);
+    std::for_each(diffusion_values.begin(), diffusion_values.begin() + num_alive, [&](electron_walker &diff_value) {
+        prepare_diffusion(diff_value);
     });
+
+    std::for_each(electrons.begin(), electrons.begin() + num_alive, [&](electron_walker &ele) {
+        prepare_drift(ele);
+        apply_drift(ele);
+    });
+
+    for (int i = 0; i < num_alive; i++) {
+        apply_diffusion(electrons[i], diffusion_values[i]);
+    }
 }
 
 void DiffusionQuantumElectrons::eval_p() {
@@ -126,9 +142,7 @@ void DiffusionQuantumElectrons::update_growth_estimator() {
         e_block - 1. / p->d_tau * std::log(static_cast<double>(num_alive) / static_cast<double>(target_alive));
 }
 
-double DiffusionQuantumElectrons::trial_wavef(const electron_walker &wlk) {
-    return 1;//(*p->trial_wavef)(wlk);
-}
+double DiffusionQuantumElectrons::trial_wavef(const electron_walker &wlk) { return (*p->trial_wavef)(wlk); }
 
 bool DiffusionQuantumElectrons::apply_nodes(const electron_walker &wlk, const electron_walker &prev_wlk) {
     return (trial_wavef(wlk) * trial_wavef(prev_wlk)) <= 0;
@@ -147,7 +161,7 @@ double DiffusionQuantumElectrons::local_energy(const electron_walker &wlk) {
 
     m_back_walker_buffer = wlk;
     m_front_walker_buffer = wlk;
-    for(int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++){
+    for (int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++) {
         for (int d = 0; d < p->n_dims; d++) {
 
             m_back_walker_buffer[wlk_idx].cords[d] -= dr;
@@ -164,7 +178,7 @@ double DiffusionQuantumElectrons::local_energy(const electron_walker &wlk) {
 
     kinetic_term = -0.5 * kinetic_term / (cent_value * dr2);
 
-    double potential_term = std::accumulate(wlk.begin(), wlk.end(), 0., [this](double acc, const walker& single_wlk){
+    double potential_term = std::accumulate(wlk.begin(), wlk.end(), 0., [this](double acc, const walker &single_wlk) {
         return acc + p->pot(single_wlk);
     });
 
@@ -237,7 +251,7 @@ void DiffusionQuantumElectrons::save_progress() {
 
 DiffusionQuantumResults &DiffusionQuantumElectrons::get_results() { return *results; }
 
-void DiffusionQuantumElectrons::update_drift(const electron_walker &ele_wlk) {
+void DiffusionQuantumElectrons::prepare_drift(const electron_walker &ele_wlk) {
     double dr = 1e-6;
     double cent_value = trial_wavef(ele_wlk);
 
@@ -256,16 +270,24 @@ void DiffusionQuantumElectrons::update_drift(const electron_walker &ele_wlk) {
 
 void DiffusionQuantumElectrons::apply_drift(electron_walker &ele_wlk) {
     for (int d = 0; d < p->n_dims; d++) {
-        for(int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++){
+        for (int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++) {
             ele_wlk[wlk_idx].cords[d] += p->d_tau * drift_velocity[wlk_idx].cords[d];
         }
     }
 }
 
-void DiffusionQuantumElectrons::apply_diffusion(electron_walker &ele_wlk) {
-    std::for_each(ele_wlk.begin(), ele_wlk.end(), [&](walker &wlk) {
+void DiffusionQuantumElectrons::prepare_diffusion(electron_walker &diff_wlk) {
+    std::for_each(diff_wlk.begin(), diff_wlk.end(), [&](walker &wlk) {
         std::for_each(wlk.cords.begin(), wlk.cords.begin() + p->n_dims, [&](double &cord) {
-            cord += movement_generator(movement_rng);
+            cord = movement_generator(movement_rng);
         });
     });
+}
+
+void DiffusionQuantumElectrons::apply_diffusion(electron_walker &ele_wlk, const electron_walker &diff_wlk) {
+    for (int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++) {
+        for (int d = 0; d < p->n_dims; d++) {
+            ele_wlk[wlk_idx].cords[d] += diff_wlk[wlk_idx].cords[d];
+        }
+    }
 }

@@ -52,11 +52,13 @@ private:
     double e_block;
     double ground_state_estimator;
 
-    bool apply_nodes(const electron_walker&, const electron_walker&);
     void apply_drift(electron_walker& wlk);
-    void apply_diffusion(electron_walker &wlk);
-    // TODO: void prepare_diffusion(electron_walker &wlk);
+    void apply_diffusion(electron_walker &wlk, const electron_walker& diffusion_values);
 
+    void prepare_drift(const electron_walker &wlk);
+    void prepare_diffusion(electron_walker &wlk);
+
+    bool apply_nodes(const electron_walker&, const electron_walker&);
     double p_value(const electron_walker &, const electron_walker &);
     double trial_wavef(const electron_walker&);
     double local_energy(const electron_walker &);
@@ -76,8 +78,6 @@ private:
 
     void init_rngs();
     void init_containers();
-
-    void  update_drift(const electron_walker &wlk);
 };
 
 #endif

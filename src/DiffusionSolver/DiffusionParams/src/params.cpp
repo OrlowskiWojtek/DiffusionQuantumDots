@@ -18,7 +18,7 @@ void DiffusionQuantumParams::set_default_params() {
     xmin = UnitHandler::length(UnitHandler::TO_AU, -10); // sampling minimum for visualisation
     xmax = UnitHandler::length(UnitHandler::TO_AU, 10);  // sampling maximum for visualisation
 
-    n_electrons = 2;
+    n_electrons = 1;
     n_dims = 2;     // number of dimensions
     epsilon = 13.6; // relative permatibility
 
