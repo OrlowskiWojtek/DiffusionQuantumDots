@@ -1,7 +1,9 @@
 #include "TrialFunctions/include/abstract_manybody_orbital.hpp"
 
-#include "DiffusionParams/include/params.hpp"
 #include "Core/include/walkers.hpp"
+#include "DiffusionParams/include/params.hpp"
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/normal_distribution.hpp>
 #include <memory>
 
 // solver context - data for enabling multithreading in loops
@@ -17,15 +19,29 @@ public:
 
     std::unique_ptr<AbstractManybodyOrbital> orbital;
 
-    double local_energy(const electron_walker& wlk);
-    double p_value(const electron_walker& wlk, const electron_walker& prev_wlk, double& growth_estimator);
-private:
+    double local_energy(const electron_walker &wlk);
+    double p_value(const electron_walker &wlk, const electron_walker &prev_wlk, double &growth_estimator);
+    bool apply_nodes(const electron_walker &wlk, const electron_walker &prev_wlk);
 
+    void move_walkers(electron_walker& wlk, electron_walker& diff_value); // TODO: i dont like way how diff_value is saved for future
+
+private:
+    void init_orbital();
+    void init_rng();
+
+    electron_walker drift_velocity;
     electron_walker m_front_walker_buffer;
     electron_walker m_back_walker_buffer;
-    
+
     std::unique_ptr<DiffusionWalkers> walkers_helper;
 
-    double trial_wavef(const electron_walker& wlk);
-    DiffusionQuantumParams* p;
+    boost::random::mt19937 movement_rng;
+    boost::random::normal_distribution<double> movement_generator;
+
+    void apply_drift(electron_walker &wlk);
+    void apply_diffusion(electron_walker &wlk, electron_walker &diffusion_values);
+    void prepare_drift(const electron_walker &wlk);
+
+    double trial_wavef(const electron_walker &wlk);
+    DiffusionQuantumParams *p;
 };

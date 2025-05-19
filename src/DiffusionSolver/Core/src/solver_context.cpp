@@ -5,6 +5,13 @@ SolverContext::SolverContext()
     : walkers_helper(std::make_unique<DiffusionWalkers>())
     , p(DiffusionQuantumParams::getInstance()) {
 
+    drift_velocity.resize(p->n_electrons);
+
+    init_orbital();
+    init_rng();
+}
+
+void SolverContext::init_orbital(){
     JastrowSlaterOrbitalParams orbital_params;
     orbital_params.electron_number = p->n_electrons;
     orbital_params.omegas = p->omegas;
@@ -15,6 +22,13 @@ SolverContext::SolverContext()
 
     orbital = std::make_unique<JastrowSlaterOrbital>(orbital_params);
 }
+
+void SolverContext::init_rng(){
+    movement_rng.seed(time(0));
+    movement_generator = boost::random::normal_distribution<double>(0, std::sqrt(p->d_tau));
+}
+
+double SolverContext::trial_wavef(const electron_walker &wlk) { return (*this->orbital)(wlk); }
 
 double SolverContext::p_value(const electron_walker &wlk, const electron_walker &prev_wlk, double& growth_estimator) {
     return std::exp(-p->d_tau * ((local_energy(wlk) + local_energy(prev_wlk)) / 2. - growth_estimator));
@@ -61,4 +75,46 @@ double SolverContext::local_energy(const electron_walker &wlk) {
     return kinetic_term + interaction + potential_term;
 }
 
-double SolverContext::trial_wavef(const electron_walker &wlk) { return (*this->orbital)(wlk); }
+bool SolverContext::apply_nodes(const electron_walker &wlk, const electron_walker &prev_wlk) {
+    return (trial_wavef(wlk) * trial_wavef(prev_wlk)) <= 0;
+}
+
+void SolverContext::move_walkers(electron_walker &wlk, electron_walker& diff_value) {
+        prepare_drift(wlk);
+        apply_drift(wlk);
+        apply_diffusion(wlk, diff_value);
+}
+
+void SolverContext::prepare_drift(const electron_walker &ele_wlk) {
+    double dr = 1e-6;
+    double cent_value = trial_wavef(ele_wlk);
+
+    m_front_walker_buffer = ele_wlk;
+
+    for (int d = 0; d < p->n_dims; d++) {
+        for (int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++) {
+            m_front_walker_buffer[wlk_idx].cords[d] += dr;
+
+            double forw_value = trial_wavef(m_front_walker_buffer);
+            drift_velocity[wlk_idx].cords[d] = (forw_value - cent_value) / (dr * cent_value);
+            m_front_walker_buffer[wlk_idx].cords[d] = ele_wlk[wlk_idx].cords[d];
+        }
+    }
+}
+
+void SolverContext::apply_drift(electron_walker &ele_wlk) {
+    for (int d = 0; d < p->n_dims; d++) {
+        for (int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++) {
+            ele_wlk[wlk_idx].cords[d] += p->d_tau * drift_velocity[wlk_idx].cords[d];
+        }
+    }
+}
+
+void SolverContext::apply_diffusion(electron_walker &ele_wlk, electron_walker &diff_wlk) {
+    for (int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++) {
+        for (int d = 0; d < p->n_dims; d++) {
+            diff_wlk[wlk_idx].cords[d] = movement_generator(movement_rng);
+            ele_wlk[wlk_idx].cords[d] += diff_wlk[wlk_idx].cords[d];
+        }
+    }
+}

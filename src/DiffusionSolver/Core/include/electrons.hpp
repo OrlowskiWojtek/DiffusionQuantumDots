@@ -34,10 +34,6 @@ private:
 
     std::vector<electron_walker> diffusion_values;
 
-    electron_walker drift_velocity;
-    electron_walker m_front_walker_buffer;
-    electron_walker m_back_walker_buffer;
-
     boost::multi_array<int64_t, 3> summed_walkers;
 
     DiffusionQuantumParams *p;
@@ -54,16 +50,7 @@ private:
     double e_block;
     double ground_state_estimator;
 
-    void apply_drift(electron_walker &wlk);
-    void apply_diffusion(electron_walker &wlk, const electron_walker &diffusion_values);
-
-    void prepare_drift(const electron_walker &wlk);
-    void prepare_diffusion(electron_walker &wlk);
-
-    bool apply_nodes(const electron_walker &, const electron_walker &);
-    double p_value(const electron_walker &, const electron_walker &);
     double trial_wavef(const electron_walker &);
-    double local_energy(const electron_walker &);
     double local_energy_average();
 
     void set_alive(int new_alive, const electron_walker &wlk);
