@@ -18,7 +18,7 @@ public:
     std::unique_ptr<AbstractManybodyOrbital> orbital;
 
     double local_energy(const electron_walker& wlk);
-    double p_value(const electron_walker& wlk, const electron_walker& prev_wlk, double growth_estimator);
+    double p_value(const electron_walker& wlk, const electron_walker& prev_wlk, double& growth_estimator);
 private:
 
     electron_walker m_front_walker_buffer;

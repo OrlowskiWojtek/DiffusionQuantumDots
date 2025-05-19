@@ -16,7 +16,7 @@ SolverContext::SolverContext()
     orbital = std::make_unique<JastrowSlaterOrbital>(orbital_params);
 }
 
-double SolverContext::p_value(const electron_walker &wlk, const electron_walker &prev_wlk, double growth_estimator) {
+double SolverContext::p_value(const electron_walker &wlk, const electron_walker &prev_wlk, double& growth_estimator) {
     return std::exp(-p->d_tau * ((local_energy(wlk) + local_energy(prev_wlk)) / 2. - growth_estimator));
 }
 

@@ -114,9 +114,7 @@ void DiffusionQuantumElectrons::eval_p() {
         }
 
         int tid = omp_get_thread_num();
-        auto &ctx = solver_contexts[tid];
-
-        p_values[i] = ctx.p_value(electrons[i], copy_electrons[i], growth_estimator);
+        p_values[i] = solver_contexts[tid].p_value(electrons[i], copy_electrons[i], growth_estimator);
     }
 }
 
