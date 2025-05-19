@@ -4,6 +4,7 @@ add_library(DiffusionSolver
             Core/src/walkers.cpp
             Core/src/blocking.cpp
             Core/src/electrons.cpp
+            Core/src/solver_context.cpp
             DiffusionParams/src/params.cpp
             DiffusionParams/src/harmonic_potential.cpp
             TrialFunctions/src/abstract_singlebody_orbital.cpp
@@ -19,5 +20,7 @@ target_compile_options(DiffusionSolver PRIVATE
     "-O3;-Wall"
 )
 
+find_package(OpenMP REQUIRED)
+
 target_include_directories(DiffusionSolver PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(DiffusionSolver PUBLIC UnitHandler)
+target_link_libraries(DiffusionSolver PUBLIC UnitHandler OpenMP::OpenMP_CXX)

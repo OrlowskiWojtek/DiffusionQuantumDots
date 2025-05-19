@@ -35,11 +35,13 @@ find_package(TBB REQUIRED)
 add_compile_options(-ltbb -fopenmp)
 add_definitions(-DPSTL_USE_PARALLEL_POLICIES)
 
-add_executable(${PROJECT_NAME} src/main.cpp)
-
 ## Armadillo setup
 find_package(Armadillo REQUIRED)
 include_directories(${ARMADILLO_INCLUDE_DIRS})
+
+## openMP setup
+
+add_executable(${PROJECT_NAME} src/main.cpp)
 
 target_link_libraries(DiffusionQuantumMC DiffusionSolver FileLoader compiler_flags TBB::tbb ${ARMADILLO_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_BINARY_DIR})

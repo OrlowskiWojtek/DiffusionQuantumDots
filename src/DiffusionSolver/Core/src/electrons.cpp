@@ -1,13 +1,14 @@
 #include "Core/include/electrons.hpp"
 #include "Core/include/results.hpp"
 #include "Core/include/walkers.hpp"
-#include <execution>
 #include <numeric>
+#include <omp.h>
 
 DiffusionQuantumElectrons::DiffusionQuantumElectrons()
     : p(DiffusionQuantumParams::getInstance())
     , walkers_helper(std::make_unique<DiffusionWalkers>())
-    , results(std::make_unique<DiffusionQuantumResults>()) {
+    , results(std::make_unique<DiffusionQuantumResults>())
+    , general_context(std::make_unique<SolverContext>()) {
 
     current_it = 0;
     accu_it = 0;
@@ -19,7 +20,14 @@ DiffusionQuantumElectrons::DiffusionQuantumElectrons()
     target_alive = p->n0_walkers;
 
     init_rngs();
+    init_context();
     init_containers();
+}
+
+void DiffusionQuantumElectrons::init_context() {
+    for (int thr_idx = 0; thr_idx < omp_get_max_threads(); thr_idx++) {
+        solver_contexts.emplace_back();
+    }
 }
 
 void DiffusionQuantumElectrons::init_rngs() {
@@ -29,7 +37,7 @@ void DiffusionQuantumElectrons::init_rngs() {
 
 void DiffusionQuantumElectrons::init_containers() {
     boost::random::mt19937 rng;
-    rng.seed(std::time(0));
+    rng.seed(time(0));
     boost::random::uniform_real_distribution<> initial_dist(p->xmin, p->xmax);
 
     electrons.resize(p->nmax_walkers);
@@ -86,18 +94,30 @@ void DiffusionQuantumElectrons::diffuse() {
 }
 
 void DiffusionQuantumElectrons::eval_p() {
-    std::transform(std::execution::seq, // smarter threading is needed
-                   electrons.begin(),
-                   electrons.begin() + num_alive,
-                   copy_electrons.begin(),
-                   p_values.begin(),
-                   [&](electron_walker &wlk, electron_walker &prev_wlk) {
-                       if (apply_nodes(wlk, prev_wlk)) {
-                           return 0.;
-                       }
+    // std::transform(electrons.begin(),
+    //                electrons.begin() + num_alive,
+    //                copy_electrons.begin(),
+    //                p_values.begin(),
+    //                [&](electron_walker &wlk, electron_walker &prev_wlk) {
+    //                    if (apply_nodes(wlk, prev_wlk)) {
+    //                        return 0.;
+    //                    }
 
-                       return p_value(wlk, prev_wlk);
-                   });
+    //                   return p_value(wlk, prev_wlk);
+    //               });
+
+#pragma omp parallel for
+    for (int i = 0; i < num_alive; i++) {
+        if (apply_nodes(electrons[i], copy_electrons[i])) {
+            p_values[i] = 0;
+            continue;
+        }
+
+        int tid = omp_get_thread_num();
+        auto &ctx = solver_contexts[tid];
+
+        p_values[i] = ctx.p_value(electrons[i], copy_electrons[i], growth_estimator);
+    }
 }
 
 void DiffusionQuantumElectrons::branch() {
@@ -142,7 +162,7 @@ void DiffusionQuantumElectrons::update_growth_estimator() {
         e_block - 1. / p->d_tau * std::log(static_cast<double>(num_alive) / static_cast<double>(target_alive));
 }
 
-double DiffusionQuantumElectrons::trial_wavef(const electron_walker &wlk) { return (*p->trial_wavef)(wlk); }
+double DiffusionQuantumElectrons::trial_wavef(const electron_walker &wlk) { return (*general_context->orbital)(wlk); }
 
 bool DiffusionQuantumElectrons::apply_nodes(const electron_walker &wlk, const electron_walker &prev_wlk) {
     return (trial_wavef(wlk) * trial_wavef(prev_wlk)) <= 0;

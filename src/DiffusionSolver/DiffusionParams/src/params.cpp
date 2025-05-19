@@ -22,8 +22,8 @@ void DiffusionQuantumParams::set_default_params() {
     n_dims = 2;     // number of dimensions
     epsilon = 13.6; // relative permatibility
 
-    double effective_mass = 0.067;
-    std::vector<double> omegas({5. / std::sqrt(effective_mass), 3. / std::sqrt(effective_mass), 0.});
+    effective_mass = 0.067;
+    omegas = {5. / std::sqrt(effective_mass), 3. / std::sqrt(effective_mass), 0.};
     std::transform(omegas.begin(), omegas.end(), omegas.begin(), [&](double om){ return UnitHandler::energy(UnitHandler::TO_AU, om);});
 
     pot_params.effective_mass = effective_mass;
@@ -37,14 +37,4 @@ void DiffusionQuantumParams::set_default_params() {
     // TODO: revise blocks
     blocks_calibration = false;
     n_block = pow(2, 15);
-
-    JastrowSlaterOrbitalParams p;
-    p.electron_number = n_electrons;
-    p.omegas = omegas;
-    p.effective_mass = effective_mass;
-    p.dims = n_dims;
-    p.a = 0.005;
-    p.b = 2.;
-
-    trial_wavef = std::make_unique<JastrowSlaterOrbital>(p);
 }

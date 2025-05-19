@@ -51,6 +51,7 @@ public:
 
     HarmonicPotentialParams pot_params;
 
+    double effective_mass;   // effective mass of electron
     double epsilon;   // relative permatibility
     std::vector<double> omegas; // omega in each direction
 
@@ -60,8 +61,6 @@ public:
     // TODO: revise blocks
     bool blocks_calibration;
     int n_block;
-
-    std::unique_ptr<AbstractManybodyOrbital> trial_wavef;
 };
 
 #endif
