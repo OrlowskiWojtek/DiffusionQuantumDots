@@ -208,7 +208,7 @@ void DiffusionQuantumElectrons::save_progress() {
     results->add_histogram(static_cast<double>(current_it) * p->d_tau,
                            current_it,
                            ground_state_estimator / accu_it,
-                           e_block,
+                           growth_estimator,
                            summed_walkers);
 }
 

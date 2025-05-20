@@ -178,7 +178,7 @@ void SolverContext::check_movement(ElectronWalker &wlk, ElectronWalker &prev_wlk
     double trial_current = wlk.trial_wavef_value;
     double trial_previous = prev_wlk.trial_wavef_value;
 
-    double p_acc = std::min(1., g_d_back * trial_current / (g_d_current * trial_previous));
+    double p_acc = std::min(1., g_d_back * std::pow(trial_current, 2) / (g_d_current * std::pow(trial_previous, 2)));
 
     if (uniform_generator(uni_rng) > p_acc) {
         wlk = prev_wlk;
