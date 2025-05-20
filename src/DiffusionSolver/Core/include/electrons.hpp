@@ -17,7 +17,7 @@ public:
     DiffusionQuantumElectrons();
 
     void diffuse();
-    // TODO: void check_acceptance();
+    void accept_movement();
 
     void branch();
     void eval_p();
@@ -33,11 +33,9 @@ private:
     std::vector<double> p_values;
 
     std::vector<electron_walker> diffusion_values;
-
     boost::multi_array<int64_t, 3> summed_walkers;
 
     DiffusionQuantumParams *p;
-    std::unique_ptr<DiffusionWalkers> walkers_helper;
 
     int num_alive;
     int new_alive;
@@ -50,7 +48,6 @@ private:
     double e_block;
     double ground_state_estimator;
 
-    double trial_wavef(const electron_walker &);
     double local_energy_average();
 
     void set_alive(int new_alive, const electron_walker &wlk);

@@ -10,12 +10,13 @@ struct HarmonicPotentialParams{
     std::vector<double> omegas;
 };
 
-class HarmonicPotentialBuilder {
+class HarmonicPotentialFunctor {
 public:
-    HarmonicPotentialBuilder() = default;
+    HarmonicPotentialFunctor() = default;
+    HarmonicPotentialFunctor(HarmonicPotentialParams p);
 
-    void set_params(const HarmonicPotentialParams&);
     std::function<double(const walker&)> get_potential();
+    double operator()(const walker&);
 
 private:
     std::function<double(const walker&)> potential;

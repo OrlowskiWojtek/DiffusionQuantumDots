@@ -1,14 +1,22 @@
 #include "Core/include/solver_context.hpp"
 #include "TrialFunctions/include/jastrow_slater.hpp"
 
+boost::random::mt19937 SolverContext::s_seed_generator(time(0));
+
 SolverContext::SolverContext()
     : walkers_helper(std::make_unique<DiffusionWalkers>())
     , p(DiffusionQuantumParams::getInstance()) {
 
     drift_velocity.resize(p->n_electrons);
-
+    
+    init_potential();
     init_orbital();
     init_rng();
+}
+
+void SolverContext::init_potential(){
+    
+    potential = std::make_unique<HarmonicPotentialFunctor>(p->pot_params);
 }
 
 void SolverContext::init_orbital(){
@@ -24,7 +32,7 @@ void SolverContext::init_orbital(){
 }
 
 void SolverContext::init_rng(){
-    movement_rng.seed(time(0));
+    movement_rng.seed(s_seed_generator());
     movement_generator = boost::random::normal_distribution<double>(0, std::sqrt(p->d_tau));
 }
 
@@ -61,7 +69,7 @@ double SolverContext::local_energy(const electron_walker &wlk) {
     kinetic_term = -0.5 * kinetic_term / (cent_value * dr2);
 
     double potential_term = std::accumulate(wlk.begin(), wlk.end(), 0., [this](double acc, const walker &single_wlk) {
-        return acc + p->pot(single_wlk);
+        return acc + (*potential)(single_wlk);
     });
 
     // TODO: hardcoded for now for coulomb interaction -> possibly change

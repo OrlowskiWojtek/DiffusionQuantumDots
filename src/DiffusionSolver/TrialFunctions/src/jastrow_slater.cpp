@@ -30,7 +30,7 @@ void JastrowSlaterOrbital::init_orbital() {
     for (int i = 0; i < p.electron_number; i++) {
         HarmonicOscillatorOrbitalsParams single_params; // TODO: try to use Aufbau principle in filling, now asume that
                                                         // in x direction is first excitement
-        single_params.excitations = {i, 0, 0};
+        single_params.excitations = {0, i, 0};
         single_params.omegas = p.omegas;
         single_params.effective_mass = p.effective_mass;
         single_params.dims = p.dims;

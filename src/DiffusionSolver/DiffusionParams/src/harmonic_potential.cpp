@@ -1,14 +1,19 @@
 #include "DiffusionParams/include/harmonic_potential.hpp"
 #include <cmath>
 
-void HarmonicPotentialBuilder::precalculate() {
+HarmonicPotentialFunctor::HarmonicPotentialFunctor(HarmonicPotentialParams p): p(p){
+    precalculate();
+    build_potential();
+}
+
+void HarmonicPotentialFunctor::precalculate() {
     omegas_squared.resize(p.omegas.size());
     std::transform(p.omegas.begin(), p.omegas.end(), omegas_squared.begin(), [](double om) {
         return std::pow(om, 2);
     });
 }
 
-void HarmonicPotentialBuilder::build_potential() {
+void HarmonicPotentialFunctor::build_potential() {
     switch (p.dims) {
     case 1:
         potential = [&](const walker &wlk) {
@@ -35,10 +40,10 @@ void HarmonicPotentialBuilder::build_potential() {
     }
 }
 
-std::function<double(const walker &)> HarmonicPotentialBuilder::get_potential() {
-    precalculate();
-    build_potential();
+std::function<double(const walker &)> HarmonicPotentialFunctor::get_potential() {
     return potential;
 }
 
-void HarmonicPotentialBuilder::set_params(const HarmonicPotentialParams &p) { this->p = p; }
+double HarmonicPotentialFunctor::operator()(const walker& wlk){
+    return potential(wlk);
+}

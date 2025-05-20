@@ -6,7 +6,6 @@
 
 DiffusionQuantumElectrons::DiffusionQuantumElectrons()
     : p(DiffusionQuantumParams::getInstance())
-    , walkers_helper(std::make_unique<DiffusionWalkers>())
     , results(std::make_unique<DiffusionQuantumResults>())
     , general_context(std::make_unique<SolverContext>()) {
 
@@ -89,10 +88,9 @@ void DiffusionQuantumElectrons::eval_p() {
 
         if (solver_contexts[tid].apply_nodes(electrons[i], copy_electrons[i])) {
             p_values[i] = 0;
-            continue;
+        } else {
+            p_values[i] = solver_contexts[tid].p_value(electrons[i], copy_electrons[i], growth_estimator);
         }
-
-        p_values[i] = solver_contexts[tid].p_value(electrons[i], copy_electrons[i], growth_estimator);
     }
 }
 
@@ -100,7 +98,11 @@ void DiffusionQuantumElectrons::branch() {
     new_alive = 0;
 
     for (int i = 0; i < num_alive; i++) {
-        int m = static_cast<int>(p_values[i] + uniform_generator(uni_rng));
+        double random_number = uniform_generator(uni_rng);
+        int m = static_cast<int>(p_values[i] + random_number);
+        if(m > 3){
+            m = 3;
+        }
         set_alive(m, electrons[i]);
     }
 
@@ -113,10 +115,10 @@ void DiffusionQuantumElectrons::branch() {
 void DiffusionQuantumElectrons::set_alive(int N, const electron_walker &wlk) {
     for (int i = new_alive; i < new_alive + N; i++) {
         if (i >= static_cast<int>(electrons.size())) {
-            std::cout << "Error: The programme ran out of allocated memory. "
-                         "Required resize."
-                      << std::endl;
-            break;
+            // std::cout << "Error: The programme ran out of allocated memory. "
+            //              "Required resize."
+            //           << std::endl;
+             break;
         }
 
         copy_electrons[i] = wlk;
@@ -137,8 +139,6 @@ void DiffusionQuantumElectrons::update_growth_estimator() {
     growth_estimator =
         e_block - 1. / p->d_tau * std::log(static_cast<double>(num_alive) / static_cast<double>(target_alive));
 }
-
-double DiffusionQuantumElectrons::trial_wavef(const electron_walker &wlk) { return (*general_context->orbital)(wlk); }
 
 double DiffusionQuantumElectrons::local_energy_average() {
     double loc_ene_avg = std::accumulate(electrons.begin(),

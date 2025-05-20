@@ -1,4 +1,5 @@
 #include "Core/include/walkers.hpp"
+#include <algorithm>
 #include <cmath>
 
 DiffusionWalkers::DiffusionWalkers() {}
@@ -11,4 +12,20 @@ double DiffusionWalkers::distance(const walker &wlk_a, const walker &wlk_b, int 
     }
 
     return std::sqrt(s);
+}
+
+std::ostream& operator<<(std::ostream& os, const walker& wlk){
+    std::for_each(wlk.cords.begin(), wlk.cords.end(), [&os](double cord){
+        os << cord << " ";
+    });
+
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const electron_walker& ele_wlk){
+    std::for_each(ele_wlk.begin(), ele_wlk.end(), [&os](const walker& wlk){
+        os << "|" << wlk << "|"; 
+    });
+
+    return os;
 }

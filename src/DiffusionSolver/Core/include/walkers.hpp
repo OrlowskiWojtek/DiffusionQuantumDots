@@ -3,6 +3,7 @@
 
 #include <array>
 #include <vector>
+#include <iostream>
 
 struct walker {
     std::array<double, 3> cords;
@@ -17,6 +18,8 @@ struct walker {
         cords[1] = yval;
         cords[2] = zval;
     }
+
+    friend std::ostream& operator<<(std::ostream&, const walker& wlk);
 };
 
 // electron_walker representing simple walker in many dimensions systems
@@ -24,6 +27,7 @@ struct walker {
 // increasing number of dimensions in walker_struct
 // for 1 electron_walker vector size is 1
 using electron_walker = std::vector<walker>;
+std::ostream& operator<<(std::ostream&, const electron_walker& wlk);
 
 class DiffusionWalkers {
 public:
