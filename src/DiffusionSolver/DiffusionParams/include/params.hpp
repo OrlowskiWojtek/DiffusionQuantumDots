@@ -2,8 +2,6 @@
 #define DIFFUSION_QUANTUM_PARAMS_HPP
 
 #include "DiffusionParams/include/harmonic_potential.hpp"
-#include "TrialFunctions/include/abstract_manybody_orbital.hpp"
-#include "TrialFunctions/include/abstract_singlebody_orbital.hpp"
 
 #include <cmath>
 #include <vector>

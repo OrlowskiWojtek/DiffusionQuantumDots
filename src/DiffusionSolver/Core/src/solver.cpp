@@ -44,7 +44,10 @@ void DiffusionQuantumSolver::solve() {
     }
 }
 
-void DiffusionQuantumSolver::diffuse() { electrons->diffuse(); }
+void DiffusionQuantumSolver::diffuse() {
+    electrons->diffuse(); 
+    electrons->accept_movement();
+}
 
 void DiffusionQuantumSolver::branch() {
     electrons->eval_p();

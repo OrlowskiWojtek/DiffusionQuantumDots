@@ -27,6 +27,19 @@ struct walker {
 // increasing number of dimensions in walker_struct
 // for 1 electron_walker vector size is 1
 using electron_walker = std::vector<walker>;
+
+class ElectronWalker{
+public:
+    electron_walker& get_walker();
+    const electron_walker& get_const_walker() const;
+
+    double trial_wavef_value;
+    double local_energy;
+
+private:
+    electron_walker ele_wlk;
+};
+
 std::ostream& operator<<(std::ostream&, const electron_walker& wlk);
 
 class DiffusionWalkers {

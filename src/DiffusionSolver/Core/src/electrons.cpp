@@ -42,11 +42,12 @@ void DiffusionQuantumElectrons::init_containers() {
     electrons.resize(p->nmax_walkers);
     copy_electrons.resize(p->nmax_walkers);
     for (auto &ele : electrons) {
-        ele.resize(p->n_electrons);
-        std::for_each(ele.begin(), ele.end(), [&](walker &wlk) {
+        electron_walker &ele_wlk = ele.get_walker();
+        ele_wlk.resize(p->n_electrons);
+        std::for_each(ele_wlk.begin(), ele_wlk.end(), [&](walker &wlk) {
             wlk.cords.fill(0);
         });
-        std::for_each(ele.begin(), ele.end(), [&](walker &wlk) {
+        std::for_each(ele_wlk.begin(), ele_wlk.end(), [&](walker &wlk) {
             std::for_each(wlk.cords.begin(), wlk.cords.begin() + p->n_dims, [&](double &cord) {
                 cord = initial_dist(rng);
             });
@@ -69,6 +70,14 @@ void DiffusionQuantumElectrons::init_containers() {
     std::for_each(summed_walkers.data(), summed_walkers.data() + summed_walkers.num_elements(), [](int64_t &val) {
         val = 0;
     });
+
+    std::for_each(electrons.begin(), electrons.end(), [&](ElectronWalker &wlk) {
+        general_context->calc_trial_wavef(wlk);
+    });
+
+    std::for_each(copy_electrons.begin(), copy_electrons.end(), [&](ElectronWalker &wlk) {
+        general_context->calc_trial_wavef(wlk);
+    });
 }
 
 void DiffusionQuantumElectrons::diffuse() {
@@ -78,6 +87,18 @@ void DiffusionQuantumElectrons::diffuse() {
     for (int i = 0; i < num_alive; i++) {
         int tid = omp_get_thread_num();
         solver_contexts[tid].move_walkers(electrons[i], diffusion_values[i]);
+        solver_contexts[tid].calc_trial_wavef(electrons[i]);
+    }
+}
+
+void DiffusionQuantumElectrons::accept_movement() {
+#pragma omp parallel for
+    for (int i = 0; i < num_alive; i++) {
+        int tid = omp_get_thread_num();
+
+        if (!solver_contexts[tid].apply_nodes(electrons[i], copy_electrons[i])) {
+            solver_contexts[tid].check_movement(electrons[i], copy_electrons[i], diffusion_values[i]);
+        }
     }
 }
 
@@ -86,11 +107,7 @@ void DiffusionQuantumElectrons::eval_p() {
     for (int i = 0; i < num_alive; i++) {
         int tid = omp_get_thread_num();
 
-        if (solver_contexts[tid].apply_nodes(electrons[i], copy_electrons[i])) {
-            p_values[i] = 0;
-        } else {
-            p_values[i] = solver_contexts[tid].p_value(electrons[i], copy_electrons[i], growth_estimator);
-        }
+        p_values[i] = solver_contexts[tid].p_value(electrons[i], copy_electrons[i], growth_estimator);
     }
 }
 
@@ -100,7 +117,7 @@ void DiffusionQuantumElectrons::branch() {
     for (int i = 0; i < num_alive; i++) {
         double random_number = uniform_generator(uni_rng);
         int m = static_cast<int>(p_values[i] + random_number);
-        if(m > 3){
+        if (m > 3) {
             m = 3;
         }
         set_alive(m, electrons[i]);
@@ -112,13 +129,13 @@ void DiffusionQuantumElectrons::branch() {
     update_growth_estimator();
 }
 
-void DiffusionQuantumElectrons::set_alive(int N, const electron_walker &wlk) {
+void DiffusionQuantumElectrons::set_alive(int N, const ElectronWalker &wlk) {
     for (int i = new_alive; i < new_alive + N; i++) {
         if (i >= static_cast<int>(electrons.size())) {
-            // std::cout << "Error: The programme ran out of allocated memory. "
-            //              "Required resize."
-            //           << std::endl;
-             break;
+            std::cout << "Error: The programme ran out of allocated memory. "
+                         "Required resize."
+                      << std::endl;
+            break;
         }
 
         copy_electrons[i] = wlk;
@@ -141,15 +158,14 @@ void DiffusionQuantumElectrons::update_growth_estimator() {
 }
 
 double DiffusionQuantumElectrons::local_energy_average() {
-    double loc_ene_avg = std::accumulate(electrons.begin(),
-                                         electrons.begin() + num_alive,
-                                         0.,
-                                         [this](double acc, const electron_walker &wlk) {
-                                             return acc + general_context->local_energy(wlk);
-                                         }) /
-                         static_cast<double>(num_alive);
 
-    return loc_ene_avg;
+    double loc_ene_avg = 0.;
+
+    for (int i = 0; i < num_alive; i++) {
+        loc_ene_avg += electrons[i].local_energy;
+    }
+
+    return loc_ene_avg / static_cast<double>(num_alive);
 }
 
 // need to test and reinvent error estimation
@@ -171,8 +187,8 @@ void DiffusionQuantumElectrons::count() {
 // TODO smart binning for visualisation is needed - like class just for binning in all dimensions x1 vs x2, y1 vs y2
 // etc. now it is summing all walkers into one bin
 void DiffusionQuantumElectrons::binning() {
-    std::for_each(electrons.begin(), electrons.begin() + num_alive, [&](const electron_walker &wlk) {
-        std::for_each(wlk.begin(), wlk.end(), [&](const walker &wlk) {
+    std::for_each(electrons.begin(), electrons.begin() + num_alive, [&](const ElectronWalker &wlk) {
+        std::for_each(wlk.get_const_walker().begin(), wlk.get_const_walker().end(), [&](const walker &wlk) {
             for (int dim = 0; dim < p->n_dims; dim++) {
                 if (wlk.cords[dim] < p->xmin || wlk.cords[dim] > p->xmax) {
                     return;

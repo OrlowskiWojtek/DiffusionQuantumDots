@@ -29,3 +29,11 @@ std::ostream& operator<<(std::ostream& os, const electron_walker& ele_wlk){
 
     return os;
 }
+
+electron_walker& ElectronWalker::get_walker(){
+    return ele_wlk;
+}
+
+const electron_walker& ElectronWalker::get_const_walker() const{
+    return ele_wlk;
+}

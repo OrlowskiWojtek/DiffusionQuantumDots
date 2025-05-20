@@ -73,7 +73,7 @@ with_theme(theme_latexfonts()) do
     ticks_psi = [ round(val, digits = 3) for val in collect(LinRange(findmin(data)[1], findmax(data)[1], 6)) ]
     ticks_v =   [ round(val, digits = 3) for val in collect(LinRange(findmin(Vmat)[1], findmax(Vmat)[1], 6)) ]
 
-    #Colorbar(fig[2,1], cm, label = "Ψ(x,y)", vertical = false, ticks = ticks_psi[2:end-1])
+    Colorbar(fig[2,1], cm, label = "Ψ(x,y)", vertical = false, ticks = ticks_psi[2:end-1])
    #Colorbar(fig[3,1], cmv, label = "V(x,y)", vertical = false, ticks = ticks_v[2:end-1])
 
     xlims!(ax, (xmin, xmax))

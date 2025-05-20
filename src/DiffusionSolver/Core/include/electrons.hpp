@@ -28,8 +28,8 @@ public:
     DiffusionQuantumResults &get_results();
 
 private:
-    std::vector<electron_walker> electrons;
-    std::vector<electron_walker> copy_electrons;
+    std::vector<ElectronWalker> electrons;
+    std::vector<ElectronWalker> copy_electrons;
     std::vector<double> p_values;
 
     std::vector<electron_walker> diffusion_values;
@@ -50,7 +50,7 @@ private:
 
     double local_energy_average();
 
-    void set_alive(int new_alive, const electron_walker &wlk);
+    void set_alive(int new_alive, const ElectronWalker &wlk);
     void update_growth_estimator();
     void binning();
 

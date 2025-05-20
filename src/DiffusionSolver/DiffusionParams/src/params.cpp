@@ -1,14 +1,10 @@
 #include "DiffusionParams/include/params.hpp"
-#include "TrialFunctions/include/harmonic_oscillator.hpp"
-#include "TrialFunctions/include/harmonic_oscillator.hpp"
-#include "TrialFunctions/include/jastrow_slater.hpp"
 #include "include/UnitHandler.hpp"
-#include <memory>
 
 DiffusionQuantumParams *DiffusionQuantumParams::instance = nullptr;
 
 void DiffusionQuantumParams::set_default_params() {
-    d_tau = 1.;              // time step value
+    d_tau = 0.1;              // time step value
     total_time_steps = 3000; // total number of time steps valued d_tau
     eq_time_step = 2000;      // time step to average from
     n0_walkers = 10000;       // beginning number of walkers alive, also target number of walkers
