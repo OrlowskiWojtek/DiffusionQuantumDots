@@ -1,7 +1,6 @@
 #include "Core/include/electrons.hpp"
 #include "Core/include/results.hpp"
 #include "Core/include/walkers.hpp"
-#include <numeric>
 #include <omp.h>
 
 DiffusionQuantumElectrons::DiffusionQuantumElectrons()

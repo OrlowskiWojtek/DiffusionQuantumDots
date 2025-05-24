@@ -78,7 +78,7 @@ with_theme(theme_latexfonts()) do
 
     xlims!(ax, (xmin, xmax))
     ylims!(ax, (xmin, xmax))
-    zlims!(ax, (0, nothing))
+    zlims!(ax, (0, 0.0001))
 
     xlims!(ax_v, (xmin, xmax))
     ylims!(ax_v, (xmin, xmax))
