@@ -2,132 +2,166 @@
   {
     "arguments": [
       "/usr/bin/c++",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/FileLoader/include",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/FileLoader/include",
       "-g",
       "-c",
       "-o",
       "CMakeFiles/FileLoader.dir/src/FileLoader.cpp.o",
-      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/FileLoader/src/FileLoader.cpp"
+      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/FileLoader/src/FileLoader.cpp"
     ],
-    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/FileLoader",
-    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/FileLoader/src/FileLoader.cpp",
-    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/FileLoader/CMakeFiles/FileLoader.dir/src/FileLoader.cpp.o"
+    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/FileLoader",
+    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/FileLoader/src/FileLoader.cpp",
+    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/FileLoader/CMakeFiles/FileLoader.dir/src/FileLoader.cpp.o"
   },
   {
     "arguments": [
       "/usr/bin/c++",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/UnitHandler",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/UnitHandler",
       "-g",
       "-c",
       "-o",
       "CMakeFiles/UnitHandler.dir/src/UnitHandler.cpp.o",
-      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/UnitHandler/src/UnitHandler.cpp"
+      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/UnitHandler/src/UnitHandler.cpp"
     ],
-    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/UnitHandler",
-    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/UnitHandler/src/UnitHandler.cpp",
-    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/UnitHandler/CMakeFiles/UnitHandler.dir/src/UnitHandler.cpp.o"
+    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/UnitHandler",
+    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/UnitHandler/src/UnitHandler.cpp",
+    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/UnitHandler/CMakeFiles/UnitHandler.dir/src/UnitHandler.cpp.o"
   },
   {
     "arguments": [
       "/usr/bin/c++",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/UnitHandler",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/UnitHandler",
       "-g",
       "-O3",
       "-Wall",
       "-c",
       "-o",
-      "CMakeFiles/DiffusionSolver.dir/src/walkers.cpp.o",
-      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver/src/walkers.cpp"
+      "CMakeFiles/DiffusionSolver.dir/Core/src/solver.cpp.o",
+      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/Core/src/solver.cpp"
     ],
-    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/DiffusionSolver",
-    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver/src/walkers.cpp",
-    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/DiffusionSolver/CMakeFiles/DiffusionSolver.dir/src/walkers.cpp.o"
+    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver",
+    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/Core/src/solver.cpp",
+    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver/CMakeFiles/DiffusionSolver.dir/Core/src/solver.cpp.o"
   },
   {
     "arguments": [
       "/usr/bin/c++",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/UnitHandler",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/UnitHandler",
       "-g",
       "-O3",
       "-Wall",
       "-c",
       "-o",
-      "CMakeFiles/DiffusionSolver.dir/src/solver.cpp.o",
-      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver/src/solver.cpp"
+      "CMakeFiles/DiffusionSolver.dir/Core/src/blocking.cpp.o",
+      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/Core/src/blocking.cpp"
     ],
-    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/DiffusionSolver",
-    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver/src/solver.cpp",
-    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/DiffusionSolver/CMakeFiles/DiffusionSolver.dir/src/solver.cpp.o"
+    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver",
+    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/Core/src/blocking.cpp",
+    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver/CMakeFiles/DiffusionSolver.dir/Core/src/blocking.cpp.o"
   },
   {
     "arguments": [
       "/usr/bin/c++",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/UnitHandler",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/UnitHandler",
       "-g",
       "-O3",
       "-Wall",
       "-c",
       "-o",
-      "CMakeFiles/DiffusionSolver.dir/src/results.cpp.o",
-      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver/src/results.cpp"
+      "CMakeFiles/DiffusionSolver.dir/Core/src/results.cpp.o",
+      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/Core/src/results.cpp"
     ],
-    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/DiffusionSolver",
-    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver/src/results.cpp",
-    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/DiffusionSolver/CMakeFiles/DiffusionSolver.dir/src/results.cpp.o"
+    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver",
+    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/Core/src/results.cpp",
+    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver/CMakeFiles/DiffusionSolver.dir/Core/src/results.cpp.o"
   },
   {
     "arguments": [
       "/usr/bin/c++",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/UnitHandler",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/UnitHandler",
       "-g",
       "-O3",
       "-Wall",
       "-c",
       "-o",
-      "CMakeFiles/DiffusionSolver.dir/src/blocking.cpp.o",
-      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver/src/blocking.cpp"
+      "CMakeFiles/DiffusionSolver.dir/Core/src/walkers.cpp.o",
+      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/Core/src/walkers.cpp"
     ],
-    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/DiffusionSolver",
-    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver/src/blocking.cpp",
-    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/DiffusionSolver/CMakeFiles/DiffusionSolver.dir/src/blocking.cpp.o"
+    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver",
+    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/Core/src/walkers.cpp",
+    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver/CMakeFiles/DiffusionSolver.dir/Core/src/walkers.cpp.o"
   },
   {
     "arguments": [
       "/usr/bin/c++",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/UnitHandler",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/UnitHandler",
       "-g",
       "-O3",
       "-Wall",
       "-c",
       "-o",
       "CMakeFiles/DiffusionSolver.dir/DiffusionParams/src/params.cpp.o",
-      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver/DiffusionParams/src/params.cpp"
+      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/DiffusionParams/src/params.cpp"
     ],
-    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/DiffusionSolver",
-    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver/DiffusionParams/src/params.cpp",
-    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/DiffusionSolver/CMakeFiles/DiffusionSolver.dir/DiffusionParams/src/params.cpp.o"
+    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver",
+    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/DiffusionParams/src/params.cpp",
+    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver/CMakeFiles/DiffusionSolver.dir/DiffusionParams/src/params.cpp.o"
   },
   {
     "arguments": [
       "/usr/bin/c++",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/UnitHandler",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/UnitHandler",
       "-g",
       "-O3",
       "-Wall",
       "-c",
       "-o",
       "CMakeFiles/DiffusionSolver.dir/DiffusionParams/src/harmonic_potential.cpp.o",
-      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver/DiffusionParams/src/harmonic_potential.cpp"
+      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/DiffusionParams/src/harmonic_potential.cpp"
     ],
-    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/DiffusionSolver",
-    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver/DiffusionParams/src/harmonic_potential.cpp",
-    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/libs/DiffusionSolver/CMakeFiles/DiffusionSolver.dir/DiffusionParams/src/harmonic_potential.cpp.o"
+    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver",
+    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/DiffusionParams/src/harmonic_potential.cpp",
+    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver/CMakeFiles/DiffusionSolver.dir/DiffusionParams/src/harmonic_potential.cpp.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/c++",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/UnitHandler",
+      "-g",
+      "-O3",
+      "-Wall",
+      "-c",
+      "-o",
+      "CMakeFiles/DiffusionSolver.dir/TrialFunctions/src/harmonic_oscillator.cpp.o",
+      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/TrialFunctions/src/harmonic_oscillator.cpp"
+    ],
+    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver",
+    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/TrialFunctions/src/harmonic_oscillator.cpp",
+    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver/CMakeFiles/DiffusionSolver.dir/TrialFunctions/src/harmonic_oscillator.cpp.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/c++",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/UnitHandler",
+      "-g",
+      "-O3",
+      "-Wall",
+      "-c",
+      "-o",
+      "CMakeFiles/DiffusionSolver.dir/TrialFunctions/src/static_orbital.cpp.o",
+      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/TrialFunctions/src/static_orbital.cpp"
+    ],
+    "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver",
+    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver/TrialFunctions/src/static_orbital.cpp",
+    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/src/DiffusionSolver/CMakeFiles/DiffusionSolver.dir/TrialFunctions/src/static_orbital.cpp.o"
   },
   {
     "arguments": [
@@ -135,9 +169,9 @@
       "-DPSTL_USE_PARALLEL_POLICIES",
       "-DTBB_USE_DEBUG",
       "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/DiffusionSolver",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/UnitHandler",
-      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/libs/FileLoader/include",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/DiffusionSolver",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/UnitHandler",
+      "-I/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/FileLoader/include",
       "-g",
       "-fopenmp",
       "-Wall",
@@ -148,11 +182,11 @@
       "-std=gnu++23",
       "-c",
       "-o",
-      "CMakeFiles/DiffusionQuantumMC.dir/main.cpp.o",
-      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/main.cpp"
+      "CMakeFiles/DiffusionQuantumMC.dir/src/main.cpp.o",
+      "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/main.cpp"
     ],
     "directory": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build",
-    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/main.cpp",
-    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/CMakeFiles/DiffusionQuantumMC.dir/main.cpp.o"
+    "file": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/src/main.cpp",
+    "output": "/home/linuxwojtek/MasterThesis/DiffusionQuantumDots/build/CMakeFiles/DiffusionQuantumMC.dir/src/main.cpp.o"
   }
 ]
