@@ -16,7 +16,7 @@ public:
                        int time_step,
                        double mean_energy,
                        double mean_growth_estimator,
-                       const boost::multi_array<int64_t, 3> &hist);
+                       const boost::multi_array<int64_t, 2> &hist);
     void save_to_file();
 
     const std::vector<double> &get_energies();
@@ -29,9 +29,9 @@ private:
         int time_step;
         double energy;
         double growth_estimator;
-        boost::multi_array<double, 3> psi;
+        boost::multi_array<double, 2> psi;
 
-        HistData(double time, int time_step, double ene, double gest, boost::multi_array<double, 3> psi)
+        HistData(double time, int time_step, double ene, double gest, boost::multi_array<double, 2> psi)
             : time(time)
             , time_step(time_step)
             , energy(ene)

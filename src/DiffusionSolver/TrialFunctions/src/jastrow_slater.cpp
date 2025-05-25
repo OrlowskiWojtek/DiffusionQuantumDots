@@ -6,8 +6,9 @@
 
 JastrowSlaterOrbital::JastrowSlaterOrbital() { init_orbital(); }
 
-JastrowSlaterOrbital::JastrowSlaterOrbital(JastrowSlaterOrbitalParams p): p(p) {
-    init_orbital(); 
+JastrowSlaterOrbital::JastrowSlaterOrbital(JastrowSlaterOrbitalParams p)
+    : p(p) {
+    init_orbital();
 }
 
 void JastrowSlaterOrbital::add_single_orbital(std::unique_ptr<AbstractSinglebodyOrbital> single_orbital) {
@@ -30,7 +31,7 @@ void JastrowSlaterOrbital::init_orbital() {
     for (int i = 0; i < p.electron_number; i++) {
         HarmonicOscillatorOrbitalsParams single_params; // TODO: try to use Aufbau principle in filling, now asume that
                                                         // in x direction is first excitement
-        single_params.excitations = {0, i, 0};
+        single_params.excitations = {i, 0, 0};
         single_params.omegas = p.omegas;
         single_params.effective_mass = p.effective_mass;
         single_params.dims = p.dims;
@@ -45,13 +46,13 @@ void JastrowSlaterOrbital::init_orbital() {
     print_test_to_file();
 }
 
-double JastrowSlaterOrbital::operator()(const electron_walker& wlk){
+double JastrowSlaterOrbital::operator()(const electron_walker &wlk) {
     double jastrow_factor = 1;
 
     for (int i = 0; i < p.electron_number; i++) {
         for (int j = i + 1; j < p.electron_number; j++) {
             double r_ij = distance(wlk[i], wlk[j]);
-            jastrow_factor *= std::exp(p.a * r_ij / (1. + p.b * r_ij));       
+            jastrow_factor *= std::exp(p.a * r_ij / (1. + p.b * r_ij));
         }
     }
 
@@ -61,17 +62,14 @@ double JastrowSlaterOrbital::operator()(const electron_walker& wlk){
         }
     }
 
-    if( p.electron_number == 2){
-        return jastrow_factor * 1. / 2. * (slater_matrix(0,0) * slater_matrix(1,1) - slater_matrix(1,0) * slater_matrix(0,1));
+    if (p.electron_number == 2) {
+        return jastrow_factor * 1. / 2. *
+               (slater_matrix(0, 0) * slater_matrix(1, 1) - slater_matrix(1, 0) * slater_matrix(0, 1));
     }
 
     return jastrow_factor * arma::det(slater_matrix);
 }
 
-void JastrowSlaterOrbital::print(){
-    std::cout << "Using Jastrow Slater based orbital" << std::endl;
-}
+void JastrowSlaterOrbital::print() { std::cout << "Using Jastrow Slater based orbital" << std::endl; }
 
-std::function<double(const electron_walker& wlk)> JastrowSlaterOrbital::get_orbital(){
-    return orbital;
-}
+std::function<double(const electron_walker &wlk)> JastrowSlaterOrbital::get_orbital() { return orbital; }

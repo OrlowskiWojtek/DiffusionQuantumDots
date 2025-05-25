@@ -1,4 +1,5 @@
 #include "Core/include/solver_context.hpp"
+#include "DiffusionParams/include/params.hpp"
 #include "TrialFunctions/include/jastrow_slater.hpp"
 #include <cmath>
 
@@ -24,8 +25,10 @@ void SolverContext::init_orbital() {
     orbital_params.omegas = p->omegas;
     orbital_params.effective_mass = p->effective_mass;
     orbital_params.dims = p->n_dims;
-    orbital_params.a = 0.005;
-    orbital_params.b = 2.;
+
+    
+    orbital_params.a = DiffusionQuantumParams::getInstance()->a;
+    orbital_params.b = DiffusionQuantumParams::getInstance()->b;
 
     orbital = std::make_unique<JastrowSlaterOrbital>(orbital_params);
 }
@@ -40,7 +43,9 @@ void SolverContext::init_rng() {
 
 double SolverContext::trial_wavef(const electron_walker &wlk) { return (*this->orbital)(wlk); }
 
-void SolverContext::calc_trial_wavef(ElectronWalker &wlk) { wlk.trial_wavef_value = trial_wavef(wlk.get_walker()); }
+void SolverContext::calc_trial_wavef(ElectronWalker &wlk) { 
+    wlk.trial_wavef_value = trial_wavef(wlk.get_walker()); 
+}
 
 double SolverContext::p_value(ElectronWalker &wlk, ElectronWalker &prev_wlk, double growth_estimator) {
     return std::exp(-p->d_tau * ((local_energy(wlk) + local_energy(prev_wlk)) / 2. - growth_estimator));
@@ -81,7 +86,7 @@ double SolverContext::local_energy(ElectronWalker &wlk) {
     double interaction = 0;
     for (int i = 0; i < p->n_electrons; i++) {
         for (int j = i + 1; j < p->n_electrons; j++) {
-            interaction += 1 / (p->epsilon * walkers_helper->distance(
+            interaction += 1 / (1e-6 + p->epsilon * walkers_helper->distance(
                                                  wlk.get_const_walker()[i], wlk.get_const_walker()[j], p->n_dims));
         }
     }

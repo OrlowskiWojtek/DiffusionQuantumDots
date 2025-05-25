@@ -1,6 +1,7 @@
 #include "Core/include/electrons.hpp"
 #include "Core/include/results.hpp"
 #include "Core/include/walkers.hpp"
+#include <numeric>
 #include <omp.h>
 
 DiffusionQuantumElectrons::DiffusionQuantumElectrons()
@@ -65,7 +66,7 @@ void DiffusionQuantumElectrons::init_containers() {
 
     p_values.resize(p->nmax_walkers);
 
-    summed_walkers.resize(boost::extents[p->n_bins][p->n_bins][p->n_bins]);
+    summed_walkers.resize(boost::extents[p->n_bins][p->n_bins]);
     std::for_each(summed_walkers.data(), summed_walkers.data() + summed_walkers.num_elements(), [](int64_t &val) {
         val = 0;
     });
@@ -158,11 +159,10 @@ void DiffusionQuantumElectrons::update_growth_estimator() {
 
 double DiffusionQuantumElectrons::local_energy_average() {
 
-    double loc_ene_avg = 0.;
-
-    for (int i = 0; i < num_alive; i++) {
-        loc_ene_avg += electrons[i].local_energy;
-    }
+    double loc_ene_avg = std::accumulate(
+        electrons.begin(), electrons.begin() + num_alive, 0., [](double acc, const ElectronWalker &ele) {
+            return acc + ele.local_energy;
+        });
 
     return loc_ene_avg / static_cast<double>(num_alive);
 }
@@ -177,29 +177,38 @@ void DiffusionQuantumElectrons::count() {
     accu_it++;
 
     if (p->blocks_calibration) {
-        results->add_energies(mixed_estimator, e_block);
+        results->add_energies(mixed_estimator, growth_estimator);
     }
 
     // TODO add overblocks estimation
 }
 
 // TODO smart binning for visualisation is needed - like class just for binning in all dimensions x1 vs x2, y1 vs y2
-// etc. now it is summing all walkers into one bin
+// etc. now it is summing all walkers into one bin 3D binning is actually unnecessery as it is difficult to show
+// properly
 void DiffusionQuantumElectrons::binning() {
     std::for_each(electrons.begin(), electrons.begin() + num_alive, [&](const ElectronWalker &wlk) {
-        std::for_each(wlk.get_const_walker().begin(), wlk.get_const_walker().end(), [&](const walker &wlk) {
-            for (int dim = 0; dim < p->n_dims; dim++) {
-                if (wlk.cords[dim] < p->xmin || wlk.cords[dim] > p->xmax) {
-                    return;
-                }
-            }
+        // std::for_each(wlk.get_const_walker().begin(), wlk.get_const_walker().end(), [&](const walker &wlk) {
+        if (wlk.get_const_walker()[0].cords[0] < p->xmin || wlk.get_const_walker()[0].cords[0] > p->xmax) {
+            return;
+        }
 
-            std::array<size_t, 3> walker_bin;
-            walker_bin[0] = static_cast<int>((p->xmax - wlk.cords[0]) / (p->xmax - p->xmin) * p->n_bins);
-            walker_bin[1] = static_cast<int>((p->xmax - wlk.cords[1]) / (p->xmax - p->xmin) * p->n_bins);
-            walker_bin[2] = static_cast<int>((p->xmax - wlk.cords[2]) / (p->xmax - p->xmin) * p->n_bins);
-            summed_walkers[walker_bin[0]][walker_bin[1]][walker_bin[2]]++; // TODO move hist to result class
-        });
+        if (wlk.get_const_walker()[1].cords[0] < p->xmin || wlk.get_const_walker()[1].cords[0] > p->xmax) {
+            return;
+        }
+
+        std::array<size_t, 2> walker_bin;
+        int x_ele = std::get<0>(p->vis_dim_idx_x);
+        int x_dim = std::get<1>(p->vis_dim_idx_x);
+        int y_ele = std::get<0>(p->vis_dim_idx_y);
+        int y_dim = std::get<1>(p->vis_dim_idx_y);
+
+        walker_bin[0] =
+            static_cast<int>((p->xmax - wlk.get_const_walker()[x_ele].cords[x_dim]) / (p->xmax - p->xmin) * p->n_bins);
+        walker_bin[1] =
+            static_cast<int>((p->xmax - wlk.get_const_walker()[y_ele].cords[y_dim]) / (p->xmax - p->xmin) * p->n_bins);
+        summed_walkers[walker_bin[0]][walker_bin[1]]++; // TODO move hist to result class
+        //});
     });
 }
 

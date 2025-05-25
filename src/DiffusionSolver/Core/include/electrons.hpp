@@ -33,7 +33,7 @@ private:
     std::vector<double> p_values;
 
     std::vector<electron_walker> diffusion_values;
-    boost::multi_array<int64_t, 3> summed_walkers;
+    boost::multi_array<int64_t, 2> summed_walkers;
 
     DiffusionQuantumParams *p;
 

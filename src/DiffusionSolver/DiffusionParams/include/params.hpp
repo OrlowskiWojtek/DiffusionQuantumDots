@@ -13,6 +13,7 @@ private:
     static DiffusionQuantumParams *instance;
     DiffusionQuantumParams() { set_default_params(); }
 
+    void check_params();
 public:
     DiffusionQuantumParams(const DiffusionQuantumParams &) = delete;
     DiffusionQuantumParams &operator=(const DiffusionQuantumParams &) = delete;
@@ -46,9 +47,16 @@ public:
     std::vector<double> omegas; // omega in each direction
     int n_bins;
 
+    std::tuple<int, int> vis_dim_idx_x; // used for visualisation - first dimension (first index is electron idx, second is dimension idx)
+    std::tuple<int, int> vis_dim_idx_y; // used for visualisation - second dimension (first index is electron idx, second is dimension idx)
+
     // TODO: revise blocks
     bool blocks_calibration;
     int n_block;
+
+    // TODO: remove, quick scan ofer a b parameters -> handle in minimum seeker
+    double a = 0.005;
+    double b = 2.;
 };
 
 #endif

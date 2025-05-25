@@ -26,9 +26,9 @@ void DiffusionQuantumResults::add_histogram(double time,
                                             int time_step,
                                             double mean_energy,
                                             double mean_growth_estimator,
-                                            const boost::multi_array<int64_t, 3> &hist) {
+                                            const boost::multi_array<int64_t, 2> &hist) {
 
-    boost::multi_array<double, 3> psi(boost::extents[x.size()][x.size()][x.size()]);
+    boost::multi_array<double, 2> psi(boost::extents[x.size()][x.size()]);
     double dx = (x[1] - x[0]);
 
     double int_val =
@@ -67,10 +67,7 @@ void DiffusionQuantumResults::save_to_file() {
         // TODO -> swtich to dimension version
         for (size_t i = 0; i < x.size(); i++) {
             for (size_t j = 0; j < x.size(); j++) {
-                int j_idx = p->n_dims > 1 ? j : x.size() / 2;
-                file << data.psi[i][j_idx][x.size() / 2] << "\t";
-                if (p->n_dims == 1)
-                    break;
+                file << data.psi[i][j] << "\t";
             }
             file << "\n";
         }
@@ -80,7 +77,7 @@ void DiffusionQuantumResults::save_to_file() {
     file.close();
 
     std::ofstream file_energies("energies.dqmc.dat");
-    file_energies << "#\t<V>\tg_est\n";
+    file_energies << "#\tmixed_stimator[meV]\tgrowth_estimator[meV]\n";
 
     if (calibration_energies.size() != calibration_growth.size()) {
         file_energies.close();
@@ -94,9 +91,9 @@ void DiffusionQuantumResults::save_to_file() {
     file_energies.close();
 }
 
-void DiffusionQuantumResults::add_energies(double ene, double growth_estimator) {
-    calibration_energies.push_back(ene);
-    calibration_growth.push_back(growth_estimator);
+void DiffusionQuantumResults::add_energies(double mixed_estimator, double growth_estimator) {
+    calibration_energies.push_back(UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, mixed_estimator));
+    calibration_growth.push_back(UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, growth_estimator));
 }
 
 const std::vector<double> &DiffusionQuantumResults::get_energies() { return calibration_energies; }
