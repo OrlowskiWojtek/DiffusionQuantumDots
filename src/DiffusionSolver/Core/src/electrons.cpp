@@ -12,6 +12,7 @@ DiffusionQuantumElectrons::DiffusionQuantumElectrons()
     current_it = 0;
     accu_it = 0;
 
+    ground_state_estimator = 0;
     growth_estimator = 0;
     e_block = 0;
 
@@ -188,27 +189,28 @@ void DiffusionQuantumElectrons::count() {
 // properly
 void DiffusionQuantumElectrons::binning() {
     std::for_each(electrons.begin(), electrons.begin() + num_alive, [&](const ElectronWalker &wlk) {
-        // std::for_each(wlk.get_const_walker().begin(), wlk.get_const_walker().end(), [&](const walker &wlk) {
-        if (wlk.get_const_walker()[0].cords[0] < p->xmin || wlk.get_const_walker()[0].cords[0] > p->xmax) {
-            return;
-        }
-
-        if (wlk.get_const_walker()[1].cords[0] < p->xmin || wlk.get_const_walker()[1].cords[0] > p->xmax) {
-            return;
-        }
-
-        std::array<size_t, 2> walker_bin;
         int x_ele = std::get<0>(p->vis_dim_idx_x);
         int x_dim = std::get<1>(p->vis_dim_idx_x);
         int y_ele = std::get<0>(p->vis_dim_idx_y);
         int y_dim = std::get<1>(p->vis_dim_idx_y);
+
+        if (wlk.get_const_walker()[x_ele].cords[x_dim] < p->xmin ||
+            wlk.get_const_walker()[x_ele].cords[x_dim] > p->xmax) {
+            return;
+        }
+
+        if (wlk.get_const_walker()[y_ele].cords[y_dim] < p->xmin ||
+            wlk.get_const_walker()[y_ele].cords[y_dim] > p->xmax) {
+            return;
+        }
+
+        std::array<size_t, 2> walker_bin;
 
         walker_bin[0] =
             static_cast<int>((p->xmax - wlk.get_const_walker()[x_ele].cords[x_dim]) / (p->xmax - p->xmin) * p->n_bins);
         walker_bin[1] =
             static_cast<int>((p->xmax - wlk.get_const_walker()[y_ele].cords[y_dim]) / (p->xmax - p->xmin) * p->n_bins);
         summed_walkers[walker_bin[0]][walker_bin[1]]++; // TODO move hist to result class
-        //});
     });
 }
 

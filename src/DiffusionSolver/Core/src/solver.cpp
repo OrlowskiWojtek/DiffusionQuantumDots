@@ -3,7 +3,8 @@
 DiffusionQuantumSolver::DiffusionQuantumSolver()
     : electrons(std::make_unique<DiffusionQuantumElectrons>())
     , block_analyzer(std::make_unique<EnergyBlockingAnalyzer>())
-    , params(DiffusionQuantumParams::getInstance()) {}
+    , params(DiffusionQuantumParams::getInstance()) {
+}
 
 DiffusionQuantumSolver::~DiffusionQuantumSolver() {}
 

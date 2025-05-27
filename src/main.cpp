@@ -26,13 +26,12 @@ int main() {
 
     for(double a = 0; a < 0.1; a += 0.01){
         for(double b = 0; b < 4; b += 0.25){
-            DiffusionQuantumSolver* solver = new DiffusionQuantumSolver;
+            std::unique_ptr<DiffusionQuantumSolver> solver = std::make_unique<DiffusionQuantumSolver>();
 
             p->a = a;
             p->b = b;
-            std::cout << a  << "\t" << b  << std::endl;
+            std::cout << a << "\t" << b << "\t";
             solver->solve();
-            delete solver;
         }
     }
 
