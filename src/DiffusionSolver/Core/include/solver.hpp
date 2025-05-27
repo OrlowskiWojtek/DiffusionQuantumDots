@@ -18,6 +18,8 @@
  * 2. Equilibration phase (without data collection)
  * 3. Production phase with diffusion, branching, and data accumulation
  * 4. Results analysis and output
+ *
+ * This class is just a container for actual algorithms used in \ref DiffusionQuantumElectrons class
  */
 class DiffusionQuantumSolver{
 public:
