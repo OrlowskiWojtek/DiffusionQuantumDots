@@ -25,13 +25,25 @@ public:
     ~DiffusionQuantumSolver();
     
     void load_params();
+
+    /**
+     * Main solver method that executes the full DMC algorithm
+     * This includes equilibration, post-equilibrium calculations, and results analysis
+     */
     void solve();
 
 private:
+    // Manages the ensemble of electron walkers
     std::unique_ptr<DiffusionQuantumElectrons> electrons;
+
+    // Handles statistical analysis of energy data using blocking technique
+    // This is crucial for accurate error estimation in correlated Monte Carlo data
     std::unique_ptr<EnergyBlockingAnalyzer> block_analyzer;
+
+    // Singleton instance of simulation parameters
     DiffusionQuantumParams* params;
 
+    // Container for final simulation results
     DiffusionQuantumResults final_results;
 
     void init();
