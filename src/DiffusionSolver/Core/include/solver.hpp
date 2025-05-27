@@ -6,6 +6,19 @@
 #include "Core/include/blocking.hpp"
 #include <memory>
 
+/**
+ * Diffusion Quantum Solver class header
+ * 
+ * This class implements the core Diffusion Quantum Monte Carlo algorithm
+ * for 2D quantum dots with Fixed-Node Approximation. It orchestrates the
+ * entire simulation process including diffusion, branching, and data collection.
+ * 
+ * The implementation follows the DMC algorithm described in the documentation:
+ * 1. Initialization of walkers
+ * 2. Equilibration phase (without data collection)
+ * 3. Production phase with diffusion, branching, and data accumulation
+ * 4. Results analysis and output
+ */
 class DiffusionQuantumSolver{
 public:
     DiffusionQuantumSolver();
