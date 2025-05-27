@@ -44,15 +44,13 @@ void DiffusionQuantumResults::add_histogram(double time,
 
     time_evolution.emplace_back(time, time_step, mean_energy, mean_growth_estimator, psi);
 
-    std::cout << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, mean_energy) << std::endl;
-
-//    std::cout << "|--------------------------------------------------------|\n";
-//    std::cout << "Adding histogram data" << std::endl;
-//    std::cout << "time = " << time << "\n";
-//    std::cout << "time step = " << time_step << "\n";
-//    std::cout << "energy [meV] = " << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, mean_energy) << "\n";
-//    std::cout << "growth estimator = " << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, mean_growth_estimator) << "\n";
-//    std::cout << "|--------------------------------------------------------|\n";
+    std::cout << "|--------------------------------------------------------|\n";
+    std::cout << "Adding histogram data" << std::endl;
+    std::cout << "time = " << time << "\n";
+    std::cout << "time step = " << time_step << "\n";
+    std::cout << "energy [meV] = " << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, mean_energy) << "\n";
+    std::cout << "growth estimator = " << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, mean_growth_estimator) << "\n";
+    std::cout << "|--------------------------------------------------------|\n";
 }
 
 void DiffusionQuantumResults::save_to_file() {

@@ -18,7 +18,7 @@ with_theme(theme_latexfonts()) do
     fig = Figure();
     ax = Axis(fig[1,1], xlabel = "Krok czasowy", ylabel = "Średnia energia wędrowców")
 
-    #lines!(ax, data[:, 2], color = :red, label = "Estymator wzrostu")
+    lines!(ax, data[:, 2], color = :red, label = "Estymator wzrostu")
     lines!(ax, data[:, 1], color = :black, label = "Estymator mieszany")
     #lines!(ax, steps, data, color = :black)
 
