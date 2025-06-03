@@ -6,8 +6,7 @@ filepath = "../build/energies.dqmc.dat"
 outpath = "plots/ground_energies.pdf"
 
 data = readdlm(filepath, comments = true);
-
-##
+#
 
 CairoMakie.activate!()
 
