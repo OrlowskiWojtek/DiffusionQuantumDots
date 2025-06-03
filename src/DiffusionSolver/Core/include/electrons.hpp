@@ -129,6 +129,8 @@ private:
      * The local energy is defined as E_L(R) = (Hψᵀ(R))/ψᵀ(R) and
      * provides an estimate of the energy when averaged over the
      * walker distribution.
+     *
+     * See \ref SolverContext::local_energy
      * 
      * @return Average local energy across all walkers
      */

@@ -38,7 +38,7 @@ void SolverContext::init_rng() {
     uniform_generator = boost::random::uniform_real_distribution<double>(0, 1);
 
     movement_rng.seed(s_seed_generator());
-    movement_generator = boost::random::normal_distribution<double>(0, std::sqrt(p->d_tau));
+    movement_generator = boost::random::normal_distribution<double>(0, std::sqrt(p->d_tau / p->effective_mass));
 }
 
 double SolverContext::trial_wavef(const electron_walker &wlk) { return (*this->orbital)(wlk); }
@@ -47,10 +47,12 @@ void SolverContext::calc_trial_wavef(ElectronWalker &wlk) {
     wlk.trial_wavef_value = trial_wavef(wlk.get_walker()); 
 }
 
+// TODO: avoid local_energy calculations for prev_wlk
 double SolverContext::p_value(ElectronWalker &wlk, ElectronWalker &prev_wlk, double growth_estimator) {
     return std::exp(-p->d_tau * ((local_energy(wlk) + local_energy(prev_wlk)) / 2. - growth_estimator));
 }
 
+// TODO: refactor so local energy has two methos: calc_local_energy which also saves it as in trial_wavef.
 double SolverContext::local_energy(ElectronWalker &wlk) {
     double dr = 1e-5;
     double dr2 = 1e-10;
@@ -75,6 +77,7 @@ double SolverContext::local_energy(ElectronWalker &wlk) {
         }
     }
 
+    kinetic_term /= p->effective_mass;
     kinetic_term = -0.5 * kinetic_term / (cent_trial_wavef * dr2);
 
     double potential_term = std::accumulate(

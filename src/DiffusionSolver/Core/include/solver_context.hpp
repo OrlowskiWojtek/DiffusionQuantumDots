@@ -8,23 +8,52 @@
 #include <boost/random/uniform_real_distribution.hpp>
 #include <memory>
 
-// solver context - data for enabling multithreading in loops
-// every context should have yet alone:
-// - RNGs
-// - orbitals
-// - potentially potentials
-// now only orbital is needed for eval_p multithreading;
-
+ /*! 
+  * SolverContext is class containing basic calculations used in algorithm.
+  * Local energy and movements are calculated here.
+  * Main goal of class is to provide methods and elements for each thread
+  * in order to avoid data racing.
+  * Each context should have independent:
+  * - random number generators with different initial seed
+  * - trial wavefunction instance
+  * - potential instance
+  * - buffers used in calculations to avoid unnecessery allocation
+*/
 class SolverContext {
 public:
     SolverContext();
 
+    /** 
+     * Calculates local energy and saves it inside @param wlk.
+     * The local energy is defined as E_L(R) = (Hψᵀ(R))/ψᵀ(R).
+    */
     double local_energy(ElectronWalker &wlk);
+
+    // Calculates p_value - probability of reproduction in branching step for 
+    // @param wlk - current walker 
+    // @param prev_wlk - walker in previous step
+    // @param growth_estimator - current growth estimator
     double p_value(ElectronWalker &wlk, ElectronWalker &prev_wlk, double growth_estimator);
 
+    // Checks if walker crossed node and moves it back if it did
+    //
+    // @return true if walker crossed node
     bool apply_nodes(ElectronWalker &wlk, const ElectronWalker &prev_wlk);
+
+    // Manages whole movement step of single walker:
+    // - random diffusion movement
+    // - drift movement
+    //
+    // @param wlk - walker to move
+    // @param diff_value - diffusion part of step - saved for quick estimation in acceptance step \see check_movement
     void move_walkers(ElectronWalker &wlk, electron_walker &diff_value);
+
+    // Manages node crossing and metropolis acceptance
     void check_movement(ElectronWalker &wlk, ElectronWalker &prev_wlk, electron_walker &diff_value);
+
+    // Calculates trial wavefunction value for walker
+    // saves calculated value inside walker in order to avoid 
+    // multiple calculations 
     void calc_trial_wavef(ElectronWalker &wlk);
 
 private:
@@ -32,13 +61,23 @@ private:
     void init_orbital();
     void init_rng();
 
+    // buffer used for storing calculated drift velocity
     electron_walker drift_velocity;
+
+    // buffer used for derivative calculation using finite differences
     electron_walker m_front_walker_buffer;
+
+    // buffer used for derivative calculation using finite differences
     electron_walker m_back_walker_buffer;
+
+    // Green diffusion norm term that can be precalculated
     double green_diffusion_norm;
 
+    // Static seed generator used to provide 
+    // different contexts with different seed inside generators
     static boost::random::mt19937 s_seed_generator;
 
+    // provides basic walkers helper functions
     std::unique_ptr<DiffusionWalkers> walkers_helper;
 
     boost::random::mt19937 uni_rng;
@@ -50,12 +89,22 @@ private:
     std::unique_ptr<HarmonicPotentialFunctor> potential;
     std::unique_ptr<AbstractManybodyOrbital> orbital;
 
+    // applies drift in movement step
     void apply_drift(ElectronWalker &wlk);
+
+    // applies diffusion in movement step
     void apply_diffusion(ElectronWalker &wlk, electron_walker &diffusion_values);
+
+    // preperes drift before diffusion
     void prepare_drift(const ElectronWalker &wlk);
 
+    // calculates trial_wavefunction for wlk
     double trial_wavef(const electron_walker &wlk);
+
+    // calculates Green function diffusion part (G_d(R'<-R))
+    // used in metropolis back step propability evaluation
     double green_diffusion_term(const ElectronWalker &wlk, const ElectronWalker &prev_wlk);
 
+    // parameters of simulation
     DiffusionQuantumParams *p;
 };

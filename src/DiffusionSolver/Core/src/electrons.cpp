@@ -74,10 +74,12 @@ void DiffusionQuantumElectrons::init_containers() {
 
     std::for_each(electrons.begin(), electrons.end(), [&](ElectronWalker &wlk) {
         general_context->calc_trial_wavef(wlk);
+        general_context->local_energy(wlk);
     });
 
     std::for_each(copy_electrons.begin(), copy_electrons.end(), [&](ElectronWalker &wlk) {
         general_context->calc_trial_wavef(wlk);
+        general_context->local_energy(wlk);
     });
 }
 
@@ -133,9 +135,6 @@ void DiffusionQuantumElectrons::branch() {
 void DiffusionQuantumElectrons::set_alive(int N, const ElectronWalker &wlk) {
     for (int i = new_alive; i < new_alive + N; i++) {
         if (i >= static_cast<int>(electrons.size())) {
-            std::cout << "Error: The programme ran out of allocated memory. "
-                         "Required resize."
-                      << std::endl;
             break;
         }
 
@@ -149,9 +148,9 @@ void DiffusionQuantumElectrons::set_alive(int N, const ElectronWalker &wlk) {
 void DiffusionQuantumElectrons::update_growth_estimator() {
     if (accu_it == 0) {
         int nblock = current_it % p->n_block;
-        e_block = (growth_estimator + e_block * nblock) / (nblock + 1);
+        e_block = (growth_estimator + e_block * nblock) / (nblock + 1.);
     } else {
-        e_block = (growth_estimator + e_block * accu_it) / (accu_it + 1);
+        e_block = (growth_estimator + e_block * accu_it) / (accu_it + 1.);
     }
 
     growth_estimator =

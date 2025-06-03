@@ -21,14 +21,7 @@ with_theme(theme_latexfonts()) do
     lines!(ax, data[:, 2], color = :red, label = "Estymator wzrostu")
     lines!(ax, data[:, 1], color = :black, label = "Estymator mieszany")
     #lines!(ax, steps, data, color = :black)
-
-    #block_size = 2^16
-    #blocks = [block_size * i for i in 1:((length(steps)) / block_size)]
-
     #save(outpath, fig)
-    #vlines!(ax, blocks, color = :blue, label = "Podział na bloki")
-    #xlims!(ax, (1e6, 3e6))
-
     axislegend()
     #outpath = "plots/ground_energies_with_blocks.pdf"
     #save(outpath, fig)

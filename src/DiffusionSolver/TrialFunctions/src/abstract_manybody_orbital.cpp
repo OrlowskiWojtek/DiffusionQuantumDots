@@ -4,8 +4,8 @@
 #include <iostream>
 
 void AbstractManybodyOrbital::print_test_to_file() {
-    double xmin = UnitHandler::length(UnitHandler::TO_AU, -20.);
-    double xmax = UnitHandler::length(UnitHandler::TO_AU, 20.);
+    double xmin = UnitHandler::length(UnitHandler::TO_AU, -50.);
+    double xmax = UnitHandler::length(UnitHandler::TO_AU, 50.);
     double dx = (xmax - xmin) / 100.;
 
     std::ofstream file("TrialWavefunctionTest");

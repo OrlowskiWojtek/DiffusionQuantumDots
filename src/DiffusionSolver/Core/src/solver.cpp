@@ -3,6 +3,7 @@
 DiffusionQuantumSolver::DiffusionQuantumSolver()
     : electrons(std::make_unique<DiffusionQuantumElectrons>())
     , block_analyzer(std::make_unique<EnergyBlockingAnalyzer>())
+    , vis(std::make_unique<WalkersVisualiser>())
     , params(DiffusionQuantumParams::getInstance()) {
 }
 
@@ -26,7 +27,6 @@ void DiffusionQuantumSolver::solve() {
         branch();
     }
 
-
     for (int i = 0; i < collect_loop; i++) {
         diffuse();
         branch();
@@ -35,9 +35,12 @@ void DiffusionQuantumSolver::solve() {
         check_saving(i);
     }
 
-
     final_results = electrons->get_results();
     final_results.save_to_file();
+
+    if(params->show_visualisation){
+        vis->make_surf_plot(final_results.get_last_psi(), params->n_bins);
+    }
 
     if (params->blocks_calibration) {
         std::vector<double> energies = final_results.get_energies();

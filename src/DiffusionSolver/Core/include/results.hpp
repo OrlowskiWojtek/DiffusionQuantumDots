@@ -2,9 +2,9 @@
 #define DIFFUSION_QUANTUM_RESULTS_HPP
 
 #include "DiffusionParams/include/params.hpp"
+#include <boost/multi_array.hpp>
 #include <cstdint>
 #include <vector>
-#include <boost/multi_array.hpp>
 
 class DiffusionQuantumResults {
 public:
@@ -19,10 +19,11 @@ public:
                        const boost::multi_array<int64_t, 2> &hist);
     void save_to_file();
 
+    boost::multi_array<double, 2> &get_last_psi();
     const std::vector<double> &get_energies();
 
 private:
-    DiffusionQuantumParams* p;
+    DiffusionQuantumParams *p;
 
     struct HistData {
         double time;

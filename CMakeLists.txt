@@ -18,6 +18,7 @@ target_compile_options(compiler_flags INTERFACE
 configure_file(DQMCConfig.h.in DQMCConfig.h)
 
 add_subdirectory(src/UnitHandler)
+add_subdirectory(src/WalkersVisualiser)
 add_subdirectory(src/DiffusionSolver)
 add_subdirectory(src/FileLoader)
 

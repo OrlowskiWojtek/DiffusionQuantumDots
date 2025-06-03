@@ -4,6 +4,7 @@
 #include "Core/include/electrons.hpp"
 #include "DiffusionParams/include/params.hpp"
 #include "Core/include/blocking.hpp"
+#include "include/visualiser.hpp"
 #include <memory>
 
 /**
@@ -42,6 +43,10 @@ private:
     // This is crucial for accurate error estimation in correlated Monte Carlo data
     std::unique_ptr<EnergyBlockingAnalyzer> block_analyzer;
 
+    // Class performing plots at the end of simulation
+    // Morphologica based
+    std::unique_ptr<WalkersVisualiser> vis;
+
     // Singleton instance of simulation parameters
     DiffusionQuantumParams* params;
 
@@ -53,7 +58,13 @@ private:
     void branch();
     void accumulate();
 
+    /**
+     * Checks if current iteration is a saving point and saves progress if needed
+     * @param iter_idx Current iteration index in the production phase
+     */
     void check_saving(int iter_idx);
+
+    // Counter for tracking saving points
     size_t save_counter;
 };
 

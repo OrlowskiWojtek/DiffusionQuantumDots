@@ -49,7 +49,8 @@ void DiffusionQuantumResults::add_histogram(double time,
     std::cout << "time = " << time << "\n";
     std::cout << "time step = " << time_step << "\n";
     std::cout << "energy [meV] = " << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, mean_energy) << "\n";
-    std::cout << "growth estimator = " << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, mean_growth_estimator) << "\n";
+    std::cout << "growth estimator = " << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, mean_growth_estimator)
+              << "\n";
     std::cout << "|--------------------------------------------------------|\n";
 }
 
@@ -97,3 +98,6 @@ void DiffusionQuantumResults::add_energies(double mixed_estimator, double growth
 }
 
 const std::vector<double> &DiffusionQuantumResults::get_energies() { return calibration_energies; }
+
+// TODO: make checks
+boost::multi_array<double, 2> &DiffusionQuantumResults::get_last_psi() { return time_evolution.back().psi; };

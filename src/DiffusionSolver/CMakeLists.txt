@@ -23,4 +23,4 @@ target_compile_options(DiffusionSolver PRIVATE
 find_package(OpenMP REQUIRED)
 
 target_include_directories(DiffusionSolver PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(DiffusionSolver PUBLIC UnitHandler OpenMP::OpenMP_CXX)
+target_link_libraries(DiffusionSolver PUBLIC UnitHandler OpenMP::OpenMP_CXX WalkersVisualiser)
