@@ -10,7 +10,6 @@ SolverContext::SolverContext()
     , p(DiffusionQuantumParams::getInstance()) {
 
     drift_velocity.resize(p->n_electrons);
-    green_diffusion_norm = std::pow(2 * M_PI * p->d_tau, -p->n_dims * p->n_electrons / 2.);
 
     init_potential();
     init_orbital();
@@ -44,7 +43,7 @@ double SolverContext::trial_wavef(const electron_walker &wlk) {
 #ifndef PURE_DIFFUSION
     return (*this->orbital)(wlk);
 #else
-    return 1;
+    return (wlk.front().cords[0]);
 #endif
 }
 
@@ -60,8 +59,8 @@ double SolverContext::p_value(ElectronWalker &wlk, ElectronWalker &prev_wlk, dou
 #ifndef PURE_DIFFUSION
     return std::exp(-p->d_tau * ((wlk.local_energy + prev_wlk.local_energy) / 2. - growth_estimator));
 #else
-    double pot_wlk = potential_term(wlk) + interaction_term(wlk);
-    double pot_prev_wlk = potential_term(prev_wlk) + interaction_term(prev_wlk);
+    double pot_wlk = get_potential(wlk);
+    double pot_prev_wlk = get_potential(wlk);
 
     return std::exp(-p->d_tau * ((pot_wlk + pot_prev_wlk) / 2. - growth_estimator));
 #endif
@@ -73,9 +72,8 @@ void SolverContext::calc_local_energy(ElectronWalker &wlk) {
 #endif
 }
 
-bool SolverContext::apply_nodes(ElectronWalker &wlk, const ElectronWalker &prev_wlk) {
+bool SolverContext::check_nodes(ElectronWalker &wlk, const ElectronWalker &prev_wlk) {
     if ((wlk.trial_wavef_value * prev_wlk.trial_wavef_value) <= 0) {
-        wlk = prev_wlk;
         return true;
     }
 
@@ -102,7 +100,8 @@ void SolverContext::prepare_drift(const ElectronWalker &ele_wlk) {
             m_front_walker_buffer[wlk_idx].cords[d] += dr;
 
             double forw_value = trial_wavef(m_front_walker_buffer);
-            drift_velocity[wlk_idx].cords[d] = (forw_value - cent_trial_wavef) / (p->effective_mass * dr * cent_trial_wavef);
+            drift_velocity[wlk_idx].cords[d] =
+                (forw_value - cent_trial_wavef) / (p->effective_mass * dr * cent_trial_wavef);
             m_front_walker_buffer[wlk_idx].cords[d] = ele_wlk.get_const_walker()[wlk_idx].cords[d];
         }
     }
@@ -145,14 +144,13 @@ double SolverContext::green_diffusion_term(const ElectronWalker &curr_wlk, const
         }
     }
 
-    return green_diffusion_norm * std::exp(-movement_propability_nominator / (2 * p->d_tau * p->effective_mass));
+    return std::exp(-movement_propability_nominator / (2 * p->d_tau / p->effective_mass));
 }
 
-void SolverContext::check_movement(ElectronWalker &wlk, ElectronWalker &prev_wlk, electron_walker &diff_value) {
+bool SolverContext::check_metropolis(ElectronWalker &wlk, ElectronWalker &prev_wlk, electron_walker &diff_value) {
 #ifdef PURE_DIFFUSION
-    return;
+    return true;
 #endif
-    return;
 
     double movement_propability_nominator = 0;
 
@@ -162,7 +160,7 @@ void SolverContext::check_movement(ElectronWalker &wlk, ElectronWalker &prev_wlk
         }
     }
 
-    double g_d_current = green_diffusion_norm * std::exp(-movement_propability_nominator / (2 * p->d_tau * p->effective_mass));
+    double g_d_current = std::exp(-movement_propability_nominator / (2 * p->d_tau / p->effective_mass));
     double g_d_back = green_diffusion_term(prev_wlk, wlk);
 
     double trial_current = wlk.trial_wavef_value;
@@ -172,7 +170,10 @@ void SolverContext::check_movement(ElectronWalker &wlk, ElectronWalker &prev_wlk
 
     if (uniform_generator(uni_rng) > p_acc) {
         wlk = prev_wlk;
+        return false;
     }
+
+    return true;
 }
 
 double SolverContext::kinetic_term(const ElectronWalker &wlk) {
@@ -199,8 +200,7 @@ double SolverContext::kinetic_term(const ElectronWalker &wlk) {
         }
     }
 
-    kinetic /= p->effective_mass;
-    kinetic = -0.5 * kinetic / (cent_trial_wavef * dr2);
+    kinetic = -0.5 / p->effective_mass * kinetic / (cent_trial_wavef * dr2);
 
     return kinetic;
 }
@@ -220,7 +220,7 @@ double SolverContext::interaction_term(const ElectronWalker &wlk) {
         for (int j = i + 1; j < p->n_electrons; j++) {
             interaction +=
                 1. / (1e-6 + p->epsilon * walkers_helper->distance(
-                                             wlk.get_const_walker()[i], wlk.get_const_walker()[j], p->n_dims));
+                                              wlk.get_const_walker()[i], wlk.get_const_walker()[j], p->n_dims));
         }
     }
 

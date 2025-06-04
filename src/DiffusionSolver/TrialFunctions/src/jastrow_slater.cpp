@@ -62,6 +62,15 @@ double JastrowSlaterOrbital::operator()(const electron_walker &wlk) {
         }
     }
 
+    if (p.electron_number == 1) {
+        return slater_matrix(0, 0);
+    }
+
+    if (p.electron_number == 2) {
+        return jastrow_factor * 1 / std::sqrt(2) *
+               (slater_matrix(0, 0) * slater_matrix(1, 1) - slater_matrix(0, 1) * slater_matrix(1, 0));
+    }
+
     return jastrow_factor * arma::det(slater_matrix);
 }
 

@@ -27,6 +27,7 @@ void DiffusionQuantumSolver::solve() {
         branch();
     }
 
+    params->d_tau = params->equi_d_tau;
     for (int i = 0; i < collect_loop; i++) {
         diffuse();
         branch();
@@ -50,11 +51,10 @@ void DiffusionQuantumSolver::solve() {
 
 void DiffusionQuantumSolver::diffuse() {
     electrons->diffuse(); 
-    electrons->accept_movement();
 }
 
 void DiffusionQuantumSolver::branch() {
-    electrons->eval_p();
+    electrons->prepare_branch();
     electrons->branch();
 }
 

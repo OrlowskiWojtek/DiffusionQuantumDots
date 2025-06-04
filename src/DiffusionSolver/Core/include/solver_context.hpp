@@ -35,10 +35,10 @@ public:
     // @param growth_estimator - current growth estimator
     double p_value(ElectronWalker &wlk, ElectronWalker &prev_wlk, double growth_estimator);
 
-    // Checks if walker crossed node and moves it back if it did
+    // Checks if walker crossed node.
     //
     // @return true if walker crossed node
-    bool apply_nodes(ElectronWalker &wlk, const ElectronWalker &prev_wlk);
+    bool check_nodes(ElectronWalker &wlk, const ElectronWalker &prev_wlk);
 
     // Manages whole movement step of single walker:
     // - random diffusion movement
@@ -48,8 +48,10 @@ public:
     // @param diff_value - diffusion part of step - saved for quick estimation in acceptance step \see check_movement
     void move_walkers(ElectronWalker &wlk, electron_walker &diff_value);
 
-    // Manages node crossing and metropolis acceptance
-    void check_movement(ElectronWalker &wlk, ElectronWalker &prev_wlk, electron_walker &diff_value);
+    // Manages Metropolis acceptance
+    //
+    // @return true if movement has been accepted, otherwise returns false and moves walker back
+    bool check_metropolis(ElectronWalker &wlk, ElectronWalker &prev_wlk, electron_walker &diff_value);
 
     // Calculates trial wavefunction value for walker
     // saves calculated value inside walker in order to avoid 
@@ -71,9 +73,6 @@ private:
 
     // buffer used for derivative calculation using finite differences
     electron_walker m_back_walker_buffer;
-
-    // Green diffusion norm term that can be precalculated
-    double green_diffusion_norm;
 
     // Static seed generator used to provide 
     // different contexts with different seed inside generators

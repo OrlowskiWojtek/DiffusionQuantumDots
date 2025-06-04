@@ -7,7 +7,6 @@
 #include <vector>
 
 // Class implements Singleton design pattern
-// TODO: switch so it cointains ONLY params (no trial_wavef, only params to build wavef)
 class DiffusionQuantumParams {
 private:
     static DiffusionQuantumParams *instance;
@@ -29,6 +28,7 @@ public:
 
     void set_default_params();
     double d_tau;         // time step value
+    double equi_d_tau;         // time step value
     int total_time_steps; // total number of time steps valued d_tau
     int eq_time_step;     // time step to average from
     int n0_walkers;       // beginning number of walkers alive, also target number of walkers

@@ -14,6 +14,7 @@ DiffusionQuantumElectrons::DiffusionQuantumElectrons()
 
     ground_state_estimator = 0;
     growth_estimator = 0;
+    acc_growth_estimator = 0;
     e_block = 0;
 
     num_alive = p->n0_walkers;
@@ -94,23 +95,20 @@ void DiffusionQuantumElectrons::diffuse() {
     }
 }
 
-void DiffusionQuantumElectrons::accept_movement() {
+void DiffusionQuantumElectrons::prepare_branch() {
 #pragma omp parallel for
     for (int i = 0; i < num_alive; i++) {
         int tid = omp_get_thread_num();
 
-        if (!solver_contexts[tid].apply_nodes(electrons[i], copy_electrons[i])) {
-            solver_contexts[tid].check_movement(electrons[i], copy_electrons[i], diffusion_values[i]);
+        if (solver_contexts[tid].check_nodes(electrons[i], copy_electrons[i])) {
+            p_values[i] = 0;
+            continue;
         }
-    }
-}
 
-void DiffusionQuantumElectrons::eval_p() {
-#pragma omp parallel for
-    for (int i = 0; i < num_alive; i++) {
-        int tid = omp_get_thread_num();
+        if (solver_contexts[tid].check_metropolis(electrons[i], copy_electrons[i], diffusion_values[i])) {
+            solver_contexts[tid].calc_local_energy(electrons[i]);
+        }
 
-        solver_contexts[tid].calc_local_energy(electrons[i]);
         p_values[i] = solver_contexts[tid].p_value(electrons[i], copy_electrons[i], growth_estimator);
     }
 }
@@ -121,18 +119,11 @@ void DiffusionQuantumElectrons::branch() {
     for (int i = 0; i < num_alive; i++) {
         double random_number = uniform_generator(uni_rng);
         int m = static_cast<int>(p_values[i] + random_number);
-        //  std::cout << m << "\t" << p_values[i]
-        //      << "\t" << electrons[i].local_energy
-        //      << "\t" << electrons[i].trial_wavef_value
-        //      << std::endl;
         set_alive(m, electrons[i]);
     }
 
     num_alive = new_alive;
 
-    if (num_alive <= 0 || num_alive >= p->nmax_walkers) {
-        std::cout << "here\t" << num_alive << std::endl;
-    }
     std::copy(copy_electrons.begin(), copy_electrons.begin() + num_alive, electrons.begin());
 
     update_growth_estimator();
@@ -155,12 +146,12 @@ void DiffusionQuantumElectrons::update_growth_estimator() {
     if (accu_it == 0) {
         int nblock = current_it % p->n_block;
         e_block = (growth_estimator + e_block * nblock) / (nblock + 1.);
-    } else {
+    } else {   
         e_block = (growth_estimator + e_block * accu_it) / (accu_it + 1.);
     }
 
     growth_estimator =
-        e_block - 1. / p->d_tau * std::log(static_cast<double>(num_alive) / static_cast<double>(target_alive));
+        e_block - 1. / (p->d_tau) * std::log(static_cast<double>(num_alive) / static_cast<double>(target_alive));
 }
 
 double DiffusionQuantumElectrons::local_energy_average() {
@@ -186,8 +177,10 @@ void DiffusionQuantumElectrons::count() {
     mixed_estimator = local_energy_average();
 
     ground_state_estimator += mixed_estimator;
+    acc_growth_estimator += growth_estimator;
     accu_it++;
 
+    results->add_avg_energies(ground_state_estimator / accu_it, acc_growth_estimator / accu_it);
     if (p->blocks_calibration) {
         results->add_energies(mixed_estimator, growth_estimator);
     }

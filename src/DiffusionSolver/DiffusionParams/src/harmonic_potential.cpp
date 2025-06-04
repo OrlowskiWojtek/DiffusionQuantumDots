@@ -30,7 +30,7 @@ void HarmonicPotentialFunctor::build_potential() {
         potential = [&](const walker &wlk) {
             return 0.5 * p.effective_mass *
                    (omegas_squared[0] * std::pow(wlk.cords[0], 2) + omegas_squared[1] * std::pow(wlk.cords[1], 2) +
-                    omegas_squared[2] * std::pow(wlk.cords[2], 1));
+                    omegas_squared[2] * std::pow(wlk.cords[2], 2));
         };
     default:
         potential = [&](const walker &wlk) {

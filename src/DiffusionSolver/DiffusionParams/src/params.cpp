@@ -5,18 +5,19 @@
 DiffusionQuantumParams *DiffusionQuantumParams::instance = nullptr;
 
 void DiffusionQuantumParams::set_default_params() {
-    d_tau = 1.;              // time step value
-    total_time_steps = 5000; // total number of time steps valued d_tau
+    d_tau = 1.;             // initial time step
+    equi_d_tau = 1.0;        // qfter equilibrium time step
+    total_time_steps = 3000; // total number of time steps valued d_tau
     eq_time_step = 2000;     // time step to average from
-    n0_walkers = 10000;      // beginning number of walkers alive, also target number of walkers
-    nmax_walkers = 200000;    // maximal number of walkers alive - size of allocated vector
+    n0_walkers = 20000;      // beginning number of walkers alive, also target number of walkers
+    nmax_walkers = 40000;    // maximal number of walkers alive - size of allocated vector
 
     save_hist_at = std::vector<int>({});                 // after equilibration phase
     xmin = UnitHandler::length(UnitHandler::TO_AU, -50); // sampling minimum for visualisation
     xmax = UnitHandler::length(UnitHandler::TO_AU, 50);  // sampling maximum for visualisation
 
-    n_electrons = 1;
-    n_dims = 2;    // number of dimensions
+    n_electrons = 2;
+    n_dims = 1;    // number of dimensions
     epsilon = 12.; // relative permatibility
 
     effective_mass = 0.067;
@@ -33,7 +34,7 @@ void DiffusionQuantumParams::set_default_params() {
     n_bins = 100;
 
     vis_dim_idx_x = std::make_tuple(0, 0);
-    vis_dim_idx_y = std::make_tuple(0, 1);
+    vis_dim_idx_y = std::make_tuple(1, 0);
 
     // TODO: revise blocks
     blocks_calibration = true;

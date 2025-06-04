@@ -12,6 +12,8 @@ public:
     ~DiffusionQuantumResults();
 
     void add_energies(double E, double g_est);
+    void add_avg_energies(double mixed, double growth);
+
     void add_histogram(double time,
                        int time_step,
                        double mean_energy,
@@ -45,6 +47,9 @@ private:
 
     std::vector<double> calibration_energies;
     std::vector<double> calibration_growth;
+
+    std::vector<double> averaged_mixed_estimator;
+    std::vector<double> averaged_growth_estimator;
 
     void init_x(double x_min, double x_max, int n);
 };

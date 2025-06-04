@@ -41,15 +41,6 @@ public:
     void diffuse();
 
     /**
-     * Accepts or rejects proposed walker movements based on the trial wavefunction
-     * 
-     * This implements the Fixed-Node Approximation by rejecting moves that would
-     * cross nodal surfaces where ψᵀ(R)ψᵀ(R') < 0. For non-node-crossing moves,
-     * the acceptance probability is min[1, |Gd(R'<-R) ψᵀ(R')|²/(Gd(R<-R') |ψᵀ(R)|²)].
-     */
-    void accept_movement();
-
-    /**
      * Performs the branching step for all electron walkers
      * 
      * This implements the branching/death term -(V(R) - E_ref)Ψ(R,τ) by
@@ -59,12 +50,18 @@ public:
     void branch();
 
     /**
-     * Evaluates the branching probability for each walker
+     * Prepares after movement walkers for branching step.  
+     *
+     * Accepts or rejects proposed walker movements based on the trial wavefunction
+     * 
+     * This implements the Fixed-Node Approximation by killing walkers that would
+     * cross nodal surfaces where ψᵀ(R)ψᵀ(R') < 0. For non-node-crossing moves,
+     * the acceptance probability is min[1, |Gd(R'<-R) ψᵀ(R')|²/(Gd(R<-R') |ψᵀ(R)|²)].
      * 
      * Calculates the weight w = exp[-(V(R) - E_ref)τ] for each walker,
      * which determines its probability of replication or deletion.
      */
-    void eval_p();
+    void prepare_branch();
 
     /**
      * Accumulates statistics during the production phase
@@ -120,6 +117,7 @@ private:
     // Energy estimators
     double mixed_estimator;        // ⟨ψᵀ|H|ψDMC⟩/⟨ψᵀ|ψDMC⟩
     double growth_estimator;       // Based on population dynamics
+    double acc_growth_estimator;   // Accumulated growth estimator 
     double e_block;                // Block-averaged growth estimator
     double ground_state_estimator; // Estimate of ground state energy
 
