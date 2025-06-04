@@ -20,6 +20,13 @@ target_compile_options(DiffusionSolver PRIVATE
     "-O3;-Wall"
 )
 
+option(PURE_DIFFUSION "Use pure diffusion algorithm without trial wavefunction" OFF)
+
+if (PURE_DIFFUSION)
+    message("omitting trial wavefunction version")
+    target_compile_definitions(DiffusionSolver PRIVATE "PURE_DIFFUSION")
+endif()
+
 find_package(OpenMP REQUIRED)
 
 target_include_directories(DiffusionSolver PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

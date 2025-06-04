@@ -74,12 +74,12 @@ void DiffusionQuantumElectrons::init_containers() {
 
     std::for_each(electrons.begin(), electrons.end(), [&](ElectronWalker &wlk) {
         general_context->calc_trial_wavef(wlk);
-        general_context->local_energy(wlk);
+        general_context->calc_local_energy(wlk);
     });
 
     std::for_each(copy_electrons.begin(), copy_electrons.end(), [&](ElectronWalker &wlk) {
         general_context->calc_trial_wavef(wlk);
-        general_context->local_energy(wlk);
+        general_context->calc_local_energy(wlk);
     });
 }
 
@@ -110,6 +110,7 @@ void DiffusionQuantumElectrons::eval_p() {
     for (int i = 0; i < num_alive; i++) {
         int tid = omp_get_thread_num();
 
+        solver_contexts[tid].calc_local_energy(electrons[i]);
         p_values[i] = solver_contexts[tid].p_value(electrons[i], copy_electrons[i], growth_estimator);
     }
 }
@@ -120,13 +121,18 @@ void DiffusionQuantumElectrons::branch() {
     for (int i = 0; i < num_alive; i++) {
         double random_number = uniform_generator(uni_rng);
         int m = static_cast<int>(p_values[i] + random_number);
-        if (m > 3) {
-            m = 3;
-        }
+        //  std::cout << m << "\t" << p_values[i]
+        //      << "\t" << electrons[i].local_energy
+        //      << "\t" << electrons[i].trial_wavef_value
+        //      << std::endl;
         set_alive(m, electrons[i]);
     }
 
     num_alive = new_alive;
+
+    if (num_alive <= 0 || num_alive >= p->nmax_walkers) {
+        std::cout << "here\t" << num_alive << std::endl;
+    }
     std::copy(copy_electrons.begin(), copy_electrons.begin() + num_alive, electrons.begin());
 
     update_growth_estimator();
@@ -158,11 +164,17 @@ void DiffusionQuantumElectrons::update_growth_estimator() {
 }
 
 double DiffusionQuantumElectrons::local_energy_average() {
-
+#ifndef PURE_DIFFUSION
     double loc_ene_avg = std::accumulate(
         electrons.begin(), electrons.begin() + num_alive, 0., [](double acc, const ElectronWalker &ele) {
             return acc + ele.local_energy;
         });
+#else
+    double loc_ene_avg = std::accumulate(
+        electrons.begin(), electrons.begin() + num_alive, 0., [&](double acc, const ElectronWalker &ele) {
+            return acc + general_context->get_potential(ele);
+        });
+#endif
 
     return loc_ene_avg / static_cast<double>(num_alive);
 }
