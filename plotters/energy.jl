@@ -1,8 +1,8 @@
 using CairoMakie
 using DelimitedFiles
 
-#filepath = "../build/results/ground_energies"
-filepath = "../build/averaged_energies.dqmc.dat"
+filepath = "../data/1el_1d/excited_basic/averaged_energies.dqmc.dat"
+#filepath = "../build/averaged_energies.dqmc.dat"
 
 data = readdlm(filepath, comments = true);
 times = data[:, 1]
@@ -15,14 +15,14 @@ growth = data[:, 6]
 
 CairoMakie.activate!()
 
-ntarget = split(readlines(filepath)[1], ":")[2]
+ntarget = parse(Float64, split(readlines(filepath)[1], ":")[2])
 #ntarget = 5000
-#
+
 with_theme(theme_latexfonts()) do
-    fig = Figure(size = (1024, 768));
-    col_mixed = :dodgerblue
-    col_growth = :seagreen3
-    col_walkers = :firebrick
+    fig = Figure(size = (1024, 768), fontsize = 20);
+    col_mixed = :black#:dodgerblue
+    col_growth = :darkgreen#:seagreen3
+    col_walkers =	:darkred #:firebrick
 
     ax_growth = Axis(fig[1,1])
     ax_mixed = Axis(fig[3,1])
@@ -44,6 +44,6 @@ with_theme(theme_latexfonts()) do
     linkxaxes!(ax_mixed, ax_growth) 
     linkxaxes!(ax_growth, ax_population) 
 
-    #save("plots/1d_1el_ground_energies.pdf", fig)
+    save("plots/1d_1el_excited_energies.pdf", fig)
     display(fig)
 end

@@ -1,5 +1,6 @@
 #include "DQMCConfig.h"
 #include "Core/include/solver.hpp"
+#include "DiffusionParams/include/params.hpp"
 
 #include <iomanip>
 #include <iostream>
@@ -31,8 +32,12 @@ int main() {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    DiffusionQuantumSolver solver;
-    solver.solve();  
+    for(double offset = -1.; offset < 1; offset += 0.1){
+        DiffusionQuantumParams::getInstance()->offset = offset;
+        std::cout << offset << "endl";
+        DiffusionQuantumSolver solver;
+        solver.solve();  
+    }
 
     auto end = std::chrono::high_resolution_clock::now();
     std::cout << "[PAR] Time: "

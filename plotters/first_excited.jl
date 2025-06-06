@@ -1,58 +1,51 @@
 using CairoMakie
 using DelimitedFiles
 
-filepath = "../build/results/1st_excited_walkers"
-outpath = "plots/1st_excited_walkers.pdf"
+#filename = "../build/evolution.dqmc.dat"
+filename = "../data/1el_1d/excited_basic/evolution.dqmc.dat"
+data = readdlm(filename, comments = true)
 
-walkers_dist = readdlm(filepath, comments = true)
-ene = parse(Float64, split(readlines(filepath)[3], ":")[2])
+psi = data[:, 1]
 
-function psi_1(x)
-    return @. abs(1. / sqrt(2) * (0.4 / π)^(0.25) * exp(-0.4 * x^2 / 2.) * sqrt(0.4) * x * 2)
+file = readlines(filename)
+xmin = 0.
+xmax = 0.
+nbins = 0
+
+for line in file
+    if(contains(line, "xmin"))
+        xmin = parse(Float64, split(line, ":")[2])
+    end
+    if(contains(line, "xmax"))
+        xmax = parse(Float64, split(line, ":")[2])
+    end
+    if(contains(line, "nbins"))
+        nbins = parse(Int64, split(line, ":")[2])
+    end
 end
 
-function V(x)
-    return @. (0.16 * x^2)
+x = LinRange(xmin, xmax, nbins)
+
+x_atomic = x ./ 0.0529
+
+function psi_1(x, homega, mass)
+    return @. abs(1. / sqrt(2) * (homega * mass / π)^(0.25) * exp(-homega * mass * x^2 / 2.) * sqrt(homega * mass) * x * 2)
 end
+
+psi_exact = psi_1(x_atomic, 3 / 27211.6, 0.067)
 
 ##
 
 with_theme(theme_latexfonts()) do
     fig = Figure();
-    ax = Axis(fig[1:4,1:2], xlabel = "położenie [a.u.]", ylabel = "Ψ(x)",
-              ylabelcolor = :blue, title = "Pierwszy stan wzbudzony oscylatora harmonicznego, energia = $ene");
-    ax_r = Axis(fig[1:4,1:2], ylabel = "V(x)", yaxisposition = :right);
-    hideydecorations!(ax_r)
+    ax = Axis(fig[1,1], 
+              xlabel = "x [nm]",
+              ylabel = "Ψ(x)")
 
-    lines!(ax, walkers_dist[:,1], walkers_dist[:,2],
-           label = "Rozkład wędrowców po czasie 100 a.u.",
-           color = :blue)
-
-    lines!(ax, walkers_dist[:,1], psi_1(walkers_dist[:,1]),
-           label = "Rozwiązanie dokładne",
-           color = :red,
-           linestyle = :dash)
-
-    lines!(ax_r, walkers_dist[:,1], V(walkers_dist[:,1]),
-           label = "Potencjał oscylatora harmonicznego",
-           color = :black,
-           linestyle = :dash)
-
-    axes = [ax, ax_r]
-    plots_in_fig = AbstractPlot[]
-    labels_in_fig = AbstractString[]
-    for ax in axes
-        pl, lb = Makie.get_labeled_plots(ax, merge=false, unique=false)
-        append!(plots_in_fig, pl)
-        append!(labels_in_fig, lb)
-    end
-
-    ulabels = Base.unique(labels_in_fig)
-    mergedplots = [[lp for (i, lp) in enumerate(plots_in_fig) if labels_in_fig[i] == ul]
-        for ul in ulabels]
-
-    Legend(fig[5,:], mergedplots, ulabels, framevisible = false)
-
-    save(outpath, fig)
+    lines!(ax, x, psi_exact, color = :red, label = "Rozwiązanie dokładne")
+    scatter!(ax, x, psi, color = :black, label = "Rozwiązanie DMC")
+ 
+    axislegend()
     display(fig)
+    save("plots/1d_1el_excited.pdf", fig)
 end

@@ -66,6 +66,7 @@ public:
     // TODO: remove, quick scan ofer a b parameters -> handle in minimum seeker
     double a = 0.005;
     double b = 2.;
+    double offset = 0.; // TODO temp remove
 };
 
 #endif
