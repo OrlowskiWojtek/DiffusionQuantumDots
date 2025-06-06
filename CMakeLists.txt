@@ -18,6 +18,7 @@ target_compile_options(compiler_flags INTERFACE
 configure_file(DQMCConfig.h.in DQMCConfig.h)
 
 add_subdirectory(src/UnitHandler)
+add_subdirectory(src/WalkersVisualiser)
 add_subdirectory(src/DiffusionSolver)
 add_subdirectory(src/FileLoader)
 
@@ -29,19 +30,11 @@ if(BOOST_FOUND)
     message("Found boost, using boost ver " ${Boost_VERSION_STRING})
 endif()
 
-## Parallel TBB setup
-find_package(TBB REQUIRED)
-
-add_compile_options(-ltbb -fopenmp)
-add_definitions(-DPSTL_USE_PARALLEL_POLICIES)
-
 ## Armadillo setup
 find_package(Armadillo REQUIRED)
 include_directories(${ARMADILLO_INCLUDE_DIRS})
 
-## openMP setup
-
 add_executable(${PROJECT_NAME} src/main.cpp)
 
-target_link_libraries(DiffusionQuantumMC DiffusionSolver FileLoader compiler_flags TBB::tbb ${ARMADILLO_LIBRARIES})
+target_link_libraries(DiffusionQuantumMC DiffusionSolver FileLoader compiler_flags ${ARMADILLO_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_BINARY_DIR})

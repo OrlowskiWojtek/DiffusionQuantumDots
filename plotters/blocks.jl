@@ -8,6 +8,8 @@ data = readdlm(filepath, comments = true);
 
 ## 
 
+CairoMakie.activate!()
+
 with_theme(theme_latexfonts()) do
     fig = Figure();
     ax = Axis(fig[1,1], xlabel = "Iteracja reblokowania", ylabel = "Odchylenie standardowe σ")
@@ -16,5 +18,5 @@ with_theme(theme_latexfonts()) do
     scatter!(ax, data[:, 2], color = :black)
 
     display(fig)
-    save(outpath, fig)
+    #save(outpath, fig)
 end

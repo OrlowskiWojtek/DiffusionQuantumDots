@@ -7,11 +7,12 @@
 #include <vector>
 
 // Class implements Singleton design pattern
-// TODO: switch so it cointains ONLY params (no trial_wavef, only params to build wavef)
 class DiffusionQuantumParams {
 private:
     static DiffusionQuantumParams *instance;
     DiffusionQuantumParams() { set_default_params(); }
+
+    void check_params();
 
 public:
     DiffusionQuantumParams(const DiffusionQuantumParams &) = delete;
@@ -27,6 +28,7 @@ public:
 
     void set_default_params();
     double d_tau;         // time step value
+    double equi_d_tau;         // time step value
     int total_time_steps; // total number of time steps valued d_tau
     int eq_time_step;     // time step to average from
     int n0_walkers;       // beginning number of walkers alive, also target number of walkers
@@ -35,6 +37,7 @@ public:
     std::vector<int> save_hist_at = std::vector<int>({}); // after equilibration phase
     double xmin;                                          // sampling minimum for visualisation
     double xmax;                                          // sampling maximum for visualisation
+    bool show_visualisation;                              // shows plots after simulation
 
     int n_electrons; // number of electrons;
     int n_dims;      // number of dimensions
@@ -46,9 +49,18 @@ public:
     std::vector<double> omegas; // omega in each direction
     int n_bins;
 
+    std::tuple<int, int> vis_dim_idx_x; // used for visualisation - first dimension (first index is electron idx, second
+                                        // is dimension idx)
+    std::tuple<int, int> vis_dim_idx_y; // used for visualisation - second dimension (first index is electron idx,
+                                        // second is dimension idx)
+
     // TODO: revise blocks
     bool blocks_calibration;
     int n_block;
+
+    // TODO: remove, quick scan ofer a b parameters -> handle in minimum seeker
+    double a = 0.005;
+    double b = 2.;
 };
 
 #endif

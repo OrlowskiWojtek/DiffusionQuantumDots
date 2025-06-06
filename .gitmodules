@@ -1,0 +1,3 @@
+[submodule "src/WalkersVisualiser/morphologica"]
+	path = src/WalkersVisualiser/morphologica
+	url = git@github.com:ABRG-Models/morphologica.git
