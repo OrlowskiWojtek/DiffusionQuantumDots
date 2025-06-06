@@ -3,16 +3,20 @@
 
 #include <vector>
 
-class EnergyBlockingAnalyzer{
+class EnergyBlockingAnalyzer {
 public:
     EnergyBlockingAnalyzer();
     ~EnergyBlockingAnalyzer();
 
-    void blocking_analysis(const std::vector<double>& energies);
+    void blocking_analysis(const std::vector<double> &mixed_energies,
+                           const std::vector<double> &growth_energies);
 
 private:
     std::vector<int> block_sizes;
-    std::vector<double> stderrs;
+    std::vector<double> mixed_stderrs;
+    std::vector<double> growth_stderrs;
+
+    std::vector<double> reblock(const std::vector<double> &energies);
 
     void save_to_file();
 };

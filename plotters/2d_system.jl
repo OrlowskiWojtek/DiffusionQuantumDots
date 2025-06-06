@@ -25,28 +25,32 @@ end
 
 x = y = LinRange(xmin, xmax, nbins)
 
-##
+#
 
 GLMakie.activate!()
 
 with_theme(theme_latexfonts()) do
-    fig = Figure();
+    fig = Figure(size = (1024, 768));
     ax = Axis3(fig[1,1], 
-               xlabel = "x [a.u]",
-               ylabel = "y [a.u]")
+               xlabel = "x [nm]",
+               ylabel = "y [nm]")
  
     hidezdecorations!(ax)
 
     cm = surface!(ax, x, y, data,
              colormap = :coolwarm,
-             label = "Ψ(x,y)")
+             label = "Końcowy rozkład wędrowców")
 
-    ticks_psi = [ round(val, digits = 3) for val in collect(LinRange(findmin(data)[1], findmax(data)[1], 6)) ]
+    Colorbar(fig[2,1], cm, label = "Ψ(x,y)", vertical = false)
 
     xlims!(ax, (xmin, xmax))
     ylims!(ax, (xmin, xmax))
-    zlims!(ax, (0, 0.0001))
 
-    #save("plots/fixed_units_2d_ground_state.pdf", fig)
     display(fig)
+    save("plots/1d_2el_excited.png", fig)
 end
+
+##
+
+dx = x[2] - x[1]
+s = sum(data.^2) * (dx / 0.0529)

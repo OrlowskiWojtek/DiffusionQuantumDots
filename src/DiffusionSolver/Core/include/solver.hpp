@@ -50,9 +50,6 @@ private:
     // Singleton instance of simulation parameters
     DiffusionQuantumParams* params;
 
-    // Container for final simulation results
-    DiffusionQuantumResults final_results;
-
     void init();
     void diffuse();
     void branch();
