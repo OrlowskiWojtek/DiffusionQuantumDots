@@ -1,4 +1,4 @@
-name: CMake on a single platform
+name: CMake build test
 
 on:
   push:
@@ -18,16 +18,17 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Apt update
-        run: sudo apt-get update
-    
-    - name: install deps
-        run: sudo apt-get install -y libboost-all-dev libomp-dev libarmadillo-dev build-essential cmake
+      run: sudo apt-get update
+
+    - name: Install dependencies
+      run: sudo apt-get install -y libboost-all-dev libomp-dev libarmadillo-dev build-essential cmake
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{ github.workspace }}/build --config ${{ env.BUILD_TYPE }}
 
     - name: Test
-      working-directory: ${{github.workspace}}/build
+      working-directory: ${{ github.workspace }}/build
+      run: ctest --output-on-failure
