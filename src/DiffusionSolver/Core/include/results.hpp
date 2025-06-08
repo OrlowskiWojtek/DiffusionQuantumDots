@@ -7,19 +7,62 @@
 #include <fstream>
 #include <vector>
 
+/**
+ * Struct AccumulatedStatistics
+ *
+ * provides storage for basic results of calculations
+ */
+struct AccumulatedStatistics {
+    // number of iterations of accumulation
+    int it;
+
+    // Estimator based on local energy / potential of walkers
+    double mixed_estimator;
+
+    // Based on population dynamics
+    double growth_estimator;
+
+    // Accumulated mixed estimator
+    double acc_mixed_estimator;
+
+    // Accumulated growth estimator
+    double acc_growth_estimator;
+
+    // Accumulated growth estimator used for error calcs
+    double acc_sq_growth_estimator;
+
+    // Estimate of state energy based on mixed estimator
+    double ground_state_mixed_estimator;
+
+    // Estimated of state energy based on growth estimator
+    double ground_state_growth_estimator;
+
+    // Standard error of growth estimator
+    double growth_estimator_error;
+
+    // calculates averages of estimators
+    void finalise();
+
+    // sets values to zero
+    void reset();
+};
+
+/**
+ * class DiffusionQuantumResults
+ *
+ * provides saving to files and final calculations utilities.
+ */
 class DiffusionQuantumResults {
 public:
     DiffusionQuantumResults();
     ~DiffusionQuantumResults();
 
     void add_energies(double E, double g_est);
-    void save_energies(
-        double time, int num_alive, double avgmixed, double avggrowth, double mixed, double growth);
+    void save_energies(double time, int num_alive, AccumulatedStatistics &stats);
 
     void add_histogram(double time,
                        int time_step,
-                       double mean_energy,
-                       double mean_growth_estimator,
+                       AccumulatedStatistics &stats,
                        const boost::multi_array<int64_t, 2> &hist);
     void save_to_file();
 
@@ -33,16 +76,16 @@ private:
     struct HistData {
         double time;
         int time_step;
-        double energy;
-        double growth_estimator;
+        AccumulatedStatistics stats;
         boost::multi_array<double, 2> psi;
 
-        HistData(
-            double time, int time_step, double ene, double gest, boost::multi_array<double, 2> psi)
+        HistData(double time,
+                 int time_step,
+                 AccumulatedStatistics stats,
+                 boost::multi_array<double, 2> psi)
             : time(time)
             , time_step(time_step)
-            , energy(ene)
-            , growth_estimator(gest)
+            , stats(stats)
             , psi(psi) {};
     };
 

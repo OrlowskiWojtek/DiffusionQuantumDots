@@ -4,7 +4,7 @@ name: CMake on a single platform
 
 on:
   push:
-    branches: [ "master", "proper_wavef_finding" ]
+    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
@@ -21,6 +21,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Install dependencies
+    # install dependecies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libboost-all-dev libomp-dev libarmadillo-dev build-essential cmake
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.

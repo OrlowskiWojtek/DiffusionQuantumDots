@@ -10,11 +10,8 @@ DiffusionQuantumElectrons::DiffusionQuantumElectrons()
     , general_context(std::make_unique<SolverContext>()) {
 
     current_it = 0;
-    accu_it = 0;
 
-    ground_state_estimator = 0;
-    growth_estimator = 0;
-    acc_growth_estimator = 0;
+    stats.reset();
     e_block = 0;
 
     num_alive = p->n0_walkers;
@@ -113,7 +110,7 @@ void DiffusionQuantumElectrons::prepare_branch() {
         }
 
         p_values[i] =
-            solver_contexts[tid].p_value(electrons[i], copy_electrons[i], growth_estimator);
+            solver_contexts[tid].p_value(electrons[i], copy_electrons[i], stats.growth_estimator);
     }
 }
 
@@ -156,14 +153,14 @@ void DiffusionQuantumElectrons::set_alive(int N, const ElectronWalker &wlk) {
 
 // TODO: thing about it
 void DiffusionQuantumElectrons::update_growth_estimator() {
-    if (accu_it == 0) {
+    if (stats.it == 0) {
         int nblock = current_it % p->n_block;
-        e_block = (growth_estimator + e_block * nblock) / (nblock + 1.);
+        e_block = (stats.growth_estimator + e_block * nblock) / (nblock + 1.);
     } else {
-        e_block = acc_growth_estimator / static_cast<double>(accu_it);
+        e_block = stats.acc_growth_estimator / static_cast<double>(stats.it);
     }
 
-    growth_estimator =
+    stats.growth_estimator =
         e_block - 1. / (p->d_tau) *
                       std::log(static_cast<double>(num_alive) / static_cast<double>(target_alive));
 }
@@ -192,31 +189,26 @@ double DiffusionQuantumElectrons::local_energy_average() {
 void DiffusionQuantumElectrons::count() {
     binning();
 
-    mixed_estimator = local_energy_average();
+    stats.mixed_estimator = local_energy_average();
 
-    ground_state_estimator += mixed_estimator;
-    acc_growth_estimator += growth_estimator;
-    accu_it++;
+    stats.acc_mixed_estimator += stats.mixed_estimator;
 
-    if (accu_it % p->save_every == 0) {
-        results->save_energies(static_cast<double>(accu_it) * p->d_tau,
-                               num_alive,
-                               ground_state_estimator / accu_it,
-                               acc_growth_estimator / accu_it,
-                               mixed_estimator,
-                               growth_estimator);
+    stats.acc_growth_estimator += stats.growth_estimator;
+    stats.acc_sq_growth_estimator += std::pow(stats.growth_estimator, 2);
+
+    stats.it++;
+
+    if (stats.it % p->save_every == 0) {
+        results->save_energies(static_cast<double>(stats.it) * p->d_tau, num_alive, this->stats);
     }
 
     if (p->blocks_calibration) {
-        results->add_energies(mixed_estimator, growth_estimator);
+        results->add_energies(stats.mixed_estimator, stats.growth_estimator);
     }
 
     // TODO add overblocks estimation
 }
 
-// TODO smart binning for visualisation is needed - like class just for binning in all dimensions x1
-// vs x2, y1 vs y2 etc. now it is summing all walkers into one bin 3D binning is actually
-// unnecessery as it is difficult to show properly
 void DiffusionQuantumElectrons::binning() {
     std::for_each(electrons.begin(), electrons.begin() + num_alive, [&](const ElectronWalker &wlk) {
         int x_ele = std::get<0>(p->vis_dim_idx_x);
@@ -249,11 +241,8 @@ void DiffusionQuantumElectrons::binning() {
 }
 
 void DiffusionQuantumElectrons::save_progress() {
-    results->add_histogram(static_cast<double>(current_it) * p->d_tau,
-                           current_it,
-                           ground_state_estimator / accu_it,
-                           acc_growth_estimator / accu_it,
-                           summed_walkers);
+    results->add_histogram(
+        static_cast<double>(current_it) * p->d_tau, current_it, stats, summed_walkers);
 }
 
 DiffusionQuantumResults &DiffusionQuantumElectrons::get_results() { return *results; }

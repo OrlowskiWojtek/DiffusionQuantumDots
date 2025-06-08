@@ -13,9 +13,13 @@ DiffusionQuantumResults::DiffusionQuantumResults()
     init_x(p->xmin, p->xmax, p->n_bins);
     averaged_energies_file.open("averaged_energies.dqmc.dat");
     averaged_energies_file << "# ntarget:" << p->n0_walkers << "\n";
-    averaged_energies_file
-        << "#time[a.u.]\tpopulation\tavg_mixed_stimator[meV]\tavg_growth_estimator[meV]"
-           "\tmixed_estimator[meV]\tgrowth_estimator[meV]\n";
+    averaged_energies_file << "# time[a.u.]\t"
+                           << "population\t"
+                           << "avg_mixed_stimator[meV]\t"
+                           << "avg_growth_estimator[meV]\t"
+                           << "mixed_estimator[meV]\t"
+                           << "growth_estimator[meV]\t"
+                           << "growth_estimator_error_mean[meV]\n";
 }
 
 DiffusionQuantumResults::~DiffusionQuantumResults() {
@@ -33,8 +37,7 @@ void DiffusionQuantumResults::init_x(double xmin, double xmax, int n) {
 
 void DiffusionQuantumResults::add_histogram(double time,
                                             int time_step,
-                                            double mean_energy,
-                                            double mean_growth_estimator,
+                                            AccumulatedStatistics &stats,
                                             const boost::multi_array<int64_t, 2> &hist) {
 
 #ifndef PURE_DIFFUSION
@@ -43,16 +46,30 @@ void DiffusionQuantumResults::add_histogram(double time,
     boost::multi_array<double, 2> psi = normalize_pure_diffusion(hist);
 #endif
 
-    time_evolution.emplace_back(time, time_step, mean_energy, mean_growth_estimator, psi);
+    stats.finalise();
+    time_evolution.emplace_back(time, time_step, stats, psi);
 
     std::cout << "|--------------------------------------------------------|\n";
     std::cout << "Adding histogram data" << std::endl;
     std::cout << "time = " << time << "\n";
     std::cout << "time step = " << time_step << "\n";
-    std::cout << "energy [meV] = "
-              << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, mean_energy) << "\n";
-    std::cout << "growth estimator = "
-              << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, mean_growth_estimator)
+    std::cout << "mixed estimator [meV] = "
+              << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, stats.mixed_estimator)
+              << "\n";
+    std::cout << "mean mixed estimator [meV] = "
+              << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT,
+                                     stats.ground_state_mixed_estimator)
+              << "\n";
+    std::cout << "growth estimator [meV] = "
+              << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT, stats.growth_estimator)
+              << "\n";
+    std::cout << "mean growth estimator [meV] = "
+              << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT,
+                                     stats.ground_state_growth_estimator)
+              << "\n";
+    std::cout << "growth estimator error of mean [meV] ="
+              << UnitHandler::energy(UnitHandler::ConvMode::TO_DEFAULT,
+                                     stats.growth_estimator_error)
               << "\n";
     std::cout << "|--------------------------------------------------------|\n";
 }
@@ -64,7 +81,7 @@ void DiffusionQuantumResults::save_to_file() {
     for (HistData &data : time_evolution) {
         file << "#\t" << "time:" << data.time << "\n";
         file << "#\t" << "time_step:" << data.time_step << "\n";
-        file << "#\t" << "energy:" << data.energy << "\n";
+        file << "#\t" << "energy [meV]:" << data.stats.mixed_estimator << "\n";
         file << "#\t" << "xmin:" << UnitHandler::length(UnitHandler::TO_DEFAULT, x.front()) << "\n";
         file << "#\t" << "xmax:" << UnitHandler::length(UnitHandler::TO_DEFAULT, x.back()) << "\n";
         file << "#\t" << "nbins:" << x.size() << "\n";
@@ -105,17 +122,16 @@ void DiffusionQuantumResults::add_energies(double mixed_estimator, double growth
 
 void DiffusionQuantumResults::save_energies(double time,
                                             int num_alive,
-                                            double avg_mixed_estimator,
-                                            double avg_growth_estimator,
-                                            double mixed_estimator,
-                                            double growth_estimator) {
-    averaged_energies_file << time << "\t" << num_alive << "\t"
-                           << UnitHandler::energy(UnitHandler::TO_DEFAULT, avg_mixed_estimator)
-                           << "\t"
-                           << UnitHandler::energy(UnitHandler::TO_DEFAULT, avg_growth_estimator)
-                           << "\t" << UnitHandler::energy(UnitHandler::TO_DEFAULT, mixed_estimator)
-                           << "\t" << UnitHandler::energy(UnitHandler::TO_DEFAULT, growth_estimator)
-                           << "\n";
+                                            AccumulatedStatistics &stats) {
+    stats.finalise();
+
+    averaged_energies_file
+        << time << "\t" << num_alive << "\t"
+        << UnitHandler::energy(UnitHandler::TO_DEFAULT, stats.ground_state_mixed_estimator) << "\t"
+        << UnitHandler::energy(UnitHandler::TO_DEFAULT, stats.ground_state_growth_estimator) << "\t"
+        << UnitHandler::energy(UnitHandler::TO_DEFAULT, stats.mixed_estimator) << "\t"
+        << UnitHandler::energy(UnitHandler::TO_DEFAULT, stats.growth_estimator) << "\t"
+        << UnitHandler::energy(UnitHandler::TO_DEFAULT, stats.growth_estimator_error) << "\n";
 }
 
 const std::vector<double> &DiffusionQuantumResults::get_calib_mixed_energies() {
@@ -169,4 +185,30 @@ DiffusionQuantumResults::normalize_pure_diffusion(const boost::multi_array<int64
         });
 
     return psi;
+}
+
+void AccumulatedStatistics::reset() {
+    it = 0;
+
+    mixed_estimator = 0;
+    growth_estimator = 0;
+
+    acc_growth_estimator = 0;
+    acc_sq_growth_estimator = 0;
+
+    acc_mixed_estimator = 0;
+}
+
+void AccumulatedStatistics::finalise() {
+    if (it == 0) {
+        return;
+    }
+
+    ground_state_growth_estimator = acc_growth_estimator / static_cast<double>(it);
+    ground_state_mixed_estimator = acc_mixed_estimator / static_cast<double>(it);
+
+    double growth_sq_mean = acc_sq_growth_estimator / static_cast<double>(it);
+    growth_estimator_error =
+        std::sqrt((growth_sq_mean - ground_state_growth_estimator * ground_state_growth_estimator) /
+                  static_cast<double>(it));
 }

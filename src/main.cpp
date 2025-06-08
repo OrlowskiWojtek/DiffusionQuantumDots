@@ -1,6 +1,7 @@
 #include "DQMCConfig.h"
 #include "Core/include/solver.hpp"
 #include "DiffusionParams/include/params.hpp"
+#include "include/UnitHandler.hpp"
 
 #include <iomanip>
 #include <iostream>
@@ -26,18 +27,14 @@ int main() {
     std::cout << "| DIFFUSION QUANTUM MONTE CARLO PROGRAM FOR QUANTUM DOTS |\n";
     std::cout << "|" << std::setw(OUTPUT_TEXT_WIDTH / 2)
               << "VERSION: " << DiffusionQuantumMC_VERSION_MAJOR << "."
-              << DiffusionQuantumMC_VERSION_MINOR << std::setw(OUTPUT_TEXT_WIDTH / 2 - 2) << "|\n";
+              << DiffusionQuantumMC_VERSION_MINOR << std::setw(OUTPUT_TEXT_WIDTH / 2 - 1) << "|\n";
     std::cout << "|--------------------------------------------------------|\n" << std::endl;
 
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    for(double offset = -1.; offset < 1; offset += 0.1){
-        DiffusionQuantumParams::getInstance()->offset = offset;
-        std::cout << offset << "endl";
-        DiffusionQuantumSolver solver;
-        solver.solve();  
-    }
+    DiffusionQuantumSolver solver;
+    solver.solve();  
 
     auto end = std::chrono::high_resolution_clock::now();
     std::cout << "[PAR] Time: "
