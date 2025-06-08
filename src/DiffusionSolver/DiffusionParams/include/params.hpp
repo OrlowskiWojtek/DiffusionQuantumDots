@@ -41,6 +41,8 @@ public:
 
     int n_electrons; // number of electrons;
     int n_dims;      // number of dimensions
+    
+    double max_drift_length;
 
     HarmonicPotentialParams pot_params;
 
@@ -53,6 +55,9 @@ public:
                                         // is dimension idx)
     std::tuple<int, int> vis_dim_idx_y; // used for visualisation - second dimension (first index is electron idx,
                                         // second is dimension idx)
+    
+    // save energies to file every after equilibrium phase
+    int save_every;
 
     // TODO: revise blocks
     bool blocks_calibration;
@@ -61,6 +66,7 @@ public:
     // TODO: remove, quick scan ofer a b parameters -> handle in minimum seeker
     double a = 0.005;
     double b = 2.;
+    double offset = 0.; // TODO temp remove
 };
 
 #endif

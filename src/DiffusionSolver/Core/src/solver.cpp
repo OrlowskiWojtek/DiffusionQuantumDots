@@ -4,15 +4,15 @@ DiffusionQuantumSolver::DiffusionQuantumSolver()
     : electrons(std::make_unique<DiffusionQuantumElectrons>())
     , block_analyzer(std::make_unique<EnergyBlockingAnalyzer>())
     , vis(std::make_unique<WalkersVisualiser>())
-    , params(DiffusionQuantumParams::getInstance()) {
-}
+    , params(DiffusionQuantumParams::getInstance()) {}
 
 DiffusionQuantumSolver::~DiffusionQuantumSolver() {}
 
 // TODO: init also filenames and other solve related systems
 void DiffusionQuantumSolver::init() {
     std::sort(params->save_hist_at.begin(), params->save_hist_at.end());
-    params->save_hist_at.push_back(params->total_time_steps - params->eq_time_step - 1); // always save last one
+    params->save_hist_at.push_back(params->total_time_steps - params->eq_time_step -
+                                   1); // always save last one
     save_counter = 0;
 }
 
@@ -36,22 +36,19 @@ void DiffusionQuantumSolver::solve() {
         check_saving(i);
     }
 
-    final_results = electrons->get_results();
-    final_results.save_to_file();
+    electrons->get_results().save_to_file();
 
-    if(params->show_visualisation){
-        vis->make_surf_plot(final_results.get_last_psi(), params->n_bins);
+    if (params->show_visualisation) {
+        vis->make_surf_plot(electrons->get_results().get_last_psi(), params->n_bins);
     }
 
     if (params->blocks_calibration) {
-        std::vector<double> energies = final_results.get_energies();
-        block_analyzer->blocking_analysis(energies);
+        block_analyzer->blocking_analysis(electrons->get_results().get_calib_mixed_energies(),
+                                          electrons->get_results().get_calib_growth_energies());
     }
 }
 
-void DiffusionQuantumSolver::diffuse() {
-    electrons->diffuse(); 
-}
+void DiffusionQuantumSolver::diffuse() { electrons->diffuse(); }
 
 void DiffusionQuantumSolver::branch() {
     electrons->prepare_branch();

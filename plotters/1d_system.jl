@@ -1,8 +1,7 @@
 using CairoMakie
 using DelimitedFiles
 
-#filename = "../build/evolution.dqmc.dat"
-filename = "../data/1el_1d/excited_basic/evolution.dqmc.dat"
+filename = "../build/evolution.dqmc.dat"
 data = readdlm(filename, comments = true)
 
 psi = data[:, 1]
@@ -28,13 +27,13 @@ x = LinRange(xmin, xmax, nbins)
 
 x_atomic = x ./ 0.0529
 
-function psi_1(x, homega, mass)
-    return @. abs(1. / sqrt(2) * (homega * mass / π)^(0.25) * exp(-homega * mass * x^2 / 2.) * sqrt(homega * mass) * x * 2)
+function psi_0(x, homega, mass)
+    return @. (homega * mass/ π)^(0.25) * exp(-homega * mass * x^2 / 2.)
 end
 
-psi_exact = psi_1(x_atomic, 3 / 27211.6, 0.067)
-
+psi_exact = psi_0(x_atomic, 3 / 27211.6, 0.067)
 ##
+#
 
 with_theme(theme_latexfonts()) do
     fig = Figure();
@@ -47,5 +46,13 @@ with_theme(theme_latexfonts()) do
  
     axislegend()
     display(fig)
-    save("plots/1d_1el_excited.pdf", fig)
+    save("plots/1d_1el_ground.pdf", fig)
 end
+
+##
+
+dx = x[2] - x[1]
+s = sum(psi.^2) * (dx / 0.0529)
+
+print(sum(psi_exact.^2) * (dx / 0.0529))
+
