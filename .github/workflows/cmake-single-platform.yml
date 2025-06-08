@@ -21,7 +21,7 @@ jobs:
       run: sudo apt-get update
 
     - name: Install dependencies
-      run: sudo apt-get install -y libboost-all-dev libomp-dev libarmadillo-dev build-essential cmake
+      run: sudo apt-get install -y libboost-all-dev libomp-dev libarmadillo-dev build-essential cmake libopengl-dev
 
     - name: Configure CMake
       run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
