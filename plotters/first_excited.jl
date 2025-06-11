@@ -40,7 +40,7 @@ with_theme(theme_latexfonts()) do
     fig = Figure();
     ax = Axis(fig[1,1], 
               xlabel = "x [nm]",
-              ylabel = "Ψ(x)")
+              ylabel = "|Ψ(x)|")
 
     lines!(ax, x, psi_exact, color = :red, label = "Rozwiązanie dokładne")
     scatter!(ax, x, psi, color = :black, label = "Rozwiązanie DMC")

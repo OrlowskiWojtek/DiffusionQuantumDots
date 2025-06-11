@@ -2,9 +2,9 @@ name: CMake build test
 
 on:
   push:
-    branches: [ "master", "dual_calculations_fixes" ]
+    #branches: [ "master", "dual_calculations_fixes" ]
   pull_request:
-    branches: [ "master" ]
+    #branches: [ "master" ]
 
 env:
   BUILD_TYPE: Release

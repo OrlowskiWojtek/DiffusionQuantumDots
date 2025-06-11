@@ -2,9 +2,9 @@ using GLMakie, CairoMakie
 using DelimitedFiles
 
 
-#filename = "../build/results/2d_harmonic_oscillator/1st_state_2d_anisotropic"
-filename = "../build/evolution.dqmc.dat"
-data = readdlm(filename, comments = true)
+filename = "../data/2el_1d_excited_10mev/evolution.dqmc.dat"
+#filename = "../build/evolution.dqmc.dat"
+data = readdlm(filename, comments = true)'
 
 file = readlines(filename)
 xmin = 0.
@@ -25,32 +25,42 @@ end
 
 x = y = LinRange(xmin, xmax, nbins)
 
-#
+##
 
-GLMakie.activate!()
+CairoMakie.activate!()
 
 with_theme(theme_latexfonts()) do
-    fig = Figure(size = (1024, 768));
+    fig = Figure(dpi = 300);
+    Label(fig[0,1:2], "Końcowy rozkład wędrowców")
     ax = Axis3(fig[1,1], 
-               xlabel = "x [nm]",
-               ylabel = "y [nm]")
- 
+               xlabel = "x₁ [nm]",
+               ylabel = "x₂ [nm]")
+
+    ax_heatmap = Axis(fig[1,2], aspect = 1,
+                      xlabel = "x₁ [nm]",
+                      ylabel = "x₂ [nm]")
+
     hidezdecorations!(ax)
 
-    cm = surface!(ax, x, y, data,
-             colormap = :coolwarm,
-             label = "Końcowy rozkład wędrowców")
+    hm = heatmap!(ax_heatmap, x, y, data,
+                  colormap = :coolwarm)
 
-    Colorbar(fig[2,1], cm, label = "Ψ(x,y)", vertical = false)
+    cm = surface!(ax, x, y, data,
+                  colormap = :coolwarm)
+
+    Colorbar(fig[2,1:2], cm, label = "Ψ(x)", vertical = false)
 
     xlims!(ax, (xmin, xmax))
     ylims!(ax, (xmin, xmax))
 
+    xlims!(ax_heatmap, (xmin, xmax))
+    ylims!(ax_heatmap, (xmin, xmax))
+
     display(fig)
-    save("plots/1d_2el_excited.png", fig)
+    save("plots/1d_2el_excited_10meV.png", fig)
 end
 
 ##
 
 dx = x[2] - x[1]
-s = sum(data.^2) * (dx / 0.0529)
+s = sum(data.^2) * (dx / 0.0529)^2

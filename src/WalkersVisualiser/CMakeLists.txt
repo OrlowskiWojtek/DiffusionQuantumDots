@@ -34,6 +34,8 @@ target_compile_definitions(WalkersVisualiser PUBLIC
 set(MORPH_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/morphologica" CACHE PATH "The path to morphologica")
 
 # Required libraries
+set(OpenGL_GL_PREFERENCE GLVND)
+
 find_package(HDF5 REQUIRED)
 find_package(Armadillo REQUIRED)
 find_package(OpenGL REQUIRED)

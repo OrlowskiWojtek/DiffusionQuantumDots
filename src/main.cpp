@@ -1,23 +1,23 @@
-#include "DQMCConfig.h"
 #include "Core/include/solver.hpp"
+#include "DQMCConfig.h"
 #include "DiffusionParams/include/params.hpp"
 #include "include/UnitHandler.hpp"
 
+#include <chrono>
 #include <iomanip>
 #include <iostream>
-#include <chrono>
 
 #define OUTPUT_TEXT_WIDTH 56
 
 /**
  * Main entry point for the Diffusion Quantum Monte Carlo (DQMC) program
- * 
- * This program implements the Diffusion Quantum Monte Carlo algorithm with 
- * Fixed-Node Approximation for calculating ground and excited states of 
+ *
+ * This program implements the Diffusion Quantum Monte Carlo algorithm with
+ * Fixed-Node Approximation for calculating ground and excited states of
  * 2D quantum dots in anisotropic harmonic potentials.
- * 
+ *
  * The implementation follows the theoretical framework described in
- * many DQMC textbooks (mostly Foulkes 2001), where the Schrödinger equation is solved in 
+ * many DQMC textbooks (mostly Foulkes 2001), where the Schrödinger equation is solved in
  * imaginary time using a population of walkers that diffuse and branch
  * according to the trial wavefunction and local energy.
  */
@@ -30,11 +30,10 @@ int main() {
               << DiffusionQuantumMC_VERSION_MINOR << std::setw(OUTPUT_TEXT_WIDTH / 2 - 1) << "|\n";
     std::cout << "|--------------------------------------------------------|\n" << std::endl;
 
-
     auto start = std::chrono::high_resolution_clock::now();
 
     DiffusionQuantumSolver solver;
-    solver.solve();  
+    solver.solve();
 
     auto end = std::chrono::high_resolution_clock::now();
     std::cout << "[PAR] Time: "
