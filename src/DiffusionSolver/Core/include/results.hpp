@@ -63,10 +63,12 @@ public:
     void add_histogram(double time,
                        int time_step,
                        AccumulatedStatistics &stats,
-                       const boost::multi_array<int64_t, 2> &hist);
+                       const boost::multi_array<int64_t, 2> &hist,
+                       const boost::multi_array<int64_t, 2> &total_hist);
     void save_to_file();
 
     boost::multi_array<double, 2> &get_last_psi();
+    boost::multi_array<double, 2> &get_last_total_psi();
     const std::vector<double> &get_calib_mixed_energies();
     const std::vector<double> &get_calib_growth_energies();
 
@@ -78,15 +80,18 @@ private:
         int time_step;
         AccumulatedStatistics stats;
         boost::multi_array<double, 2> psi;
+        boost::multi_array<double, 2> total_psi;
 
         HistData(double time,
                  int time_step,
                  AccumulatedStatistics stats,
-                 boost::multi_array<double, 2> psi)
+                 boost::multi_array<double, 2> psi,
+                 boost::multi_array<double, 2> total_psi)
             : time(time)
             , time_step(time_step)
             , stats(stats)
-            , psi(psi) {};
+            , psi(psi)
+            , total_psi(total_psi){};
     };
 
     std::vector<double> x;
@@ -97,6 +102,7 @@ private:
 
     std::ofstream averaged_energies_file;
 
+    
     void init_x(double x_min, double x_max, int n);
 
     boost::multi_array<double, 2>

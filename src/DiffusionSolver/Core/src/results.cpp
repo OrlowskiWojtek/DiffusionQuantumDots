@@ -38,16 +38,19 @@ void DiffusionQuantumResults::init_x(double xmin, double xmax, int n) {
 void DiffusionQuantumResults::add_histogram(double time,
                                             int time_step,
                                             AccumulatedStatistics &stats,
-                                            const boost::multi_array<int64_t, 2> &hist) {
+                                            const boost::multi_array<int64_t, 2> &hist,
+                                            const boost::multi_array<int64_t, 2> &total_hist) {
 
 #ifndef PURE_DIFFUSION
     boost::multi_array<double, 2> psi = normalize_trial_wavef(hist);
+    boost::multi_array<double, 2> total_psi = normalize_trial_wavef(total_hist);
 #else
     boost::multi_array<double, 2> psi = normalize_pure_diffusion(hist);
+    boost::multi_array<double, 2> total_psi = normalize_pure_diffusion(total_hist);
 #endif
 
     stats.finalise();
-    time_evolution.emplace_back(time, time_step, stats, psi);
+    time_evolution.emplace_back(time, time_step, stats, psi, total_psi);
 
     std::cout << "|--------------------------------------------------------|\n";
     std::cout << "Adding histogram data" << std::endl;
@@ -142,9 +145,12 @@ const std::vector<double> &DiffusionQuantumResults::get_calib_growth_energies() 
     return calibration_growth;
 }
 
-// TODO: make checks
 boost::multi_array<double, 2> &DiffusionQuantumResults::get_last_psi() {
     return time_evolution.back().psi;
+};
+
+boost::multi_array<double, 2> &DiffusionQuantumResults::get_last_total_psi() {
+    return time_evolution.back().total_psi;
 };
 
 boost::multi_array<double, 2>

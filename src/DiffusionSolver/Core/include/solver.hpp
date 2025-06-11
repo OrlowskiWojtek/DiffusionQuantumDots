@@ -55,6 +55,8 @@ private:
     void branch();
     void accumulate();
 
+    void initialize_distribution();
+
     /**
      * Checks if current iteration is a saving point and saves progress if needed
      * @param iter_idx Current iteration index in the production phase

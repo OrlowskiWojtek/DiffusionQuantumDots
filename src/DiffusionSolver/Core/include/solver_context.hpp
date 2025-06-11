@@ -58,8 +58,17 @@ public:
     // multiple calculations 
     void calc_trial_wavef(ElectronWalker &wlk);
 
+    // Calculates total potential including interaction term
     double get_potential(const ElectronWalker& wlk);
 
+    // Rejects move - move @param wlk back to @param prev_wlk position and energy
+    void reject_move(ElectronWalker &wlk, ElectronWalker &prev_wlk);
+
+    // applies diffusion in movement step - used in initialization
+    void apply_diffusion(ElectronWalker &wlk);
+
+    // Initial metropolis sampling for initial walker distribution - used in initialization
+    bool check_initial_metropolis(ElectronWalker &wlk, ElectronWalker &prev_wlk);
 private:
     void init_potential();
     void init_orbital();
@@ -93,7 +102,7 @@ private:
     // applies drift in movement step
     void apply_drift(ElectronWalker &wlk);
 
-    // applies diffusion in movement step
+    // applies diffusion in movement step, save movement to @param diffusion_values
     void apply_diffusion(ElectronWalker &wlk, electron_walker &diffusion_values);
 
     // preperes drift before diffusion

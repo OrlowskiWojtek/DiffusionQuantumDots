@@ -2,8 +2,8 @@ using GLMakie, CairoMakie
 using DelimitedFiles
 
 
-filename = "../data/2el_1d_excited_10mev/evolution.dqmc.dat"
-#filename = "../build/evolution.dqmc.dat"
+#filename = "../data/2el_1d_excited_10mev/evolution.dqmc.dat"
+filename = "../build/evolution.dqmc.dat"
 data = readdlm(filename, comments = true)'
 
 file = readlines(filename)
@@ -57,7 +57,7 @@ with_theme(theme_latexfonts()) do
     ylims!(ax_heatmap, (xmin, xmax))
 
     display(fig)
-    save("plots/1d_2el_excited_10meV.png", fig)
+    #save("plots/1d_2el_excited_10meV.png", fig)
 end
 
 ##

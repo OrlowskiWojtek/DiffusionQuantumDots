@@ -47,8 +47,8 @@ double SolverContext::trial_wavef(const electron_walker &wlk) {
 #ifndef PURE_DIFFUSION
     return (*this->orbital)(wlk);
 #else
-    return (wlk.front().cords[0] - p->offset);//(wlk.front().cords[0] - wlk.back().cords[0]);// + (wlk.front().cords[1] -
-              // wlk.back().cords[1]);
+    return (wlk.front().cords[0] - wlk.back().cords[0]) +
+           (wlk.front().cords[1] - wlk.back().cords[1]);
 #endif
 }
 
@@ -145,6 +145,16 @@ void SolverContext::apply_diffusion(ElectronWalker &ele_wlk, electron_walker &di
         for (int d = 0; d < p->n_dims; d++) {
             diff_wlk[wlk_idx].cords[d] = movement_generator(movement_rng);
             wlk[wlk_idx].cords[d] += diff_wlk[wlk_idx].cords[d];
+        }
+    }
+}
+
+void SolverContext::apply_diffusion(ElectronWalker &ele_wlk) {
+    electron_walker &wlk = ele_wlk.get_walker();
+
+    for (int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++) {
+        for (int d = 0; d < p->n_dims; d++) {
+            wlk[wlk_idx].cords[d] += movement_generator(movement_rng);
         }
     }
 }
@@ -248,8 +258,9 @@ double SolverContext::interaction_term(const ElectronWalker &wlk) {
         for (int j = i + 1; j < p->n_electrons; j++) {
             double r = walkers_helper->distance(
                 wlk.get_const_walker()[i], wlk.get_const_walker()[j], p->n_dims);
-            interaction += 1. / (p->epsilon * std::sqrt(std::pow(r, 2) +
-                                 std::pow(UnitHandler::length(UnitHandler::TO_AU, 5), 2)));
+            interaction += 1. / (p->epsilon * r);
+            // interaction += 1. / (p->epsilon * std::sqrt(std::pow(r, 2) +
+            //                      std::pow(UnitHandler::length(UnitHandler::TO_AU, 5), 2)));
         }
     }
 
@@ -258,4 +269,21 @@ double SolverContext::interaction_term(const ElectronWalker &wlk) {
 
 double SolverContext::get_potential(const ElectronWalker &wlk) {
     return potential_term(wlk) + interaction_term(wlk);
+}
+
+void SolverContext::reject_move(ElectronWalker &wlk, ElectronWalker &prev_wlk) {
+    wlk = prev_wlk;
+}
+
+bool SolverContext::check_initial_metropolis(ElectronWalker &wlk, ElectronWalker &prev_wlk) {
+    double trial_current = wlk.trial_wavef_value;
+    double trial_previous = prev_wlk.trial_wavef_value;
+
+    double p_acc = std::min(1., std::pow(trial_current, 2) / std::pow(trial_previous, 2));
+
+    if (uniform_generator(uni_rng) > p_acc) {
+        return false;
+    }
+
+    return true;
 }

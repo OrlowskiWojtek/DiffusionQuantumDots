@@ -72,6 +72,13 @@ void DiffusionQuantumElectrons::init_containers() {
                       val = 0;
                   });
 
+    total_summed_walkers.resize(boost::extents[p->n_bins][p->n_bins]);
+    std::for_each(total_summed_walkers.data(),
+                  total_summed_walkers.data() + total_summed_walkers.num_elements(),
+                  [](int64_t &val) {
+                      val = 0;
+                  });
+
     std::for_each(electrons.begin(), electrons.end(), [&](ElectronWalker &wlk) {
         general_context->calc_trial_wavef(wlk);
         general_context->calc_local_energy(wlk);
@@ -100,8 +107,15 @@ void DiffusionQuantumElectrons::prepare_branch() {
         int tid = omp_get_thread_num();
 
         if (solver_contexts[tid].check_nodes(electrons[i], copy_electrons[i])) {
+#ifndef PURE_DIFFUSION
+            solver_contexts[tid].reject_move(electrons[i], copy_electrons[i]);
+            p_values[i] = solver_contexts[tid].p_value(
+                electrons[i], copy_electrons[i], stats.growth_estimator);
+            continue;
+#else
             p_values[i] = 0;
             continue;
+#endif
         }
 
         if (solver_contexts[tid].check_metropolis(
@@ -112,6 +126,8 @@ void DiffusionQuantumElectrons::prepare_branch() {
         p_values[i] =
             solver_contexts[tid].p_value(electrons[i], copy_electrons[i], stats.growth_estimator);
     }
+
+    // std::cout << "Acceptance ratio: " << static_cast<double>(s) / num_alive << std::endl;
 }
 
 void DiffusionQuantumElectrons::branch() {
@@ -188,6 +204,7 @@ double DiffusionQuantumElectrons::local_energy_average() {
 // need to test and reinvent error estimation
 void DiffusionQuantumElectrons::count() {
     binning();
+    total_binning();
 
     stats.mixed_estimator = local_energy_average();
 
@@ -205,8 +222,6 @@ void DiffusionQuantumElectrons::count() {
     if (p->blocks_calibration) {
         results->add_energies(stats.mixed_estimator, stats.growth_estimator);
     }
-
-    // TODO add overblocks estimation
 }
 
 void DiffusionQuantumElectrons::binning() {
@@ -232,17 +247,64 @@ void DiffusionQuantumElectrons::binning() {
                                          (p->xmax - p->xmin) * p->n_bins);
         walker_bin[1] = static_cast<int>((p->xmax - wlk.get_const_walker()[y_ele].cords[y_dim]) /
                                          (p->xmax - p->xmin) * p->n_bins);
-        // TODO: n_dims == 1 n_el == 1 case need special treating
+
         if (p->n_dims == 1 && p->n_electrons == 1) {
             walker_bin[1] = 0;
         }
-        summed_walkers[walker_bin[0]][walker_bin[1]]++; // TODO move hist to result class
+
+        summed_walkers[walker_bin[0]][walker_bin[1]]++;
+    });
+}
+
+void DiffusionQuantumElectrons::total_binning() {
+    std::for_each(electrons.begin(), electrons.begin() + num_alive, [&](const ElectronWalker &wlk) {
+        std::for_each(
+            wlk.get_const_walker().begin(), wlk.get_const_walker().end(), [&](const walker &wlk) {
+                int x_dim = p->total_vis_idx_x;
+                int y_dim = p->total_vis_idx_y;
+
+                if (wlk.cords[x_dim] < p->xmin || wlk.cords[x_dim] > p->xmax) {
+                    return;
+                }
+
+                if (wlk.cords[y_dim] < p->xmin || wlk.cords[y_dim] > p->xmax) {
+                    return;
+                }
+
+                std::array<size_t, 2> walker_bin;
+
+                walker_bin[0] = static_cast<int>((p->xmax - wlk.cords[x_dim]) /
+                                                 (p->xmax - p->xmin) * p->n_bins);
+                walker_bin[1] = static_cast<int>((p->xmax - wlk.cords[y_dim]) /
+                                                 (p->xmax - p->xmin) * p->n_bins);
+
+                total_summed_walkers[walker_bin[0]][walker_bin[1]]++;
+            });
     });
 }
 
 void DiffusionQuantumElectrons::save_progress() {
-    results->add_histogram(
-        static_cast<double>(current_it) * p->d_tau, current_it, stats, summed_walkers);
+    results->add_histogram(static_cast<double>(current_it) * p->d_tau,
+                           current_it,
+                           stats,
+                           summed_walkers,
+                           total_summed_walkers);
 }
 
-DiffusionQuantumResults &DiffusionQuantumElectrons::get_results() { return *results; }
+DiffusionQuantumResults &DiffusionQuantumElectrons::get_results() {
+    return *results;
+}
+
+void DiffusionQuantumElectrons::initial_diffusion() {
+#pragma omp parallel for
+    for (int i = 0; i < num_alive; i++) {
+        int tid = omp_get_thread_num();
+        copy_electrons[i] = electrons[i];
+
+        solver_contexts[tid].apply_diffusion(electrons[i]);
+        solver_contexts[tid].calc_trial_wavef(electrons[i]);
+        if (!solver_contexts[tid].check_initial_metropolis(electrons[i], copy_electrons[i])) {
+            solver_contexts[tid].reject_move(electrons[i], copy_electrons[i]);
+        }
+    }
+}

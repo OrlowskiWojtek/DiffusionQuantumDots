@@ -4,8 +4,8 @@ using DelimitedFiles
 #filepath = "../build/results/ground_reblock"
 #filepath = "
 #outpath = "plots/ground_reblock.pdf"
-filepath = "../data/2el_1d_excited_10mev/reblock_analysis.dqmc.dat"
-#filepath = "../build/reblock_analysis.dqmc.dat"
+#filepath = "../data/2el_1d_excited_10mev/reblock_analysis.dqmc.dat"
+filepath = "../build/reblock_analysis.dqmc.dat"
 data = readdlm(filepath, comments = true)[begin:end-1, :]
 
 #

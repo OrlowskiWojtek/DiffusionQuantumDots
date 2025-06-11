@@ -1,12 +1,15 @@
 #include "Core/include/solver.hpp"
+#include <armadillo>
 
 DiffusionQuantumSolver::DiffusionQuantumSolver()
     : electrons(std::make_unique<DiffusionQuantumElectrons>())
     , block_analyzer(std::make_unique<EnergyBlockingAnalyzer>())
     , vis(std::make_unique<WalkersVisualiser>())
-    , params(DiffusionQuantumParams::getInstance()) {}
+    , params(DiffusionQuantumParams::getInstance()) {
+}
 
-DiffusionQuantumSolver::~DiffusionQuantumSolver() {}
+DiffusionQuantumSolver::~DiffusionQuantumSolver() {
+}
 
 // TODO: init also filenames and other solve related systems
 void DiffusionQuantumSolver::init() {
@@ -22,6 +25,10 @@ void DiffusionQuantumSolver::solve() {
     int equilibrate_loop = params->eq_time_step;
     int collect_loop = params->total_time_steps - params->eq_time_step;
 
+    for (int i = 0; i < 10000; i++) {
+        initialize_distribution();
+    }
+
     for (int i = 0; i < equilibrate_loop; i++) {
         diffuse();
         branch();
@@ -35,11 +42,13 @@ void DiffusionQuantumSolver::solve() {
 
         check_saving(i);
     }
-
+ 
     electrons->get_results().save_to_file();
 
     if (params->show_visualisation) {
-        vis->make_surf_plot(electrons->get_results().get_last_psi(), params->n_bins);
+        vis->make_surf_plot(electrons->get_results().get_last_psi(),
+                            electrons->get_results().get_last_total_psi(),
+                            params->n_bins);
     }
 
     if (params->blocks_calibration) {
@@ -48,14 +57,18 @@ void DiffusionQuantumSolver::solve() {
     }
 }
 
-void DiffusionQuantumSolver::diffuse() { electrons->diffuse(); }
+void DiffusionQuantumSolver::diffuse() {
+    electrons->diffuse();
+}
 
 void DiffusionQuantumSolver::branch() {
     electrons->prepare_branch();
     electrons->branch();
 }
 
-void DiffusionQuantumSolver::accumulate() { electrons->count(); }
+void DiffusionQuantumSolver::accumulate() {
+    electrons->count();
+}
 
 void DiffusionQuantumSolver::check_saving(int iter_idx) {
     if (iter_idx == params->save_hist_at[save_counter]) {
@@ -64,4 +77,8 @@ void DiffusionQuantumSolver::check_saving(int iter_idx) {
             save_counter++;
         }
     }
+}
+
+void DiffusionQuantumSolver::initialize_distribution() {
+    electrons->initial_diffusion();
 }

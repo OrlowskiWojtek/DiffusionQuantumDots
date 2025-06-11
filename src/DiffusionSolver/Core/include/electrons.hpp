@@ -88,6 +88,13 @@ public:
      */
     DiffusionQuantumResults &get_results();
 
+    /**
+     * performs initial diffusion with metropolis sampling.
+     *
+     * used in case of importance sampling algorithm
+     */
+    void initial_diffusion();
+
 private:
     // Vector of electron walkers representing the quantum system
     std::vector<ElectronWalker> electrons;
@@ -103,6 +110,9 @@ private:
 
     // Histogram of walker positions for density estimation
     boost::multi_array<int64_t, 2> summed_walkers;
+
+    // Histogram of walker positions for density estimation
+    boost::multi_array<int64_t, 2> total_summed_walkers;
 
     // Singleton instance of simulation parameters
     DiffusionQuantumParams *p;
@@ -155,6 +165,14 @@ private:
      * are defined in \ref DiffusionQuantumParams singleton.
      */
     void binning();
+
+    /**
+     * Performs binning of walker positions for density estimation
+     *
+     * unlike \ref binning sums positions of walkers, so gives estimate
+     * of total wavefunction.
+     */
+    void total_binning();
 
     // Container for accumulated results
     std::unique_ptr<DiffusionQuantumResults> results;
