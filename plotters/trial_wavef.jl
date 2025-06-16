@@ -5,8 +5,8 @@ filename = "../build/TrialWavefunctionTest"
 data = readdlm(filename, comments = true)
 
 file = readlines(filename)
-xmin = -50 / 0.0529
-xmax = 50 / 0.0529
+xmin = -50
+xmax = 50 
 nbins = size(data, 1)
 
 x = y = LinRange(xmin, xmax, nbins)
@@ -17,12 +17,12 @@ GLMakie.activate!()
 with_theme(theme_latexfonts()) do
     fig = Figure();
     ax = Axis3(fig[1,1], 
-               xlabel = "x [a.u]",
-               ylabel = "y [a.u]")
+               xlabel = "x [nm]",
+               ylabel = "y [nm]")
 
     hidezdecorations!(ax)
 
-    cm = surface!(ax, x, y, data,
+    cm = surface!(ax, x, y, abs.(data),
              colormap = :coolwarm,
              label = "Ψ(x,y)")
 

@@ -25,9 +25,9 @@ end
 
 x = y = LinRange(xmin, xmax, nbins)
 
-##
+#
 
-CairoMakie.activate!()
+GLMakie.activate!()
 
 with_theme(theme_latexfonts()) do
     fig = Figure(dpi = 300);

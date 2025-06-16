@@ -50,6 +50,13 @@ public:
     void branch();
 
     /**
+     * Checks nodes crossing and metropolis acceptance
+     *
+     * Calculates acceptance rate that is needed for effective time calculations
+     */
+    void check_movement();
+
+    /**
      * Prepares after movement walkers for branching step.
      *
      * Accepts or rejects proposed walker movements based on the trial wavefunction
@@ -95,6 +102,19 @@ public:
      */
     void initial_diffusion();
 
+    /**
+     * After initial diffusion samples local_energy for obtaining approximate variational energy
+     *
+     */
+    void sample_variational_energy();
+
+    /**
+     * After initial diffusion procedures.
+     *
+     * run few more iterations with logging local energy to variational_local_energy.
+     */
+    void finish_initial_diffusion();
+
 private:
     // Vector of electron walkers representing the quantum system
     std::vector<ElectronWalker> electrons;
@@ -113,6 +133,16 @@ private:
 
     // Histogram of walker positions for density estimation
     boost::multi_array<int64_t, 2> total_summed_walkers;
+
+    // Effective time used in branching. See Reynolds 1982.
+    double eff_d_tau;
+
+    // Variational energy obtained after initial variational diffusion
+    // Used in cutoff for local energy. See Runge 1993.
+    double variational_energy;
+
+    // Accumulator of variational energy
+    double acc_variational_energy;
 
     // Singleton instance of simulation parameters
     DiffusionQuantumParams *p;

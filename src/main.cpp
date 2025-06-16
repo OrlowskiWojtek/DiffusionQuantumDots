@@ -32,17 +32,8 @@ int main() {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-   DiffusionQuantumSolver solver;
-   solver.solve();
-   // for(double a = 0.01; a <= 0.51; a += 0.05){
-   //     for(double b = 0.01; b <= 0.51; b += 0.05){
-   //         DiffusionQuantumParams::getInstance()->a = a;
-   //         DiffusionQuantumParams::getInstance()->b = b;
-   //         std::cout << a << "\t" << b << "\t";
-   //         DiffusionQuantumSolver solver;
-   //         solver.solve();
-   //     }
-   // }
+    DiffusionQuantumSolver solver;
+    solver.solve();
 
     auto end = std::chrono::high_resolution_clock::now();
     std::cout << "[PAR] Time: "

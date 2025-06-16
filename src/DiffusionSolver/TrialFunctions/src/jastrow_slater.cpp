@@ -31,7 +31,7 @@ void JastrowSlaterOrbital::init_orbital() {
     for (int i = 0; i < p.electron_number; i++) {
         HarmonicOscillatorOrbitalsParams single_params; // TODO: try to use Aufbau principle in filling, now asume that
                                                         // in x direction is first excitement
-        single_params.excitations = {i, i, i};
+        single_params.excitations = {i, 0, 0};
         single_params.omegas = p.omegas;
         single_params.effective_mass = p.effective_mass;
         single_params.dims = p.dims;
@@ -47,16 +47,19 @@ void JastrowSlaterOrbital::init_orbital() {
 }
 
 double JastrowSlaterOrbital::operator()(const electron_walker &wlk) {
-    double jastrow_factor = 0;
+    double J = 0;
 
     for (int i = 0; i < p.electron_number; i++) {
         for (int j = i + 1; j < p.electron_number; j++) {
             double r_ij = distance(wlk[i], wlk[j]);
-            //jastrow_factor *= std::exp(p.a * r_ij / (1. + p.b * r_ij));
-            double J = - 1. / 2. * p.a / r_ij * (1. - std::exp(-r_ij / p.b)) ;
-            jastrow_factor += std::exp(J);
+            if(r_ij < 1e-6){
+                r_ij = 1e-6;
+            }
+            J -= 1. / 2. * p.a / r_ij * (1. - std::exp(-r_ij / p.b)) ;
         }
     }
+
+    double jastrow_factor = std::exp(J);
 
     for (int i = 0; i < p.electron_number; i++) {
         for (int j = 0; j < p.electron_number; j++) {

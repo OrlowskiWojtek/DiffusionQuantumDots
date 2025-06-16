@@ -1,6 +1,7 @@
 #include "Core/include/electrons.hpp"
 #include "Core/include/results.hpp"
 #include "Core/include/walkers.hpp"
+#include "include/UnitHandler.hpp"
 #include <numeric>
 #include <omp.h>
 
@@ -17,12 +18,16 @@ DiffusionQuantumElectrons::DiffusionQuantumElectrons()
     num_alive = p->n0_walkers;
     target_alive = p->n0_walkers;
 
+    eff_d_tau = p->d_tau;
+
     init_rngs();
     init_context();
     init_containers();
 }
 
 void DiffusionQuantumElectrons::init_context() {
+    solver_contexts.clear();
+
     for (int thr_idx = 0; thr_idx < omp_get_max_threads(); thr_idx++) {
         solver_contexts.emplace_back();
     }
@@ -101,33 +106,46 @@ void DiffusionQuantumElectrons::diffuse() {
     }
 }
 
-void DiffusionQuantumElectrons::prepare_branch() {
-#pragma omp parallel for
+void DiffusionQuantumElectrons::check_movement() {
+    int metropolis_accepted = 0;
+
+#pragma omp parallel for reduction(+ : metropolis_accepted)
     for (int i = 0; i < num_alive; i++) {
         int tid = omp_get_thread_num();
 
         if (solver_contexts[tid].check_nodes(electrons[i], copy_electrons[i])) {
-#ifndef PURE_DIFFUSION
             solver_contexts[tid].reject_move(electrons[i], copy_electrons[i]);
-            p_values[i] = solver_contexts[tid].p_value(
-                electrons[i], copy_electrons[i], stats.growth_estimator);
             continue;
-#else
-            p_values[i] = 0;
-            continue;
-#endif
         }
 
         if (solver_contexts[tid].check_metropolis(
                 electrons[i], copy_electrons[i], diffusion_values[i])) {
             solver_contexts[tid].calc_local_energy(electrons[i]);
+            metropolis_accepted++;
+        } else {
+            solver_contexts[tid].reject_move(electrons[i], copy_electrons[i]);
         }
-
-        p_values[i] =
-            solver_contexts[tid].p_value(electrons[i], copy_electrons[i], stats.growth_estimator);
     }
 
-    // std::cout << "Acceptance ratio: " << static_cast<double>(s) / num_alive << std::endl;
+    eff_d_tau =
+        p->d_tau * static_cast<double>(metropolis_accepted) / static_cast<double>(num_alive);
+}
+
+void DiffusionQuantumElectrons::prepare_branch() {
+#pragma omp parallel for
+    for (int i = 0; i < num_alive; i++) {
+        int tid = omp_get_thread_num();
+
+#ifdef PURE_DIFFUSION
+        if (solver_contexts[tid].check_nodes(electrons[i], copy_electrons[i])) {
+            p_values[i] = 0;
+            continue;
+        }
+#endif
+
+        p_values[i] = solver_contexts[tid].p_value(
+            electrons[i], copy_electrons[i], stats.growth_estimator, eff_d_tau);
+    }
 }
 
 void DiffusionQuantumElectrons::branch() {
@@ -139,8 +157,8 @@ void DiffusionQuantumElectrons::branch() {
         if (std::isnan(m) || m < 0) {
             m = 0;
         }
-        if (m > 3) {
-            m = 3;
+        if (m > 4) {
+            m = 4;
         }
         set_alive(m, electrons[i]);
     }
@@ -167,7 +185,6 @@ void DiffusionQuantumElectrons::set_alive(int N, const ElectronWalker &wlk) {
     new_alive += N;
 }
 
-// TODO: thing about it
 void DiffusionQuantumElectrons::update_growth_estimator() {
     if (stats.it == 0) {
         int nblock = current_it % p->n_block;
@@ -306,5 +323,36 @@ void DiffusionQuantumElectrons::initial_diffusion() {
         if (!solver_contexts[tid].check_initial_metropolis(electrons[i], copy_electrons[i])) {
             solver_contexts[tid].reject_move(electrons[i], copy_electrons[i]);
         }
+    }
+}
+
+void DiffusionQuantumElectrons::sample_variational_energy() {
+#pragma omp parallel for
+    for (int i = 0; i < num_alive; i++) {
+        int tid = omp_get_thread_num();
+        copy_electrons[i] = electrons[i];
+
+        solver_contexts[tid].apply_diffusion(electrons[i]);
+        solver_contexts[tid].calc_trial_wavef(electrons[i]);
+        if (!solver_contexts[tid].check_initial_metropolis(electrons[i], copy_electrons[i])) {
+            solver_contexts[tid].reject_move(electrons[i], copy_electrons[i]);
+        } else {
+            electrons[i].local_energy = solver_contexts[tid].local_energy(electrons[i]);
+        }
+    }
+
+    acc_variational_energy += local_energy_average();
+}
+
+void DiffusionQuantumElectrons::finish_initial_diffusion() {
+    variational_energy = acc_variational_energy / static_cast<double>(p->vmc_sampling_time_steps);
+
+    std::cout << "===Received variational energy: "
+              << UnitHandler::energy(UnitHandler::TO_DEFAULT, variational_energy)
+              << "===" << std::endl;
+
+    general_context->set_local_energy_cutoff(variational_energy);
+    for (auto &cont : solver_contexts) {
+        cont.set_local_energy_cutoff(variational_energy);
     }
 }

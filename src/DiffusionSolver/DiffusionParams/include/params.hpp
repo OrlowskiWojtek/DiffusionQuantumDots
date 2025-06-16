@@ -10,7 +10,9 @@
 class DiffusionQuantumParams {
 private:
     static DiffusionQuantumParams *instance;
-    DiffusionQuantumParams() { set_default_params(); }
+    DiffusionQuantumParams() {
+        set_default_params();
+    }
 
     void check_params();
 
@@ -27,12 +29,14 @@ public:
     }
 
     void set_default_params();
-    double d_tau;         // time step value
-    double equi_d_tau;    // time step value
-    int total_time_steps; // total number of time steps valued d_tau
-    int eq_time_step;     // time step to average from
-    int n0_walkers;       // beginning number of walkers alive, also target number of walkers
-    int nmax_walkers;     // maximal number of walkers alive - size of allocated vector
+    double d_tau; // time step value
+
+    int total_time_steps;   // total number of time steps valued d_tau
+    int eq_time_step;       // time step to average from
+    int initial_time_steps; // initial time steps to initilize walkers with |psi_trial| distribution
+    int vmc_sampling_time_steps; // time steps for sampling vmc local energy
+    int n0_walkers;              // beginning number of walkers alive, also target number of walkers
+    int nmax_walkers;            // maximal number of walkers alive - size of allocated vector
 
     std::vector<int> save_hist_at = std::vector<int>({}); // after equilibration phase
     double xmin;                                          // sampling minimum for visualisation
@@ -58,7 +62,6 @@ public:
 
     int total_vis_idx_x; // used for visualisation of total walkers - sum over all electrons
     int total_vis_idx_y; // used for visualisation of total walkers - sum over all electrons
-
 
     // save energies to file every after equilibrium phase
     int save_every;

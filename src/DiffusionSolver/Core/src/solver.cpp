@@ -25,16 +25,25 @@ void DiffusionQuantumSolver::solve() {
     int equilibrate_loop = params->eq_time_step;
     int collect_loop = params->total_time_steps - params->eq_time_step;
 
-    for (int i = 0; i < 10000; i++) {
+#ifndef PURE_DIFFUSION
+    for (int i = 0; i < params->initial_time_steps; i++) {
         initialize_distribution();
     }
+    for (int i = 0; i < params->vmc_sampling_time_steps; i++) {
+        sample_vmc_energy();
+    }
+    finish_initialization();
+    std::cout << "===Finished initialization loop===" << std::endl;
+#endif
+
 
     for (int i = 0; i < equilibrate_loop; i++) {
         diffuse();
         branch();
     }
 
-    params->d_tau = params->equi_d_tau;
+    std::cout << "===Finished equilibration loop===" << std::endl;
+
     for (int i = 0; i < collect_loop; i++) {
         diffuse();
         branch();
@@ -42,7 +51,9 @@ void DiffusionQuantumSolver::solve() {
 
         check_saving(i);
     }
- 
+
+    std::cout << "===Finished collection loop===" << std::endl;
+
     electrons->get_results().save_to_file();
 
     if (params->show_visualisation) {
@@ -59,6 +70,9 @@ void DiffusionQuantumSolver::solve() {
 
 void DiffusionQuantumSolver::diffuse() {
     electrons->diffuse();
+#ifndef PURE_DIFFUSION
+    electrons->check_movement();
+#endif
 }
 
 void DiffusionQuantumSolver::branch() {
@@ -81,4 +95,12 @@ void DiffusionQuantumSolver::check_saving(int iter_idx) {
 
 void DiffusionQuantumSolver::initialize_distribution() {
     electrons->initial_diffusion();
+}
+
+void DiffusionQuantumSolver::sample_vmc_energy() {
+    electrons->sample_variational_energy();
+}
+
+void DiffusionQuantumSolver::finish_initialization() {
+    electrons->finish_initial_diffusion();
 }

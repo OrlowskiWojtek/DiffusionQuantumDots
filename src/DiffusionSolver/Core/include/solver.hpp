@@ -55,7 +55,15 @@ private:
     void branch();
     void accumulate();
 
+    // Move walkers and check with metropolis sampling as in variational Monte Carlo
+    // After initialization walkers should have distribution of |\psi|^2
     void initialize_distribution();
+
+    // Few runs to sample VMC energy
+    void sample_vmc_energy();
+
+    // Finish initialization - calculate variational energy
+    void finish_initialization();
 
     /**
      * Checks if current iteration is a saving point and saves progress if needed

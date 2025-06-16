@@ -33,7 +33,8 @@ public:
     // @param wlk - current walker 
     // @param prev_wlk - walker in previous step
     // @param growth_estimator - current growth estimator
-    double p_value(ElectronWalker &wlk, ElectronWalker &prev_wlk, double growth_estimator);
+    // @param eff_d_tau - effective time step 
+    double p_value(ElectronWalker &wlk, ElectronWalker &prev_wlk, double growth_estimator, double eff_d_tau);
 
     // Checks if walker crossed node.
     //
@@ -56,7 +57,11 @@ public:
     // Calculates trial wavefunction value for walker
     // saves calculated value inside walker in order to avoid 
     // multiple calculations 
+    // also applies local energy cutoff
     void calc_trial_wavef(ElectronWalker &wlk);
+
+    // calculates local energy for wlk
+    double local_energy(const ElectronWalker &wlk);
 
     // Calculates total potential including interaction term
     double get_potential(const ElectronWalker& wlk);
@@ -69,10 +74,18 @@ public:
 
     // Initial metropolis sampling for initial walker distribution - used in initialization
     bool check_initial_metropolis(ElectronWalker &wlk, ElectronWalker &prev_wlk);
+
+    // sets local energy cutoff acording to variational energy
+    void set_local_energy_cutoff(double variational_energy);
+
 private:
     void init_potential();
     void init_orbital();
     void init_rng();
+
+    bool after_initial_diffusion;
+
+    double variational_energy;
 
     // buffer used for storing calculated drift velocity
     electron_walker drift_velocity;
@@ -110,9 +123,6 @@ private:
 
     // calculates trial_wavefunction for wlk
     double trial_wavef(const electron_walker &wlk);
-
-    // calculates local energy for wlk
-    double local_energy(const ElectronWalker &wlk);
 
     // calculates Green function diffusion part (G_d(R'<-R))
     // used in metropolis back step propability evaluation

@@ -134,7 +134,7 @@ void DiffusionQuantumResults::save_energies(double time,
         << UnitHandler::energy(UnitHandler::TO_DEFAULT, stats.ground_state_growth_estimator) << "\t"
         << UnitHandler::energy(UnitHandler::TO_DEFAULT, stats.mixed_estimator) << "\t"
         << UnitHandler::energy(UnitHandler::TO_DEFAULT, stats.growth_estimator) << "\t"
-        << UnitHandler::energy(UnitHandler::TO_DEFAULT, stats.growth_estimator_error) << "\n";
+        << UnitHandler::energy(UnitHandler::TO_DEFAULT, stats.growth_estimator_error) << std::endl;
 }
 
 const std::vector<double> &DiffusionQuantumResults::get_calib_mixed_energies() {
