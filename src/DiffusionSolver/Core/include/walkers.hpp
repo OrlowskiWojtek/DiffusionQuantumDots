@@ -5,12 +5,15 @@
 #include <iostream>
 #include <vector>
 
+enum class ElectronSpin {UP, DOWN};
+
 /**
  * Basic walker used in simulation
  * This is walker for single electron so it has only 3 dimensions
  * Default values for dimensions are equal to zero if are not used
  */
 struct walker {
+    ElectronSpin spin;
     std::array<double, 3> cords;
 
     const double &x() const { return cords[0]; };

@@ -2,11 +2,11 @@ using CairoMakie
 using DelimitedFiles
 
 
-#dir = "2el_1d_excited_10mev"
-#filepath = joinpath("../data/", dir)
-#filepath = joinpath(filepath, "averaged_energies.dqmc.dat")
-#
-filepath = "../build/averaged_energies.dqmc.dat"
+dir = "2el_1d_excited_10mev_guided"
+filepath = joinpath("../data/", dir)
+filepath = joinpath(filepath, "averaged_energies.dqmc.dat")
+
+#filepath = "../build/averaged_energies.dqmc.dat"
 
 data = readdlm(filepath, comments = true);
 times = data[:, 1]
@@ -48,6 +48,6 @@ with_theme(theme_latexfonts()) do
     linkxaxes!(ax_mixed, ax_growth) 
     linkxaxes!(ax_growth, ax_population) 
 
-    #save("plots/1d_2el_excited_energies.pdf", fig)
+    save("plots/1d_2el_excited_energies_guided.pdf", fig)
     display(fig)
 end

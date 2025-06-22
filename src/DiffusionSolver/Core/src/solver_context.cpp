@@ -50,14 +50,13 @@ double SolverContext::trial_wavef(const electron_walker &wlk) {
 #ifndef PURE_DIFFUSION
     return (*this->orbital)(wlk);
 #else
-    return (wlk.front().cords[0] - wlk.back().cords[0]);
+    return 1;//(wlk.front().cords[0] - wlk.back().cords[0]);
     //(wlk.front().cords[1] - wlk.back().cords[1]);
 #endif
 }
 
 double SolverContext::local_energy(const ElectronWalker &wlk) {  
     double local_ene = (kinetic_term(wlk) + interaction_term(wlk) + potential_term(wlk));
-
 
     return local_ene;
 }
@@ -90,10 +89,10 @@ void SolverContext::calc_local_energy(ElectronWalker &wlk) {
 
     if(std::abs(local_ene - variational_energy) > 2. / sqrt(p->d_tau)){
         int sign = local_ene - variational_energy < 0 ? -1 : 1;
-        local_ene = variational_energy + sign * 2 * local_ene / sqrt(p->d_tau);
+        local_ene = variational_energy + sign * 2 / sqrt(p->d_tau);
     }
 
-    wlk.local_energy = local_energy(wlk);
+    wlk.local_energy = local_ene;
 }
 
 bool SolverContext::check_nodes(ElectronWalker &wlk, const ElectronWalker &prev_wlk) {
@@ -119,7 +118,8 @@ void SolverContext::prepare_drift(const ElectronWalker &ele_wlk) {
     m_front_walker_buffer = ele_wlk.get_const_walker();
     m_back_walker_buffer = ele_wlk.get_const_walker();
     double cent_trial_wavef = ele_wlk.trial_wavef_value;
-
+    
+    double sq_norm = 0;
     for (int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++) {
         for (int d = 0; d < p->n_dims; d++) {
             m_front_walker_buffer[wlk_idx].cords[d] += dr;
@@ -130,13 +130,18 @@ void SolverContext::prepare_drift(const ElectronWalker &ele_wlk) {
 
             drift_velocity[wlk_idx].cords[d] =
                 (forw_value - back_value) / (p->effective_mass * 2 * dr * cent_trial_wavef);
-            if (std::abs(drift_velocity[wlk_idx].cords[d]) > 1 / (p->d_tau / p->effective_mass)) {
-                int sign = drift_velocity[wlk_idx].cords[d] > 0 ? 1 : -1;
-                drift_velocity[wlk_idx].cords[d] = sign / (p->d_tau / p->effective_mass);
-            }
+
+            sq_norm += drift_velocity[wlk_idx].cords[d] * drift_velocity[wlk_idx].cords[d];
 
             m_front_walker_buffer[wlk_idx].cords[d] = ele_wlk.get_const_walker()[wlk_idx].cords[d];
             m_back_walker_buffer[wlk_idx].cords[d] = ele_wlk.get_const_walker()[wlk_idx].cords[d];
+        }
+    }
+
+    double scaler = (-1. + std::sqrt(1. + 2 * sq_norm * p->d_tau)) / (sq_norm * p->d_tau);
+    for (int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++) {
+        for (int d = 0; d < p->n_dims; d++) {
+            drift_velocity[wlk_idx].cords[d] = scaler * drift_velocity[wlk_idx].cords[d];
         }
     }
 }
@@ -269,11 +274,11 @@ double SolverContext::interaction_term(const ElectronWalker &wlk) {
         for (int j = i + 1; j < p->n_electrons; j++) {
             double r = walkers_helper->distance(
                 wlk.get_const_walker()[i], wlk.get_const_walker()[j], p->n_dims);
-             interaction += 1. / (p->epsilon * r);
-           // interaction +=
-           //     1. /
-           //     (p->epsilon * std::sqrt(std::pow(r, 2) +
-           //                            std::pow(UnitHandler::length(UnitHandler::TO_AU, 5), 2)));
+            interaction += 1. / (p->epsilon * r);
+            //interaction +=
+            //    1. /
+            //    (p->epsilon * std::sqrt(std::pow(r, 2) +
+            //                            std::pow(UnitHandler::length(UnitHandler::TO_AU, 5), 2)));
         }
     }
 

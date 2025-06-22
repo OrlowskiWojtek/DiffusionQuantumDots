@@ -8,10 +8,10 @@ void DiffusionQuantumParams::set_default_params() {
     d_tau = 0.1;             // time step
     
     initial_time_steps = 200000;
-    vmc_sampling_time_steps = 2000;
+    vmc_sampling_time_steps = 3000;
 
-    eq_time_step = 20000;     
-    total_time_steps = 80000;  
+    eq_time_step = 500000;     
+    total_time_steps = 1000000;  
 
     n0_walkers = 10000;      // beginning number of walkers alive, also target number of walkers
     nmax_walkers = 20000;    // maximal number of walkers alive - size of allocated vector
@@ -25,9 +25,9 @@ void DiffusionQuantumParams::set_default_params() {
     epsilon = 12.; // relative permatibility
 
     effective_mass = 0.067;
-    omegas = {3., 5., 0.};
+    omegas = {3., 5., 0};
 
-    max_drift_length = 50. / (std::sqrt(d_tau / effective_mass));
+    spins = {ElectronSpin::UP, ElectronSpin::DOWN};
 
     std::transform(omegas.begin(), omegas.end(), omegas.begin(), [&](double om) {
         return UnitHandler::energy(UnitHandler::TO_AU, om);
@@ -40,7 +40,7 @@ void DiffusionQuantumParams::set_default_params() {
     n_bins = 100;
 
     vis_dim_idx_x = std::make_tuple(0, 0);
-    vis_dim_idx_y = std::make_tuple(1, 0);
+    vis_dim_idx_y = std::make_tuple(0, 1);
 
     total_vis_idx_x = 0;
     total_vis_idx_y = 1;
@@ -70,4 +70,10 @@ void DiffusionQuantumParams::check_params() {
     assert((total_vis_idx_y) < n_dims);
 
     assert(save_every > 0);
+    
+    for(int d = 0; d < n_dims; d++){
+        assert(omegas[d] > 0);
+    }
+
+    assert(spins.size() == n_electrons);
 }

@@ -33,14 +33,15 @@ void EnergyBlockingAnalyzer::blocking_analysis(const std::vector<double> &mixed_
 
 std::vector<double> EnergyBlockingAnalyzer::reblock(const std::vector<double> &energies) {
     std::vector<double> temp_energies{energies.begin(), energies.end()};
-    temp_energies.resize(block_sizes.back());
     std::vector<double> standard_reblocked_errors;
 
     for (int bs : block_sizes) {
-        std::vector<double> reblocked(temp_energies.size() / bs, 0);
+        int num_blocks = energies.size() / bs;
+
+        std::vector<double> reblocked(num_blocks, 0);
         for (size_t i = 0; i < reblocked.size(); i++) {
-            reblocked[i] = std::accumulate(temp_energies.begin() + bs * i,
-                                           temp_energies.begin() + bs * (i + 1),
+            reblocked[i] = std::accumulate(energies.begin() + bs * i,
+                                           energies.begin() + bs * (i + 1),
                                            0.) /
                            static_cast<double>(bs);
         }

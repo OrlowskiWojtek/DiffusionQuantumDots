@@ -1,7 +1,7 @@
 using GLMakie, CairoMakie
 using DelimitedFiles
 
-filename = "../build/TrialWavefunctionTest"
+filename = "../data/2el_1d_excited_10mev_guided/TrialWavefunctionTest"
 data = readdlm(filename, comments = true)
 
 file = readlines(filename)
@@ -12,30 +12,26 @@ nbins = size(data, 1)
 x = y = LinRange(xmin, xmax, nbins)
 #
 
-GLMakie.activate!()
+CairoMakie.activate!()
 
 with_theme(theme_latexfonts()) do
-    fig = Figure();
+    fig = Figure(dpi = 300);
     ax = Axis3(fig[1,1], 
-               xlabel = "x [nm]",
-               ylabel = "y [nm]")
+               xlabel = "x1 [nm]",
+               ylabel = "x2 [nm]")
 
     hidezdecorations!(ax)
 
-    cm = surface!(ax, x, y, abs.(data),
+    cm = surface!(ax, x, y, data,
              colormap = :coolwarm,
              label = "Ψ(x,y)")
 
     ticks_psi = [ round(val, digits = 3) for val in collect(LinRange(findmin(data)[1], findmax(data)[1], 6)) ]
 
-    Colorbar(fig[2,1], cm, label = "Ψ(x,y)", vertical = false)
-
-    #xlims!(ax, (xmin, xmax))
-    #ylims!(ax, (xmin, xmax))
-    zlims!(ax, (0, nothing))
+    Colorbar(fig[2,1], cm, label = L"$\Psi$(\mathbf{R})", vertical = false)
 
     display(fig)
-    #save("plots/example_trial_wavef.pdf", fig)
+    save("plots/10mev_excited_trial_wavef.png", fig)
 end
 
 ## check for correct normalisation <- it is ok

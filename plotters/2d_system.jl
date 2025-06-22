@@ -1,9 +1,8 @@
 using GLMakie, CairoMakie
 using DelimitedFiles
 
-
-#filename = "../data/2el_1d_excited_10mev/evolution.dqmc.dat"
-filename = "../build/evolution.dqmc.dat"
+filename = "../data/2el_2d_ground_3mev_5mev/evolution.dqmc.dat"
+#filename = "../build/evolution.dqmc.dat"
 data = readdlm(filename, comments = true)'
 
 file = readlines(filename)
@@ -27,18 +26,18 @@ x = y = LinRange(xmin, xmax, nbins)
 
 #
 
-GLMakie.activate!()
+CairoMakie.activate!()
 
 with_theme(theme_latexfonts()) do
     fig = Figure(dpi = 300);
     Label(fig[0,1:2], "Końcowy rozkład wędrowców")
     ax = Axis3(fig[1,1], 
-               xlabel = "x₁ [nm]",
-               ylabel = "x₂ [nm]")
+               xlabel = L"$x_1$ [nm]",
+               ylabel = L"$x_2$ [nm]")
 
     ax_heatmap = Axis(fig[1,2], aspect = 1,
-                      xlabel = "x₁ [nm]",
-                      ylabel = "x₂ [nm]")
+                      xlabel = L"$x_1$ [nm]",
+                      ylabel = L"$x_2$ [nm]")
 
     hidezdecorations!(ax)
 
@@ -48,7 +47,7 @@ with_theme(theme_latexfonts()) do
     cm = surface!(ax, x, y, data,
                   colormap = :coolwarm)
 
-    Colorbar(fig[2,1:2], cm, label = "Ψ(x)", vertical = false)
+    Colorbar(fig[2,1:2], cm, label = L"$f$(\textbf{R})", vertical = false)
 
     xlims!(ax, (xmin, xmax))
     ylims!(ax, (xmin, xmax))
@@ -57,7 +56,7 @@ with_theme(theme_latexfonts()) do
     ylims!(ax_heatmap, (xmin, xmax))
 
     display(fig)
-    #save("plots/1d_2el_excited_10meV.png", fig)
+    save("plots/2d_2el_ground_3meV_5meV.png", fig)
 end
 
 ##

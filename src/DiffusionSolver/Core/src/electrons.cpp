@@ -48,9 +48,11 @@ void DiffusionQuantumElectrons::init_containers() {
     for (auto &ele : electrons) {
         electron_walker &ele_wlk = ele.get_walker();
         ele_wlk.resize(p->n_electrons);
+    
         std::for_each(ele_wlk.begin(), ele_wlk.end(), [&](walker &wlk) {
             wlk.cords.fill(0);
         });
+
         std::for_each(ele_wlk.begin(), ele_wlk.end(), [&](walker &wlk) {
             std::for_each(wlk.cords.begin(), wlk.cords.begin() + p->n_dims, [&](double &cord) {
                 cord = initial_dist(rng);
@@ -294,6 +296,10 @@ void DiffusionQuantumElectrons::total_binning() {
                                                  (p->xmax - p->xmin) * p->n_bins);
                 walker_bin[1] = static_cast<int>((p->xmax - wlk.cords[y_dim]) /
                                                  (p->xmax - p->xmin) * p->n_bins);
+
+                if (p->n_dims == 1) {
+                    walker_bin[1] = 0;
+                }
 
                 total_summed_walkers[walker_bin[0]][walker_bin[1]]++;
             });

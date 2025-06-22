@@ -46,13 +46,12 @@ public:
     int n_electrons; // number of electrons;
     int n_dims;      // number of dimensions
 
-    double max_drift_length;
-
     HarmonicPotentialParams pot_params;
 
-    double effective_mass;      // effective mass of electron
-    double epsilon;             // relative permatibility
-    std::vector<double> omegas; // omega in each direction
+    double effective_mass;           // effective mass of electron
+    double epsilon;                  // relative permatibility
+    std::vector<double> omegas;      // omega in each direction
+    std::vector<ElectronSpin> spins; // spin for each electron
     int n_bins;
 
     std::tuple<int, int> vis_dim_idx_x; // used for visualisation - first dimension (first index is
