@@ -12,12 +12,7 @@ DiffusionQuantumSolver::~DiffusionQuantumSolver() {
 }
 
 // TODO: init also filenames and other solve related systems
-void DiffusionQuantumSolver::init() {
-    std::sort(params->save_hist_at.begin(), params->save_hist_at.end());
-    params->save_hist_at.push_back(params->total_time_steps - params->eq_time_step -
-                                   1); // always save last one
-    save_counter = 0;
-}
+void DiffusionQuantumSolver::init() {}
 
 void DiffusionQuantumSolver::solve() {
     init();
@@ -48,12 +43,11 @@ void DiffusionQuantumSolver::solve() {
         diffuse();
         branch();
         accumulate();
-
-        check_saving(i);
     }
 
     std::cout << "===Finished collection loop===" << std::endl;
 
+    electrons->save_progress();
     electrons->get_results().save_to_file();
 
     if (params->show_visualisation) {
@@ -82,15 +76,6 @@ void DiffusionQuantumSolver::branch() {
 
 void DiffusionQuantumSolver::accumulate() {
     electrons->count();
-}
-
-void DiffusionQuantumSolver::check_saving(int iter_idx) {
-    if (iter_idx == params->save_hist_at[save_counter]) {
-        electrons->save_progress();
-        if (save_counter < params->save_hist_at.size() - 1) {
-            save_counter++;
-        }
-    }
 }
 
 void DiffusionQuantumSolver::initialize_distribution() {

@@ -1,7 +1,6 @@
 #include "Core/include/solver_context.hpp"
 #include "DiffusionParams/include/params.hpp"
 #include "TrialFunctions/include/jastrow_slater.hpp"
-#include "include/UnitHandler.hpp"
 #include <cmath>
 
 boost::random::mt19937 SolverContext::s_seed_generator(time(0));

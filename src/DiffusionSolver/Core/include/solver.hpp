@@ -64,15 +64,6 @@ private:
 
     // Finish initialization - calculate variational energy
     void finish_initialization();
-
-    /**
-     * Checks if current iteration is a saving point and saves progress if needed
-     * @param iter_idx Current iteration index in the production phase
-     */
-    void check_saving(int iter_idx);
-
-    // Counter for tracking saving points
-    size_t save_counter;
 };
 
 #endif

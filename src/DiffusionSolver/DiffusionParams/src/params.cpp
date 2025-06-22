@@ -16,7 +16,6 @@ void DiffusionQuantumParams::set_default_params() {
     n0_walkers = 10000;      // beginning number of walkers alive, also target number of walkers
     nmax_walkers = 20000;    // maximal number of walkers alive - size of allocated vector
 
-    save_hist_at = std::vector<int>({});                 // after equilibration phase
     xmin = UnitHandler::length(UnitHandler::TO_AU, -50); // sampling minimum for visualisation
     xmax = UnitHandler::length(UnitHandler::TO_AU, 50);  // sampling maximum for visualisation
 
@@ -75,5 +74,5 @@ void DiffusionQuantumParams::check_params() {
         assert(omegas[d] > 0);
     }
 
-    assert(spins.size() == n_electrons);
+    assert(static_cast<int>(spins.size()) == n_electrons);
 }

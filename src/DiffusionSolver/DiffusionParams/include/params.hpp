@@ -38,7 +38,6 @@ public:
     int n0_walkers;              // beginning number of walkers alive, also target number of walkers
     int nmax_walkers;            // maximal number of walkers alive - size of allocated vector
 
-    std::vector<int> save_hist_at = std::vector<int>({}); // after equilibration phase
     double xmin;                                          // sampling minimum for visualisation
     double xmax;                                          // sampling maximum for visualisation
     bool show_visualisation;                              // shows plots after simulation

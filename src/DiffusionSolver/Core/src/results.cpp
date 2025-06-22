@@ -101,6 +101,28 @@ void DiffusionQuantumResults::save_to_file() {
 
     file.close();
 
+    std::ofstream file_total("total_distribution.dqmc.dat");
+
+    for (HistData &data : time_evolution) {
+        file_total << "#\t" << "time:" << data.time << "\n";
+        file_total << "#\t" << "time_step:" << data.time_step << "\n";
+        file_total << "#\t" << "energy [meV]:" << data.stats.mixed_estimator << "\n";
+        file_total << "#\t" << "xmin:" << UnitHandler::length(UnitHandler::TO_DEFAULT, x.front()) << "\n";
+        file_total << "#\t" << "xmax:" << UnitHandler::length(UnitHandler::TO_DEFAULT, x.back()) << "\n";
+        file_total << "#\t" << "nbins:" << x.size() << "\n";
+
+        // TODO -> swtich to dimension version
+        for (size_t i = 0; i < x.size(); i++) {
+            for (size_t j = 0; j < x.size(); j++) {
+                file_total << data.total_psi[i][j] << "\t";
+            }
+            file_total << "\n";
+        }
+        file_total << std::endl;
+    }
+
+    file_total.close();
+
     std::ofstream file_energies("energies.dqmc.dat");
     file_energies << "#\tmixed_stimator[meV]\tgrowth_estimator[meV]\n";
 

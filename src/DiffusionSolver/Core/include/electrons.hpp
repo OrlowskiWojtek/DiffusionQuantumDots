@@ -81,7 +81,8 @@ public:
 
     /**
      * Saves the current state of the simulation
-     *
+     * 
+     * Moves required data to Results class.
      * Records walker distributions, energy estimators, and other relevant
      * data at specified checkpoints during the simulation.
      */
