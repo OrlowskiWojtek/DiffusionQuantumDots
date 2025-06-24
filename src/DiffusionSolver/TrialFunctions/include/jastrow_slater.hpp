@@ -9,6 +9,7 @@
 
 struct JastrowSlaterOrbitalParams{
     int electron_number;
+    std::vector<ElectronSpin> spins;
     std::vector<double> omegas;
     double effective_mass;
     int dims;
@@ -30,7 +31,11 @@ public:
 private:
     std::function<double(const electron_walker& wlk)> orbital;
     JastrowSlaterOrbitalParams p;
-    arma::Mat<double> slater_matrix;
+    arma::Mat<double> slater_matrix_up;
+    arma::Mat<double> slater_matrix_down;
+
+    int spins_up;
+    int spins_down;
 
     // take from walkers.hpp
     double distance(const walker&, const walker&);

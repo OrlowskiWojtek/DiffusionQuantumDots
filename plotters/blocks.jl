@@ -2,10 +2,9 @@ using CairoMakie
 using DelimitedFiles
 
 #filepath = "../build/results/ground_reblock"
-#filepath = "
 #outpath = "plots/ground_reblock.pdf"
-filepath = "../data/1el_1d/excited_basic/reblock_analysis.dqmc.dat"
-#filepath = "../build/reblock_analysis.dqmc.dat"
+#filepath = "../data/2el_2d_ground_3mev_5mev/reblock_analysis.dqmc.dat"
+filepath = "../build/reblock_analysis.dqmc.dat"
 data = readdlm(filepath, comments = true)[begin:end-1, :]
 
 #
@@ -16,7 +15,7 @@ with_theme(theme_latexfonts()) do
     fig = Figure();
     ax_growth = Axis(fig[1,1], xlabel = "Iteracja reblokowania", ylabel = "Odchylenie standardowe σ estymatora wzrostu", ylabelcolor = :darkblue)
 
-    ax_mixed = Axis(fig[1,1], yaxisposition = :right, xlabel = "Iteracja reblokowania", ylabel = "Odchylenie standardowe σ estymatora mieszanego", ylabelcolor = :darkred)
+    ax_mixed = Axis(fig[1,1], yaxisposition = :right, ylabel = "Odchylenie standardowe σ estymatora mieszanego", ylabelcolor = :darkred)
 
     lines!(ax_mixed, data[:, 2], color = :darkred, label = "Błędy estymatora mieszanego")
     scatter!(ax_mixed, data[:, 2], color = :darkred)
@@ -25,5 +24,5 @@ with_theme(theme_latexfonts()) do
     scatter!(ax_growth, data[:, 3], color = :darkblue)
 
     display(fig)
-    save("plots/1d_1el_excited_reblock.pdf", fig)
+    #save("plots/1d_1el_excited_reblock.pdf", fig)
 end

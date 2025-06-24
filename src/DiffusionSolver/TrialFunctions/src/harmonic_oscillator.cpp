@@ -22,7 +22,7 @@ void HarmonicOscillatorOrbitals::init_orbital() {
 
     first_part_precalculated = 1;
     for (int i = 0; i < p.dims; i++) {
-        first_part_precalculated *= 1. / sqrt(std::pow(2, p.excitations[i]) * factorial(p.excitations[i]));
+        first_part_precalculated *= 1. / sqrt(std::pow(2, p.excitations[i]) * static_cast<double>(factorial(p.excitations[i])));
     }
 
     second_part_precalculated = 1;

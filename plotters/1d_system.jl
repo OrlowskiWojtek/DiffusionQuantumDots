@@ -41,12 +41,12 @@ with_theme(theme_latexfonts()) do
               xlabel = "x [nm]",
               ylabel = "Ψ(x)")
 
-    lines!(ax, x, psi_exact, color = :red, label = "Rozwiązanie dokładne")
+    #lines!(ax, x, psi_exact, color = :red, label = "Rozwiązanie dokładne")
     scatter!(ax, x, psi, color = :black, label = "Rozwiązanie DMC")
  
     axislegend()
     display(fig)
-    save("plots/1d_1el_ground.pdf", fig)
+    #save("plots/1d_1el_ground.pdf", fig)
 end
 
 ##

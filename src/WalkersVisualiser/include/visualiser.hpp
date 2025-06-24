@@ -17,7 +17,9 @@ class WalkersVisualiser{
 
 
 public:
-    void make_surf_plot(boost::multi_array<double, 2>& psi, int n);
+    void make_surf_plot(boost::multi_array<double, 2>& psi,
+                        boost::multi_array<double, 2>& total_psi,
+                        int n);
 
 };
 

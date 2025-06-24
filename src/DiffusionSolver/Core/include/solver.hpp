@@ -55,14 +55,15 @@ private:
     void branch();
     void accumulate();
 
-    /**
-     * Checks if current iteration is a saving point and saves progress if needed
-     * @param iter_idx Current iteration index in the production phase
-     */
-    void check_saving(int iter_idx);
+    // Move walkers and check with metropolis sampling as in variational Monte Carlo
+    // After initialization walkers should have distribution of |\psi|^2
+    void initialize_distribution();
 
-    // Counter for tracking saving points
-    size_t save_counter;
+    // Few runs to sample VMC energy
+    void sample_vmc_energy();
+
+    // Finish initialization - calculate variational energy
+    void finish_initialization();
 };
 
 #endif

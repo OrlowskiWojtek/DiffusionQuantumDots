@@ -1,7 +1,10 @@
 using CairoMakie
 using DelimitedFiles
 
-filepath = "../data/1el_1d/excited_basic/averaged_energies.dqmc.dat"
+dir = "2el_2d_excited_3mev_5mev_guided"
+filepath = joinpath("../data/", dir)
+filepath = joinpath(filepath, "averaged_energies.dqmc.dat")
+
 #filepath = "../build/averaged_energies.dqmc.dat"
 
 data = readdlm(filepath, comments = true);
@@ -14,7 +17,6 @@ growth = data[:, 6]
 #
 
 CairoMakie.activate!()
-
 ntarget = parse(Float64, split(readlines(filepath)[1], ":")[2])
 #ntarget = 5000
 
@@ -44,6 +46,6 @@ with_theme(theme_latexfonts()) do
     linkxaxes!(ax_mixed, ax_growth) 
     linkxaxes!(ax_growth, ax_population) 
 
-    save("plots/1d_1el_excited_energies.pdf", fig)
+    save("plots/2d_2el_excited_energies_guided.pdf", fig)
     display(fig)
 end
