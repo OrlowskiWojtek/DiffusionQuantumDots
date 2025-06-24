@@ -8,10 +8,10 @@ void DiffusionQuantumParams::set_default_params() {
     d_tau = 0.1;             // time step
     
     initial_time_steps = 200000;
-    vmc_sampling_time_steps = 3000;
+    vmc_sampling_time_steps = 30000;
 
-    eq_time_step = 500000;     
-    total_time_steps = 1000000;  
+    eq_time_step = 50000;     
+    total_time_steps = 100000;  
 
     n0_walkers = 10000;      // beginning number of walkers alive, also target number of walkers
     nmax_walkers = 20000;    // maximal number of walkers alive - size of allocated vector
@@ -26,7 +26,8 @@ void DiffusionQuantumParams::set_default_params() {
     effective_mass = 0.067;
     omegas = {3., 5., 0};
 
-    spins = {ElectronSpin::UP, ElectronSpin::DOWN};
+    // only used in importance sampling
+    spins = {ElectronSpin::UP, ElectronSpin::UP}; // DEFAULT SPIN IS UP! todo: change that
 
     std::transform(omegas.begin(), omegas.end(), omegas.begin(), [&](double om) {
         return UnitHandler::energy(UnitHandler::TO_AU, om);
@@ -39,7 +40,7 @@ void DiffusionQuantumParams::set_default_params() {
     n_bins = 100;
 
     vis_dim_idx_x = std::make_tuple(0, 0);
-    vis_dim_idx_y = std::make_tuple(0, 1);
+    vis_dim_idx_y = std::make_tuple(1, 0);
 
     total_vis_idx_x = 0;
     total_vis_idx_y = 1;

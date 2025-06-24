@@ -1,7 +1,9 @@
 using GLMakie, CairoMakie
 using DelimitedFiles
 
-filename = "../data/2el_1d_excited_10mev_guided/TrialWavefunctionTest"
+#filename = "../data/2el_2d_excited_3mev_5mev_guided/TrialWavefunctionTest"
+filename = "../build/TrialWavefunctionTest"
+
 data = readdlm(filename, comments = true)
 
 file = readlines(filename)
@@ -12,7 +14,7 @@ nbins = size(data, 1)
 x = y = LinRange(xmin, xmax, nbins)
 #
 
-CairoMakie.activate!()
+GLMakie.activate!()
 
 with_theme(theme_latexfonts()) do
     fig = Figure(dpi = 300);
@@ -31,7 +33,7 @@ with_theme(theme_latexfonts()) do
     Colorbar(fig[2,1], cm, label = L"$\Psi$(\mathbf{R})", vertical = false)
 
     display(fig)
-    save("plots/10mev_excited_trial_wavef.png", fig)
+    #save("plots/5mev_3mev_excited_trial_wavef.png", fig)
 end
 
 ## check for correct normalisation <- it is ok

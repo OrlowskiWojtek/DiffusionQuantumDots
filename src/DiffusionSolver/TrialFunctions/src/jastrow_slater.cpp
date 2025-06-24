@@ -3,6 +3,7 @@
 #include "TrialFunctions/include/harmonic_oscillator.hpp"
 #include <iostream>
 #include <memory>
+#include <numeric>
 
 JastrowSlaterOrbital::JastrowSlaterOrbital() { init_orbital(); }
 
@@ -25,7 +26,11 @@ double JastrowSlaterOrbital::distance(const walker &wlk_a, const walker &wlk_b) 
 }
 
 void JastrowSlaterOrbital::init_orbital() {
-    slater_matrix.set_size(p.electron_number, p.electron_number);
+    spins_up = std::accumulate(p.spins.begin(), p.spins.end(), 0, [](int acc, ElectronSpin spin){ return acc + (spin == ElectronSpin::UP ? 1 : 0);});
+    spins_down = std::accumulate(p.spins.begin(), p.spins.end(), 0, [](int acc, ElectronSpin spin){ return acc + (spin == ElectronSpin::DOWN ? 1 : 0);});
+
+    slater_matrix_up.set_size(spins_up, spins_up);
+    slater_matrix_down.set_size(spins_down, spins_down);
 
     single_body_orbitals.clear();
     for (int i = 0; i < p.electron_number; i++) {
@@ -52,8 +57,8 @@ double JastrowSlaterOrbital::operator()(const electron_walker &wlk) {
     for (int i = 0; i < p.electron_number; i++) {
         for (int j = i + 1; j < p.electron_number; j++) {
             double r_ij = distance(wlk[i], wlk[j]);
-            if(r_ij < 1e-6){
-                r_ij = 1e-6;
+            if(r_ij < 1e-5){
+                r_ij = 1e-5;
             }
             J -= 1. / 2. * p.a / r_ij * (1. - std::exp(-r_ij / p.b)) ;
         }
@@ -61,22 +66,32 @@ double JastrowSlaterOrbital::operator()(const electron_walker &wlk) {
 
     double jastrow_factor = std::exp(J);
 
-    for (int i = 0; i < p.electron_number; i++) {
-        for (int j = 0; j < p.electron_number; j++) {
-            slater_matrix(i, j) = (*single_body_orbitals[i])(wlk[j]);
+    for (int i = 0; i < spins_up; i++) {
+        for (int j = 0; j < spins_up; j++) {
+            slater_matrix_up(i, j) = (*single_body_orbitals[i])(wlk[j]);
+        }
+    }
+
+    for (int i = 0; i < spins_down; i++) {
+        for (int j = 0; j < spins_down; j++) {
+            slater_matrix_down(i, j) = (*single_body_orbitals[i + spins_up])(wlk[j + spins_up]);
         }
     }
 
     if (p.electron_number == 1) {
-        return slater_matrix(0, 0);
+        return slater_matrix_up(0, 0);
     }
 
-    if (p.electron_number == 2) {
+    if (spins_up == 2) {
         return jastrow_factor * 1 / std::sqrt(2) *
-               (slater_matrix(0, 0) * slater_matrix(1, 1) - slater_matrix(0, 1) * slater_matrix(1, 0));
+               (slater_matrix_up(0, 0) * slater_matrix_up(1, 1) - slater_matrix_up(0, 1) * slater_matrix_up(1, 0));
     }
 
-    return jastrow_factor * arma::det(slater_matrix);
+    if (spins_up == 1 && spins_down == 1) {
+        return jastrow_factor * (slater_matrix_up(0, 0) * slater_matrix_down(0,0));
+    }
+
+    return jastrow_factor * arma::det(slater_matrix_up) * arma::det(slater_matrix_down);
 }
 
 void JastrowSlaterOrbital::print() { std::cout << "Using Jastrow Slater based orbital" << std::endl; }

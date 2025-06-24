@@ -1,8 +1,6 @@
 #include "TrialFunctions/include/static_orbital.hpp"
-#include "include/UnitHandler.hpp"
 #include <functional>
 #include <iostream>
-#include <fstream>
 
 StaticOrbital::StaticOrbital() {}
 

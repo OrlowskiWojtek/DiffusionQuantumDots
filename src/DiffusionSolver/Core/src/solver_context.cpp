@@ -1,6 +1,7 @@
 #include "Core/include/solver_context.hpp"
 #include "DiffusionParams/include/params.hpp"
 #include "TrialFunctions/include/jastrow_slater.hpp"
+#include "include/UnitHandler.hpp"
 #include <cmath>
 
 boost::random::mt19937 SolverContext::s_seed_generator(time(0));
@@ -29,6 +30,7 @@ void SolverContext::init_orbital() {
     orbital_params.omegas = p->omegas;
     orbital_params.effective_mass = p->effective_mass;
     orbital_params.dims = p->n_dims;
+    orbital_params.spins = p->spins;
 
     orbital_params.a = DiffusionQuantumParams::getInstance()->a;
     orbital_params.b = DiffusionQuantumParams::getInstance()->b;
@@ -49,8 +51,7 @@ double SolverContext::trial_wavef(const electron_walker &wlk) {
 #ifndef PURE_DIFFUSION
     return (*this->orbital)(wlk);
 #else
-    return 1;//(wlk.front().cords[0] - wlk.back().cords[0]);
-    //(wlk.front().cords[1] - wlk.back().cords[1]);
+    return (wlk.front().cords[0] - wlk.back().cords[0]) + (wlk.front().cords[1] - wlk.back().cords[1]);
 #endif
 }
 
@@ -137,12 +138,12 @@ void SolverContext::prepare_drift(const ElectronWalker &ele_wlk) {
         }
     }
 
-    double scaler = (-1. + std::sqrt(1. + 2 * sq_norm * p->d_tau)) / (sq_norm * p->d_tau);
-    for (int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++) {
-        for (int d = 0; d < p->n_dims; d++) {
-            drift_velocity[wlk_idx].cords[d] = scaler * drift_velocity[wlk_idx].cords[d];
-        }
-    }
+    //double scaler = (-1. + std::sqrt(1. + 2 * sq_norm * p->d_tau)) / (sq_norm * p->d_tau);
+    //for (int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++) {
+    //    for (int d = 0; d < p->n_dims; d++) {
+    //        drift_velocity[wlk_idx].cords[d] = scaler * drift_velocity[wlk_idx].cords[d];
+    //    }
+    //}
 }
 
 void SolverContext::apply_drift(ElectronWalker &ele_wlk) {
@@ -273,11 +274,12 @@ double SolverContext::interaction_term(const ElectronWalker &wlk) {
         for (int j = i + 1; j < p->n_electrons; j++) {
             double r = walkers_helper->distance(
                 wlk.get_const_walker()[i], wlk.get_const_walker()[j], p->n_dims);
+
             interaction += 1. / (p->epsilon * r);
-            //interaction +=
-            //    1. /
-            //    (p->epsilon * std::sqrt(std::pow(r, 2) +
-            //                            std::pow(UnitHandler::length(UnitHandler::TO_AU, 5), 2)));
+          //  interaction +=
+          //      1. /
+          //      (p->epsilon * std::sqrt(std::pow(r, 2) +
+          //                              std::pow(UnitHandler::length(UnitHandler::TO_AU, 5), 2)));
         }
     }
 

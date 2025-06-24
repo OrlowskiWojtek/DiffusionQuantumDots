@@ -12,7 +12,8 @@ void AbstractManybodyOrbital::print_test_to_file() {
 
     electron_walker test_walker;
     test_walker.resize(2);
-    test_walker[0].cords[2] = 0;
+    test_walker[0].cords[1] = 0.;
+    test_walker[1].cords[1] = 0.;
 
     for (double i = xmin; i < xmax; i += dx) {
         for (double j = xmin; j < xmax; j += dx) {
