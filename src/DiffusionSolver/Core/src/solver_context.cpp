@@ -51,7 +51,7 @@ double SolverContext::trial_wavef(const electron_walker &wlk) {
 #ifndef PURE_DIFFUSION
     return (*this->orbital)(wlk);
 #else
-    return (wlk.front().cords[0] - wlk.back().cords[0]) + (wlk.front().cords[1] - wlk.back().cords[1]);
+    return (wlk.front().cords[0] - p->offset) * (wlk.front().cords[0] + p->offset);(wlk.front().cords[0] - wlk.back().cords[0]) + (wlk.front().cords[1] - wlk.back().cords[1]);
 #endif
 }
 

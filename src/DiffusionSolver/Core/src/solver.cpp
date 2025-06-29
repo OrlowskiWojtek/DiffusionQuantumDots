@@ -31,6 +31,8 @@ void DiffusionQuantumSolver::solve() {
     std::cout << "===Finished initialization loop===" << std::endl;
 #endif
 
+    return;
+
     for (int i = 0; i < equilibrate_loop; i++) {
         diffuse();
         branch();

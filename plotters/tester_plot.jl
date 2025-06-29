@@ -2,7 +2,7 @@ using CairoMakie
 using DelimitedFiles
 
 CairoMakie.activate!()
-
+##
 function ground_state_2d_harmonic_oscillator(x, y; homegax= 3.0 / 27211.6, homegay= 5.0 / 27211.6)
     # Funkcja falowa stanu podstawowego dla oscylatora 1D w wymiarze x
     psi_x(x) = (homegax / π)^(1/4) * exp(-0.5 * homegax * x^2)
@@ -24,3 +24,17 @@ ax = Axis3(fig[1,1], xlabel = "x", ylabel = "y")
 surface!(ax, x, y, psi)
 
 display(fig)
+
+##
+using GLMakie
+GLMakie.activate!()
+
+data = readdlm("test_data")
+fig = Figure();
+ax = Axis3(fig[1,1])
+
+surface!(ax, data[:, 1], data[:,2], data[:,3])
+
+display(fig)
+
+

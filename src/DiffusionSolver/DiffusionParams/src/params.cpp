@@ -5,15 +5,15 @@
 DiffusionQuantumParams *DiffusionQuantumParams::instance = nullptr;
 
 void DiffusionQuantumParams::set_default_params() {
-    d_tau = 0.1;             // time step
+    d_tau = 1.;             // time step
     
-    initial_time_steps = 200000;
-    vmc_sampling_time_steps = 30000;
+    initial_time_steps = 20000;
+    vmc_sampling_time_steps = 5000;
 
-    eq_time_step = 50000;     
-    total_time_steps = 100000;  
+    eq_time_step = 5000;     
+    total_time_steps = 8000;  
 
-    n0_walkers = 10000;      // beginning number of walkers alive, also target number of walkers
+    n0_walkers = 5000;      // beginning number of walkers alive, also target number of walkers
     nmax_walkers = 20000;    // maximal number of walkers alive - size of allocated vector
 
     xmin = UnitHandler::length(UnitHandler::TO_AU, -50); // sampling minimum for visualisation
@@ -40,7 +40,7 @@ void DiffusionQuantumParams::set_default_params() {
     n_bins = 100;
 
     vis_dim_idx_x = std::make_tuple(0, 0);
-    vis_dim_idx_y = std::make_tuple(1, 0);
+    vis_dim_idx_y = std::make_tuple(0, 1);
 
     total_vis_idx_x = 0;
     total_vis_idx_y = 1;
@@ -51,7 +51,7 @@ void DiffusionQuantumParams::set_default_params() {
     blocks_calibration = true;
     n_block = pow(2, 15);
 
-    show_visualisation = true;
+    show_visualisation = false;
 
     a = 0.25;
     b = 0.1575;

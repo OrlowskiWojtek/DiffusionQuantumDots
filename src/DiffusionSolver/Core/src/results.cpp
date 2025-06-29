@@ -1,4 +1,5 @@
 #include "Core/include/results.hpp"
+#include "DiffusionParams/include/params.hpp"
 #include "include/UnitHandler.hpp"
 
 #include <algorithm>

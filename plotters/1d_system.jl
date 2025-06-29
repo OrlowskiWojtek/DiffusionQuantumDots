@@ -1,7 +1,7 @@
 using CairoMakie
 using DelimitedFiles
 
-filename = "../build/evolution.dqmc.dat"
+filename = "../build/evolution189.035917.dqmc.dat"
 data = readdlm(filename, comments = true)
 
 psi = data[:, 1]

@@ -19,6 +19,7 @@ DiffusionQuantumElectrons::DiffusionQuantumElectrons()
     target_alive = p->n0_walkers;
 
     eff_d_tau = p->d_tau;
+    acc_variational_energy = 0;
 
     init_rngs();
     init_context();

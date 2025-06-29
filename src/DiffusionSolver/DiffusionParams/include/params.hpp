@@ -68,9 +68,11 @@ public:
     bool blocks_calibration;
     int n_block;
 
+    double offset;
+
     // TODO: remove, quick scan ofer a b parameters -> handle in minimum seeker
-    double a = 0.005;
-    double b = 2.;
+    double a;
+    double b;
 };
 
 #endif
