@@ -138,12 +138,12 @@ void SolverContext::prepare_drift(const ElectronWalker &ele_wlk) {
         }
     }
 
-    //double scaler = (-1. + std::sqrt(1. + 2 * sq_norm * p->d_tau)) / (sq_norm * p->d_tau);
-    //for (int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++) {
-    //    for (int d = 0; d < p->n_dims; d++) {
-    //        drift_velocity[wlk_idx].cords[d] = scaler * drift_velocity[wlk_idx].cords[d];
-    //    }
-    //}
+    double scaler = (-1. + std::sqrt(1. + 2 * sq_norm * p->d_tau)) / (sq_norm * p->d_tau);
+    for (int wlk_idx = 0; wlk_idx < p->n_electrons; wlk_idx++) {
+        for (int d = 0; d < p->n_dims; d++) {
+            drift_velocity[wlk_idx].cords[d] = scaler * drift_velocity[wlk_idx].cords[d];
+        }
+    }
 }
 
 void SolverContext::apply_drift(ElectronWalker &ele_wlk) {
