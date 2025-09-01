@@ -21,6 +21,14 @@ The implementation uses importance sampling, population control, and the Fixed-N
 - Statistical analysis tools for error estimation
 - Visualization capabilities for electron density distributions
 
+## Dependencies:
+
+On debian like systems almost all dependencies can be installed by:
+
+```
+sudo apt install libboost-all-dev libomp-dev libarmadillo-dev cmake
+```
+
 ## Documentation
 
 For detailed information about the theoretical background, implementation details, and usage instructions, please visit the [comprehensive documentation](https://orlowskiwojtek.github.io/DiffusionQuantumDots/).
